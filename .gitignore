@@ -1,0 +1,11 @@
+# Node.js dependencies
+/client/node_modules/
+/server/node_modules/
+
+
+# Environment variables
+/client/.env
+/server/.env
+
+
+/server/vivabags-aa156-firebase-adminsdk-fokip-5481e5a0ca.json

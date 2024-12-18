@@ -1,0 +1,152 @@
+import Cart from '../models/cartModel.js';
+import Product from '../models/productModel.js'
+
+export const addToCart = async (req, res) => {
+  const { productId, quantity } = req.body;
+  const user = req.user.Id;
+  try {
+    let cart = await Cart.findOne({ user });
+    
+    if (!cart) {
+      cart = new Cart({ user, items: [] });
+    }
+    
+    const product = await Product.findById(productId);
+    if (product.stock < quantity) {
+      return res.status(400).json({ message: 'Not enough stock available' });
+    }
+
+    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    if (productIndex > -1) {
+      const currentQuantity = cart.items[productIndex].quantity;
+      if (currentQuantity + quantity > 10) {
+        return res.status(400).json({
+          message: `You can only add up to 10 units of this product to your cart.`,
+        });
+      }
+      cart.items[productIndex].quantity += quantity;
+    } else {
+      if (quantity > 10) {
+        return res.status(400).json({
+          message: `You can only add up to 10 units of this product to your cart.`,
+        });
+      }
+      cart.items.push({ product:productId, quantity });
+    }
+
+    await cart.save();
+    res.status(200).json({ message: 'Product added to cart'});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+
+export const fetchCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user.Id }).populate({
+      path: 'items.product',
+      select: 'name  discountedPrice  images',
+      populate: {
+        path: 'category',
+        select: 'name',
+      },
+    });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    const { items } = cart;
+    res.status(200).json(items);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching cart' });
+  }
+};
+
+
+
+export const updateCart = async (req, res) => {
+  const { productId, quantity } = req.body; 
+  const user = req.user.Id;
+
+  try {
+    const cart = await Cart.findOne({ user });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    const product = await Product.findById(productId);
+    if (product.stock < quantity) {
+      return res.status(400).json({ message: 'Not enough stock available' });
+    }
+
+    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart' });
+    }
+    if (quantity > 10) {
+      return res.status(400).json({
+        message: `You can only add up to 10 units of this product to your cart.`,
+      });
+    }
+    cart.items[productIndex].quantity = quantity; 
+    await cart.save(); 
+    res.status(200).json({ message: 'Cart updated successfully'});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const deleteCartItem = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user.Id;
+  try {
+    const cart = await Cart.findOne({ user });
+  
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+    const productIndex = cart.items.findIndex(item => item.product.toString() === id);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart' });
+    }
+    
+    cart.items.splice(productIndex, 1); 
+    await cart.save(); 
+    res.status(200).json({ message: 'Product removed from cart' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+export const getCartCount = async (req, res) => {
+  const user = req.user.Id;
+  try{
+    const cart = await Cart.findOne({ user });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+    res.status(200).json(cart.items.length)
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+
+export const clearCart = async (req, res) => {
+  try {
+    const userId = req.user.Id; 
+    const cart = await Cart.findOneAndUpdate({ user: userId }, {$set: {items: []}}, { new: true });
+    res.status(200).json({ message: 'Cart cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to clear cart', error: error.message });
+  }
+};
