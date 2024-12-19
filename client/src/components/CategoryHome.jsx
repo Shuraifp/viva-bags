@@ -41,7 +41,7 @@ const CategoryGrid = () => {
               />
                <div className="md:hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-40"></div>
               <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-              <h2 className="text-xl text-white md:text-black  font-semibold">{category.name}</h2>
+              <h2 className="text-lg text-white md:text-black  font-normal">{category.name}</h2>
               <p className="text-sm text-white md:text-gray-500">{category.count} {category.count === 1 || category.count === 0 ? 'product' : 'products'}</p>
               </div>
             </div>
