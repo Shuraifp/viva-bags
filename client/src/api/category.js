@@ -6,10 +6,6 @@ export const getCategoriesWithFilter = async (includeDeleted) => {
   return response.data;
 };
 
-export const getCategories = async () => {
-  const response = await apiNonSecure.get(`/user/categories?includeDeleted=${false}`);
-  return response.data;
-};
 
 export const addCategory = async (name) => {
   const response = await api.post('/admin/categories/add', { name });
@@ -23,5 +19,20 @@ export const editCategoryname = async (id, name) => {
 
 export const toggleCategoryStatus = async (id, isDeleted) => {
   const response = await api.patch(`/admin/categories/${id}`, { isDeleted });
+  return response.data;
+};
+
+
+//                User
+
+export const getCategories = async () => {
+  const response = await apiNonSecure.get(`/user/categories?includeDeleted=${false}`);
+  return response.data;
+};
+
+
+
+export const fetchCategoriesOverview = async () => {
+  const response = await apiNonSecure.get('/user/categories/overview');
   return response.data;
 };

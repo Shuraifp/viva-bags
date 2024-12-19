@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import { register, login, sendOtp, verifyOtp, verifyFirebaseToken, loginUserWithGoogle } from "../controllers/auth.js";
-import { getAllCategories } from "../controllers/categories.js";
+import { getAllCategories, categoriesOverview } from "../controllers/categories.js";
 import { getAllBrands } from "../controllers/brands.js";
 import { getProductByIdForUser,getFilteredProducts, getSortedProducts } from "../controllers/products.js";
 import { addToCart, fetchCart, updateCart, deleteCartItem, getCartCount, clearCart } from "../controllers/cart.js";
@@ -9,6 +9,7 @@ import { authenticateJWT, isUser } from "../middlewares/verifyToken.js";
 import { addAddress, getAllAddresses, editAddress, deleteAddress, toggleDefault } from "../controllers/address.js";
 import { createOrder, getAllOrdersForUser, getOrderById, cancelOrder, cancelOrderItem } from "../controllers/order.js"
 import { editProfile, fetchProfile, changePassword } from "../controllers/users.js";
+
 
 // Auth
 router.post("/auth/register",verifyOtp, register);
@@ -34,6 +35,7 @@ router.get('/products', getSortedProducts)
 
 // Categories
 router.get("/categories", getAllCategories);
+router.get('/categories/overview', categoriesOverview);
 
 
 // Brands

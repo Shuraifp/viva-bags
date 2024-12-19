@@ -1,4 +1,5 @@
 import Category from "../models/categoryModel.js";
+import Product from "../models/productModel.js";
 
 export const createCategory = async (req, res) => {
   try {
@@ -100,6 +101,29 @@ export const deleteOrRestoreCategory = async (req, res) => {
     }
 
     res.status(200).json(category);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+//                         User
+
+export const categoriesOverview = async (req, res) => {
+  try {
+    const categories = await Category.find({isDeleted: false}).select('name');
+    const featuredCategories = await Promise.all(
+      categories.map(async (category) => {
+        const product = await Product.findOne({ category: category._id, islisted: true }).select('images')
+        const count = await Product.countDocuments({ category: category._id, islisted: true });
+        return {
+          name: category.name,
+          image: product ? product.images[0].url : null,
+          count
+        };
+      })
+    )
+    res.status(200).json(featuredCategories);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
