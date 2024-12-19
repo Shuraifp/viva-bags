@@ -6,7 +6,7 @@ import { getAllUsers, updateBlockStatus, countUsers } from "../controllers/users
 import { createProduct, getAllProducts, getProductById, toggleStatus , updateProduct, upload } from "../controllers/products.js";
 import { createCategory, getAllCategories, updateCategory, deleteOrRestoreCategory } from "../controllers/categories.js";
 import { createBrand, getAllBrands, updateBrand, deleteOrRestoreBrand } from "../controllers/brands.js";
-import { countOrders, getAllOrders, updateOrderStatus } from "../controllers/order.js";
+import { countOrders, getAllOrders, updateOrderStatus, updateProductStatus } from "../controllers/order.js";
 
 
 
@@ -60,6 +60,7 @@ router.patch("/brands/:id", isAdmin, deleteOrRestoreBrand);
 router.get("/orders/count", isAdmin, countOrders);
 router.get("/orders", isAdmin, getAllOrders);
 router.patch("/orders/:id", isAdmin, updateOrderStatus);
+router.patch("/orders/product/:id", isAdmin, updateProductStatus);
 
 
 export default router;

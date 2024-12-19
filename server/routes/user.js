@@ -61,7 +61,7 @@ router.patch('/address/default/:id', isUser, toggleDefault)
 router.post('/order/add', isUser, createOrder)
 router.get('/orders', isUser, getAllOrdersForUser)
 router.get('/orders/:id', isUser, getOrderById)
-router.delete('/orders/cancel/:id', isUser, cancelOrder)
-router.delete('/orders/cancel-item/', isUser, cancelOrderItem)
+router.patch('/orders/cancel/:id', isUser, cancelOrder)
+router.patch('/orders/cancel-item/', isUser, cancelOrderItem)
 
 export default router;

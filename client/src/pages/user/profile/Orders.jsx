@@ -17,8 +17,7 @@ const MyOrders = () => {
     Pending: ["Cancel Order"], // "Change Address", "View/Edit Details", 
     Shipped: ["Track Your Package", "View/Edit Details"],
     Delivered: ["Track Your Package", "View/Edit Details", "Return Item"],
-    Cancelled: ["View/Edit Details"],
-    Returned: ["View/Edit Details"],
+    // Cancelled: ["View/Edit Details"]
   };
 
   useEffect(() => {
@@ -67,8 +66,8 @@ const MyOrders = () => {
         navigate(`/profile/orders`);
       }
     } catch (err) {
-      console.log(err);
-      toast.error(err.message);
+        toast.error(err.data.message);
+      
     }
   };
 
@@ -77,11 +76,10 @@ const MyOrders = () => {
       const response = await cancelItem(orderId, productId);
       if (response.status === 200) {
         toast.success(response.data.message);
-        setFilteredOrders(filteredOrders.map(order => order._id === orderId ? { ...order, products: order.products.filter(product => product.productId._id !== productId) } : order));
+        // setFilteredOrders(filteredOrders.map(order => order._id === orderId ? { ...order, products: order.products.filter(product => product.productId._id !== productId) } : order));
       }
     } catch (err) {
-      console.log(err);
-      toast.error(err.message);
+      toast.error(err.response.data.message);
     }
   };
 
@@ -102,7 +100,6 @@ const MyOrders = () => {
           `In-Progress Items`,
           "Delivered Items",
           "Cancelled Items",
-          "Returned Items",
         ].map((tab) => (
           <button
             key={tab}
@@ -113,7 +110,7 @@ const MyOrders = () => {
           </button>
         ))}
       </div>
-      {filteredOrders.length === 0 && (
+      {filteredOrders.length === 0 && activeTab === "All Orders" && (
         <div className="flex flex-col items-center justify-center h-full">
           <p className="text-2xl font-bold text-gray-400 mb-4">No Orders Found</p>
           <p className="text-gray-600">You haven’t placed any orders yet. Explore products and place an order!</p>
@@ -180,18 +177,18 @@ const MyOrders = () => {
                   <p className="text-gray-600 text-sm">Quantity: {item.quantity}</p>
                 </div>
               </div>
-              { order.status !== "Cancelled" && order.products.length > 1 && <button
+              { order.products.length > 1 ? item.status !== "Cancelled"? <button
                 onClick={() => handleCancelItem(order._id, item.productId._id)}
                 className="h-fit md:mr-12 text-sm md:text-base px-4 py-2 border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"
               >
                 Cancel item
-              </button>}
+              </button> : <p className="text-sm md:text-base md:mr-12 text-red-500">Cancelled</p> : ""}
             </div>
           ))}
 
           {/* Actions */}
           <div className="flex flex-wrap gap-4">
-            {orderActionsByStatus[order.status].map((action, actionIndex) => (
+            { order.status !== "Cancelled" && orderActionsByStatus[order.status].map((action, actionIndex) => (
               <button
                 key={actionIndex}
                 onClick={() => handleOrderAction(order._id, action)}

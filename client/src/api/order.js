@@ -1,4 +1,5 @@
 import { userApiWithAuth as api } from './axios';
+import { adminApiWithAuth as adminApi } from './axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -38,24 +39,36 @@ export const getSingleOrder = async (id) => {
     const response = await api.get(`${API_URL}/user/orders/${id}`)
     return response
   } catch (err){
-    console.log(err)
-    return err.message
+    throw err
   }
 }
 
-export const getAllOrders = async (currentPage,limitPerPage,filter) => {
+
+export const cancelOrder = async (id) => {
   try{
-    const response = await api.get(`${API_URL}/admin/orders`,{params:{currentPage,limitPerPage,filter}})
+    const response = await api.patch(`${API_URL}/user/orders/cancel/${id}`)
     return response
   } catch (err){
-    console.log(err)
-    return err.message
+    throw err.response
   }
 }
+
+export const cancelItem = async (orderId, productId) => {
+  try{
+    const response = await api.patch(`${API_URL}/user/orders/cancel-item`,{orderId,productId})
+    return response
+  } catch (err){
+    throw err
+  }
+}
+
+
+
+//                 Admin
 
 export const updateOrderStatus = async (id, status) => {
   try{
-    const response = await api.patch(`${API_URL}/admin/orders/${id}`,{status})
+    const response = await adminApi.patch(`${API_URL}/admin/orders/${id}`,{status})
     return response
   } catch (err){
     console.log(err)
@@ -64,22 +77,20 @@ export const updateOrderStatus = async (id, status) => {
 }
 
 
-export const cancelOrder = async (id) => {
+export const getAllOrders = async (currentPage,limitPerPage,filter) => {
   try{
-    const response = await api.delete(`${API_URL}/user/orders/cancel/${id}`)
+    const response = await adminApi.get(`${API_URL}/admin/orders`,{params:{currentPage,limitPerPage,filter}})
     return response
   } catch (err){
-    console.log(err)
     return err.message
   }
 }
 
-export const cancelItem = async (orderId, productId) => {
+export const updateProductStatus = async (id, orderId, status) => {
   try{
-    const response = await api.delete(`${API_URL}/user/orders/cancel-item`,{params:{orderId, productId}})
+    const response = await adminApi.patch(`${API_URL}/admin/orders/product/${id}`,{status,orderId})
     return response
   } catch (err){
-    console.log(err)
-    return err.message
+    throw err
   }
 }

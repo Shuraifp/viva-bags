@@ -33,7 +33,7 @@ adminApiWithAuth.interceptors.response.use(
   (response) => response, 
   async (error) => {
     const originalRequest = error.config;
-    console.log('started in interceptor');
+    console.log(error);
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -57,7 +57,7 @@ adminApiWithAuth.interceptors.response.use(
       }
     }
     
-    return Promise.reject(error+'hi');
+    return Promise.reject(error);
   }
 );
 
@@ -92,7 +92,7 @@ userApiWithAuth.interceptors.response.use(
       console.log('refreshing token');
       try {
         const refreshResponse = await axios.post(
-          'http://localhost:5000/admin/auth/refresh-token',
+          `${API_URL}/admin/auth/refresh-token`,
           {},{
           headers: {
             Authorization: `Bearer ${localStorage.getItem('userRefreshToken')}`,

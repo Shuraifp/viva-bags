@@ -44,7 +44,7 @@ const CheckoutPage = () => {
         address: selectedAddress._id,
         shippingCost: shipping,
         paymentMethod: "COD", 
-        totalAmount: total,
+        totalAmount: total-shipping,
       };
   
       const response = await createOrder(orderData);

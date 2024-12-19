@@ -19,7 +19,7 @@ const OrderManagement = () => {
         setOrders(response.data.orders);
         setTotalPages(response.data.totalPages);
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        console.error("Error fetching orders:"+ error);
       }
     }
 
@@ -75,7 +75,7 @@ const OrderManagement = () => {
             <th className="py-2 px-4 bg-gray-600">Payment Method</th>
             <th className="py-2 px-4 bg-gray-700">Ordered On</th>
             <th className="py-2 px-4 bg-gray-600">Status</th>
-            {/* <th className="py-2 px-4 bg-gray-700">Actions</th> */}
+            <th className="py-2 px-4 bg-gray-700">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -83,7 +83,7 @@ const OrderManagement = () => {
             <tr
               key={index}
               className={`border-b ${
-                item.status === "Cancelled" ? "bg-red-50" : "bg-white"
+                item.status === "Cancelled" ? "bg-orange-100" : "bg-white"
               }`}
             >
               <td className="py-2 px-4">{index + 1}</td>
@@ -97,19 +97,19 @@ const OrderManagement = () => {
                 onChange={(e) => changeStatus(item._id, e.target.value)}
                 className="border border-gray-300 p-2 rounded-sm"
                 >
-                  <option value="Pending" disabled={["Delivered", "Cancelled", "Returned"].includes(item.status)}>Pending</option>
-                  <option value="Shipped" disabled={["Delivered", "Cancelled", "Returned"].includes(item.status)}>Shipped</option>
-                  <option value="Delivered" disabled={["Cancelled", "Returned"].includes(item.status)}>Delivered</option>
+                  <option value="Pending" disabled={["Delivered", "Cancelled"].includes(item.status)}>Pending</option>
+                  <option value="Shipped" disabled={["Delivered", "Cancelled"].includes(item.status)}>Shipped</option>
+                  <option value="Delivered" disabled={["Cancelled"].includes(item.status)}>Delivered</option>
                   <option value="Cancelled" disabled={item.status==="Returned"}>Cancelled</option>
                 </select>
               </td>
-              {/* <td className="py-2 px-4 space-x-2">
+              <td className="py-2 px-4 space-x-2">
                 <Link to={`/admin/orders/${item._id}`}>
                   <button className="bg-yellow-700 text-white px-3 py-1 rounded-md">
-                    View
+                    View/Edit
                   </button>
                 </Link>
-              </td> */}
+              </td>
             </tr>
           ))}
         </tbody>

@@ -5,6 +5,13 @@ import { getSingleOrder } from "../../../api/order";
 const OrderDetails = () => {
   const { orderId :id } = useParams();
   const [order, setOrder] = useState(null);
+  const [statusIndex, setStatusIndex] = useState(0);
+  const orderstatusus = {
+    1: "Pending",
+    2: "Shipped",
+    3: "Delivered",
+    4: "Cancelled"
+  }
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -18,6 +25,19 @@ const OrderDetails = () => {
     fetchOrder();
   }, [id]);
   console.log(order)
+  
+  useEffect(() => {
+    if (order) {
+      for (let i = 0; i < Object.keys(orderstatusus).length; i++) {
+        if (order.status === Object.values(orderstatusus)[i]) {
+          setStatusIndex(i);
+          break;
+        }
+      }
+    }
+  }, [order]);
+  
+  console.log(statusIndex)
 
   const subtotal = order?.products.reduce((acc, item) => acc + item.productId.discountedPrice * item.quantity, 0);
   const shipping = 10;
@@ -53,27 +73,21 @@ const OrderDetails = () => {
 
         <h2 className="text-lg font-semibold mb-4">Progress</h2>
         <div className="flex items-center justify-between space-x-4">
-          { order?.paymentMethod !== "COD" ? ["Order Placed", "Processing", "Shipping", "Delivered"].map((step, index) => (
+          {order?.status !== "Cancelled" && ["Order Placed", "Processing", "Shipping", "Delivered"].map((step, index) => (
             <div
               key={index}
               className={`flex-1 text-center py-2 border ${
-                index <= 2 ? "bg-green-50 border-green-500" : "bg-gray-50 border-gray-200 text-gray-500"
-              } rounded-sm`}
-            >
-              <span className="block text-sm font-medium">{step}</span>
-            </div>
-          )) 
-          : ["Order Placed", "Processing", "Shipping", "Delivered", "Payment"].map((step, index) => (
-            <div
-              key={index}
-              className={`flex-1 text-center py-2 border ${
-                index <= 3 ? "bg-green-50 border-green-500" : "bg-gray-50 border-gray-200 text-gray-500"
+                index <= statusIndex + 1 ? "bg-green-50 border-green-500" : "bg-gray-50 border-gray-200 text-gray-500"
               } rounded-sm`}
             >
               <span className="block text-sm font-medium">{step}</span>
             </div>
           ))}
-          
+          {order?.status === "Cancelled" && (
+            <div className="flex-1 text-center py-2 border bg-red-50 border-red-500 rounded-sm">
+              <span className="block text-sm font-medium text-red-500">Cancelled</span>
+            </div>
+          )}
         </div>
       </div>
 

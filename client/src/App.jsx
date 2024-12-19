@@ -24,6 +24,7 @@ import OrderDetails from './pages/user/profile/OrderDetails'
 import Brands from './pages/admin/Brands'
 import ForgotPassword from './pages/user/profile/ForgotPassword'
 import PageNotFound from './pages/404PageNotFound'
+import AdminOrderDetails from './pages/admin/OrderDetails'
 
 const App = () => {
   return (
@@ -56,6 +57,7 @@ const App = () => {
         <Route path="customers" element={<UserManagement />} />
         <Route path="categories" element={<Categories />} />
         <Route path="orders" element={<OrderManagement />} />
+        <Route path="orders/:id" element={<AdminOrderDetails />} />
         <Route path="brands" element={<Brands />} />
         <Route path="Products" element={<Products />} />
         <Route path="Products/edit/:id" element={<AddProduct />} />

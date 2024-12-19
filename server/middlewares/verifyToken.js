@@ -10,7 +10,7 @@ export const isUser = (req, res, next) => {
   
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    if(!decoded.role === 'user') return res.status(401).json({ message: 'Invalid token' });
+    if(decoded.role !== 'user') return res.status(401).json({ message: 'Invalid user token' });
     req.user = decoded;
     console.log('token verified and continued..');
     next();
@@ -25,7 +25,7 @@ export const isAdmin = (req, res, next) => {
   
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    if(!decoded.role === 'admin') return res.status(401).json({ message: 'Invalid token' });
+    if(decoded.role !== 'admin') return res.status(401).json({ message: 'Invalid admin token' });
     req.user = decoded;
     console.log('token verified and continued..');
     next();
