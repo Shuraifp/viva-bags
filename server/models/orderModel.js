@@ -28,9 +28,37 @@ const orderSchema = new mongoose.Schema({
     }
     ],
     address: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Address',
-        required: true
+        fullName: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+        },
+        mobile: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        locality: {
+            type: String,
+            required: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        pincode: {
+            type: String,
+            required: true
+        },
+        country: {
+            type: String,
+            required: true
+        }
     },
     totalAmount: {
         type: Number,
@@ -49,6 +77,17 @@ const orderSchema = new mongoose.Schema({
     shippingCost: {
         type: Number,
         required: true
+    },
+    coupon : {
+        code: {
+            type: String
+        },
+        discountType: {
+            type: String
+        },
+        discountValue: {
+            type: Number
+        }
     },
     paymentStatus: {
         type: String,

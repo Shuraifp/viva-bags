@@ -125,9 +125,9 @@ const ProductPage = () => {
 
     
       <div className="w-full md:w-3/5 bg-white p-6 px-12 shadow-lg">
-        <h1 className="text-3xl font-semibold text-gray-800">{currentProduct?.name}</h1>
+        <h1 className="text-2xl font-semibold text-gray-800">{currentProduct?.name}</h1>
         <p className="text-sm text-gray-500">(99 Reviews)</p>
-        <p className="text-2xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.regularPrice}</span></p>
+        <p className="text-xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.regularPrice}</span></p>
         <p className="text-gray-600 mt-4">
           {currentProduct?.description}
         </p>
@@ -143,7 +143,7 @@ const ProductPage = () => {
 )}
 
         <div className="mt-3">
-          <h3 className="text-lg font-medium">Available Sizes:</h3>
+          <h3 className="text-md font-medium">Available Sizes:</h3>
           <div className="flex space-x-4 mt-2">
             {["S", "M", "L", "XL"].map((size) => (
               <label key={size} className="flex items-center space-x-1.5 cursor-pointer" onClick={() => setSelectedSize(size)}>
@@ -156,7 +156,7 @@ const ProductPage = () => {
 
         
         <div className="mt-3">
-          <h3 className="text-lg font-medium">Colors:</h3>
+          <h3 className="text-md font-medium">Colors:</h3>
           <div className="flex space-x-4 mt-2">
             {[
                 ...new Set([currentProduct?.color.name].filter(Boolean))
@@ -172,17 +172,17 @@ const ProductPage = () => {
         
         {/* Quantity */}
         <div className=" border border-gray-200 inline-flex items-center mt-6 space-x-4">
-          <button onClick={() => setQuantity(pre => Math.max(1,pre-1))} className="p-3 bg-yellow-500 hover:bg-yellow-600 text-gray-800">
+          <button onClick={() => setQuantity(pre => Math.max(1,pre-1))} className="p-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800">
             <FaMinus />
           </button>
-          <span className="text-lg">{quantity}</span>
-          <button onClick={() => setQuantity(pre => pre+1)} className="p-3 bg-yellow-500 hover:bg-yellow-600 text-gray-800">
+          <span className="text-md">{quantity}</span>
+          <button onClick={() => setQuantity(pre => pre+1)} className="p-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800">
             <FaPlus />
           </button>
         </div>
 
         <div className="flex flex-wrap md:flex-nowrap space-x-2  h-stretch">
-        <button onClick={handleAddToCart} className=" w-5/12 border mt-4 border-gray-300 text-lg bg-yellow-500 text-white py-3 px-16 flex items-center justify-center space-x-2 hover:bg-yellow-600">
+        <button onClick={handleAddToCart} className=" w-5/12 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center justify-center space-x-2 hover:bg-yellow-600">
           <FaCartPlus />
           <span>Add To Cart</span>
         </button>
@@ -190,7 +190,7 @@ const ProductPage = () => {
         {/* <button className=" w-5/6 border border-gray-700 hover:text-white hover:border-yellow-500 text-lg bg-transparent text-black py-3 px-8 flex items-center justify-center hover:bg-yellow-600">
           <span>Buy Now</span>
         </button> */}
-        <button className=" p-4 border mt-4 border-gray-300 text-lg bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
+        <button className=" p-4 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
             <FaHeart /> Wishlist
           </button>
           {/* </div> */}

@@ -1,9 +1,10 @@
+import Coupon from "../models/couponModel.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 
 export const createOrder = async (req, res) => {
   const userId = req.user.Id;
-  const { products, address, shippingCost, paymentMethod, totalAmount } = req.body;
+  const { products, address, coupon, shippingCost, paymentMethod, totalAmount } = req.body;
   try {
     const latestOrder = await Order.find().sort({ orderNumber: -1 }).limit(1);
     const newOrderNumber = `ORD${new Date().getFullYear()}${latestOrder.length > 0 ? Number(latestOrder[0].orderNumber.split('').splice(7).join('')) + 1 : 1001}`;
@@ -42,6 +43,11 @@ export const createOrder = async (req, res) => {
             quantity: Number(product.quantity),
         })),
           address,
+          coupon : {
+            code: coupon.code,
+            discountType: coupon.discountType,
+            discountValue: Number(coupon.discountValue)
+          },
           totalAmount: Number(totalAmount),
           paymentMethod,
           shippingCost: Number(shippingCost),

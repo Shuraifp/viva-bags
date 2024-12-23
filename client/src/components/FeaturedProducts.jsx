@@ -6,7 +6,7 @@ const FeaturedProducts = ({ products }) => {
   return (
     <section className="pb-12">
      {products.length && <h2 className="text-3xl mt-28 font-bold mb-4 ml-6 text-center md:flex md:items-center md:justify-start">
-      YOU MAY ALSO LIKE
+      FEATURED PRODUCTS
       <span className="hidden md:inline-block ml-2 mr-6 flex-grow border-t border-dashed border-gray-400"></span>
     </h2>}
       <div className="contain mx-auto px-4">

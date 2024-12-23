@@ -25,7 +25,7 @@ const Sidebar = () => {
     { name: "Products", link: "/admin/products", icon: <FaBox /> },
     { name: "Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
     { name: "Offers", link: "#", icon: <FaTags /> },
-    { name: "Coupons", link: "#", icon: <FaTicketAlt /> },
+    { name: "Coupons", link: "/admin/coupons", icon: <FaTicketAlt /> },
     { name: "Settings", link: "#", icon: <FaCog /> },
   ];
 
@@ -73,7 +73,7 @@ const Sidebar = () => {
       <ul className="mt-4">
         {menuItems.map((item, index) => (
           <Link to={item.link} key={index}><li
-            className={`flex items-center gap-4 p-4 cursor-pointer group ${
+            className={`flex items-center gap-4 px-4 py-3 cursor-pointer group ${
               activeItem === item.name
                 ? "bg-gray-600 text-yellow-500" 
                 : "hover:bg-gray-600 hover:text-yellow-500"
@@ -82,7 +82,7 @@ const Sidebar = () => {
           >
             <span className="text-xl">{item.icon}</span>
             <span
-              className={`text-md font-medium ${
+              className={`text-md font-normal ${
                 isOpen ? "opacity-100" : "hidden"
               }`}
             >

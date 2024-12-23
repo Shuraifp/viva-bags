@@ -36,7 +36,6 @@ const Home = () => {
         <CategoryGrid />
         <br></br>
         <br></br>
-        <h2 className="text-3xl font-bold mb-8 text-center">FEATURED PRODUCTS</h2>
         <FeaturedProducts products={products}/>
       </div>
         <Footer />

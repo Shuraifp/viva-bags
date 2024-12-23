@@ -101,7 +101,6 @@ userApiWithAuth.interceptors.response.use(
         
         const { newAccessToken } = refreshResponse.data;
         localStorage.setItem('userAccessToken', newAccessToken);
-        console.log(newAccessToken)
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return userApiWithAuth(originalRequest);
       } catch (refreshError) {

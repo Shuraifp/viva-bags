@@ -12,7 +12,8 @@ const CheckoutPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([])
   const [selectedAddress, setSelectedAddress] = useState('');
-
+  const coupon = JSON.parse(localStorage.getItem("coupon")) || null;
+  console.log(selectedAddress)
   useEffect(() => {
     const fetchCartItems = async () => {
       try{
@@ -41,10 +42,24 @@ const CheckoutPage = () => {
           productId: item.product._id,
           quantity: item.quantity
         })),
-        address: selectedAddress._id,
+        address: {
+          fullName: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
+          email: selectedAddress.email,
+          mobile: selectedAddress.mobile,
+          address: selectedAddress.address,
+          locality: selectedAddress.locality,
+          state: selectedAddress.state,
+          pincode: selectedAddress.pincode,
+          country: selectedAddress.country
+        },
+        coupon: {
+          code: coupon?.code,
+          discountType: coupon?.discountType,
+          discountValue: coupon?.discountValue,
+        },
         shippingCost: shipping,
         paymentMethod: "COD", 
-        totalAmount: total-shipping,
+        totalAmount: total,
       };
   
       const response = await createOrder(orderData);
@@ -64,9 +79,23 @@ const CheckoutPage = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev); 
   };
+  
+  const calculateTotalWithCoupon = () => {
+    if (coupon.discountType === "percentage") {
+      return subtotal * (1 - coupon.discountValue / 100)+ shipping;
+    } else {
+      return subtotal - coupon.discountValue + shipping;
+    }
+  };
+  const calculateTotalwithoutCoupon = () => {
+    return subtotal + shipping;
+  };
+  
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
   const shipping = 10;
-  const total = subtotal + shipping;
+  const discount = coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`
+  const total = coupon.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
+console.log(coupon)
   return (
     <div className="min-h-screen bg-gray-100">
       {/* navbar */}
@@ -241,6 +270,10 @@ const CheckoutPage = () => {
               <div className="flex justify-between mb-2">
                 <span>Subtotal:</span>
                 <span>{subtotal}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Discount:</span>
+                <span className="text-green-500">{discount}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Shipping:</span>

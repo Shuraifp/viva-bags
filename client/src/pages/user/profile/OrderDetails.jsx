@@ -39,9 +39,9 @@ const OrderDetails = () => {
   
   console.log(statusIndex)
 
-  const subtotal = order?.products.reduce((acc, item) => acc + item.productId.discountedPrice * item.quantity, 0);
-  const shipping = 10;
-  const total = subtotal + shipping;
+  // const subtotal = order?.products.reduce((acc, item) => acc + item.productId.discountedPrice * item.quantity, 0);
+  // const shipping = 10;
+  // const total = subtotal + shipping;
   return (
     <div className="p-4 md:p-8 bg-gray-100">
       {/* Progress Section */}
@@ -138,18 +138,19 @@ const OrderDetails = () => {
           <ul>
             <li className="flex justify-between py-1">
               <span>Subtotal:</span>
-              <span>{subtotal}</span>
+              <span>{order?.products.reduce((total, product) => total + product.productId.discountedPrice * product.quantity, 0).toFixed(2)}</span>
             </li>
-            <li className="flex justify-between py-1 line-through">
+            <li className={`flex justify-between py-1 ${order?.coupon ? "" : "hidden"}`}>
               <span>Discount :</span>
+              <span>{order?.coupon.discountType === "percentage" ? `${order?.coupon.discountValue}%` : `₹${order?.coupon.discountValue}`}</span>
             </li>
             <li className="flex justify-between py-1">
               <span>Shipping Cost:</span>
-              <span>{shipping}</span>
+              <span>{order?.shippingCost}</span>
             </li>
             <li className="flex justify-between py-1 font-semibold">
               <span>Total:</span>
-              <span>{total}</span>
+              <span>{order?.totalAmount}</span>
             </li>
           </ul>
         </div>
@@ -159,8 +160,8 @@ const OrderDetails = () => {
           <h2 className="text-lg font-semibold mb-4">Customer</h2>
           <div className="mb-4">
             <h3 className="text-sm font-medium">General Information</h3>
-            <p>{order?.user.username}</p>
-            <p>{order?.user.email}</p>
+            <p>{order?.address.fullName}</p>
+            <p>{order?.address.email}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium">Shipping Address</h3>

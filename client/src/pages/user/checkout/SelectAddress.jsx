@@ -51,7 +51,7 @@ const SelectAddress = ({selectedAddress,setSelectedAddress}) => {
     setNewAddress(addressToEdit);
     setEditing(addressToEdit);
   };
-
+console.log(selectedOnly)
   return (
     <div className="bg-gray-100">
       <div
@@ -60,7 +60,7 @@ const SelectAddress = ({selectedAddress,setSelectedAddress}) => {
       >
         <div className="flex gap-2 items-center">
           <p>Select delivery address</p>
-          {selectedAddress !== null && <FaCheck className="text-white" />}
+          {selectedOnly && <FaCheck className="text-white" />}
         </div>
         {isDropdownOpen? <FaMinus /> : <FaPlus />}
       </div>

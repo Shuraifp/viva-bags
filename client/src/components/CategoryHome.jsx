@@ -18,7 +18,10 @@ const CategoryGrid = () => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold text-center md:text-left mb-6">CATEGORIES</h1>
+      <h2 className="text-3xl mt-28 font-bold mb-4 ml-2 text-center md:flex md:items-center md:justify-start">
+      CATEGORIES
+      <span className="hidden md:inline-block ml-2 mr-6 flex-grow border-t border-dashed border-gray-400"></span>
+    </h2>
       <div className="flex justify-center md:block">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category) => (

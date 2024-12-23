@@ -24,15 +24,6 @@ export const getAllOrdersForUser = async (currentPage,limitPerPage) => {
   }
 }
 
-export const countOrders = async () => {
-  try{
-    const response = await api.get(`${API_URL}/admin/orders/count`)
-    return response.data
-  } catch (err){
-    console.log(err)
-    return err.message
-  }
-}
 
 export const getSingleOrder = async (id) => {
   try{
@@ -92,5 +83,15 @@ export const updateProductStatus = async (id, orderId, status) => {
     return response
   } catch (err){
     throw err
+  }
+}
+
+export const countOrders = async () => {
+  try{
+    const response = await adminApi.get(`${API_URL}/admin/orders/count`)
+    return response.data
+  } catch (err){
+    console.log(err)
+    return err.message
   }
 }

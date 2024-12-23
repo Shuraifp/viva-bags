@@ -7,6 +7,7 @@ import { createProduct, getAllProducts, getProductById, toggleStatus , updatePro
 import { createCategory, getAllCategories, updateCategory, deleteOrRestoreCategory } from "../controllers/categories.js";
 import { createBrand, getAllBrands, updateBrand, deleteOrRestoreBrand } from "../controllers/brands.js";
 import { countOrders, getAllOrders, updateOrderStatus, updateProductStatus } from "../controllers/order.js";
+import { addCoupon, getCoupons, updateCoupon, deleteOrRestoreCoupon } from "../controllers/coupon.js";
 
 
 
@@ -62,5 +63,11 @@ router.get("/orders", isAdmin, getAllOrders);
 router.patch("/orders/:id", isAdmin, updateOrderStatus);
 router.patch("/orders/product/:id", isAdmin, updateProductStatus);
 
+
+// Coupons
+router.get('/coupons', isAdmin, getCoupons)
+router.post('/coupons', isAdmin, addCoupon)
+router.put('/coupons/:id', isAdmin, updateCoupon)
+router.patch('/coupons/:id', isAdmin, deleteOrRestoreCoupon)
 
 export default router;

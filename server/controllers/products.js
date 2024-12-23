@@ -179,7 +179,6 @@ export const getSortedProducts = async (req, res) => {
       return res.status(400).json({ message: "Sort option is required" });
   }
 
-
     let sortOption = {};
     switch (option) {
       case "popularity":

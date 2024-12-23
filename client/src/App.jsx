@@ -17,7 +17,7 @@ import Address from './pages/user/profile/Address'
 import Account from './pages/user/profile/Profile'
 import Orders from './pages/user/profile/Orders'
 import { AuthProvider } from './context/AuthProvider' 
-import Cart from './pages/user/Cart'
+import Cart from './pages/user/cart/Cart'
 import Checkout from './pages/user/checkout/Checkout'
 import SuccessPage from './pages/user/Success'
 import OrderDetails from './pages/user/profile/OrderDetails'
@@ -25,6 +25,7 @@ import Brands from './pages/admin/Brands'
 import ForgotPassword from './pages/user/profile/ForgotPassword'
 import PageNotFound from './pages/404PageNotFound'
 import AdminOrderDetails from './pages/admin/OrderDetails'
+import Coupons from './pages/admin/Coupons'
 
 const App = () => {
   return (
@@ -62,6 +63,7 @@ const App = () => {
         <Route path="Products" element={<Products />} />
         <Route path="Products/edit/:id" element={<AddProduct />} />
         <Route path="Products/new" element={<AddProduct />} />
+        <Route path="coupons" element={<Coupons />} />
       </Route>
     </Routes>
     </AuthProvider>

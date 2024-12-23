@@ -1,20 +1,24 @@
 import React, { useState, useEffect,useContext } from "react";
-import { AuthContext } from "../../context/AuthProvider";
-import Footer from "../../components/Footer";
+import { AuthContext } from "../../../context/AuthProvider";
+import Footer from "../../../components/Footer";
 import { FaMinus, FaPlus, FaBars,FaHeart,FaTimes } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchCart, updateCart, removeFromCart } from "../../api/cart";
+import { fetchCart, updateCart, removeFromCart } from "../../../api/cart";
 import toast from "react-hot-toast";
-import Navbar from "../../components/Navbar";
+import Navbar from "../../../components/Navbar";
+import AvailableCoupons from "./AvailableCoupon";
+import { applyCoupon, removeCoupon } from "../../../api/coupon";
 
 const CartPage = () => {
   const { user } = useContext(AuthContext);
-  console.log(user)
   const navigate = useNavigate();
   // const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [ couponCode, setCouponCode ] = useState(JSON.parse(localStorage.getItem("coupon"))?.code || "");
+  const [ appliedCoupon, setAppliedCoupon ] = useState(JSON.parse(localStorage.getItem("coupon")) || null);
 
   useEffect(() => {
     window.scrollTo({top:0})
@@ -31,10 +35,6 @@ const CartPage = () => {
     }
     fetchCartItems();
 },[])
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev); 
-  };
 
   const handleQuantityChange = async (id, quantity) => {
     if(quantity < 1) return
@@ -55,6 +55,36 @@ const CartPage = () => {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    try {
+      if(!appliedCoupon){
+        const response = await applyCoupon(couponCode, subtotal);
+        if (response.status === 200) {
+          setAppliedCoupon(response.data);
+          localStorage.setItem("coupon", JSON.stringify(response.data));
+          toast.success("Coupon applied successfully!");
+        } else {
+          toast.error("Failed to apply coupon!");
+        }
+      } else {
+        const response = await removeCoupon(appliedCoupon._id);
+        if (response.status === 200) {
+          setAppliedCoupon(null);
+          setCouponCode("");
+          localStorage.removeItem("coupon");
+          toast.success("Coupon removed successfully!");
+        } else {
+          toast.error("Failed to remove coupon!");
+        }
+      }
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
+    }
+  };
 
   const handleRemoveItem = async (id) => {
     try {
@@ -69,13 +99,36 @@ const CartPage = () => {
       console.error("Error removing item from cart:", error);
     }
   };
-
+  
+  const calculateTotalWithCoupon = () => {
+    if (coupon.discountType === "percentage") {
+      return subtotal * (1 - coupon.discountValue / 100)+ shipping;
+    } else {
+      return subtotal - coupon.discountValue + shipping;
+    }
+  };
+  const calculateTotalwithoutCoupon = () => {
+    return subtotal + shipping;
+  };
+  
+  const coupon = JSON.parse(localStorage.getItem("coupon"));
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
   const shipping = 10;
-  const total = subtotal + shipping;
+  const total = coupon ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
+
+
+  // const handleOutsideClick = (e) => {
+    //   console.log("clicked outside 1");
+    //   if (!e.currentTarget.contains(e.target)) {
+  //     setSelectedCoupon(null);
+  //     console.log("clicked outside");
+  //   }
+  // };
 
   return user ? (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100"
+    // onClick={handleOutsideClick}
+    >
 
       <Navbar />
 
@@ -142,6 +195,9 @@ const CartPage = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Available Coupons */}
+          <AvailableCoupons selectedCoupon={selectedCoupon} setSelectedCoupon={setSelectedCoupon} />
         </div> 
 
         {/* Cart Summary */}
@@ -149,11 +205,13 @@ const CartPage = () => {
           <div className="mb-4 h-fit w-full flex items-center justify-between">
             <input
             type="text" 
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value)}
             placeholder="Enter your coupon code"
             className="inline-block px-4 py-3.5 w-full text-md text-stone-600"
             />
-            <button className="inline-block py-3 px-3 bg-yellow-400 ml-1 hover:bg-yellow-500 text-nowrap text-lg text-slate-700">
-            Apply Coupon
+            <button onClick={handleApplyCoupon} className="inline-block py-3 px-3 bg-yellow-400 ml-1 hover:bg-yellow-500 text-nowrap text-lg text-slate-700">
+            {coupon ? "Remove Coupon" : "Apply Coupon"}
           </button>
           </div>
           <h2 className="text-xl mb-4 text-center font-medium text-slate-600 md:flex md:items-center md:justify-start">
@@ -164,6 +222,10 @@ const CartPage = () => {
           <div className="flex justify-between mb-2">
             <span>Subtotal:</span>
             <span>{subtotal}</span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span>Discount:</span>
+            <span className="text-green-500">{coupon ? coupon.discountType === "percentage" ? `${coupon.discountValue}%` : coupon.discountValue : "N/A"}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Shipping:</span>
