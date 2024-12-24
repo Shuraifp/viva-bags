@@ -26,8 +26,8 @@ export const addCoupon = async (req, res) => {
     if (minimumPurchase < 0) {
       errors.minimumPurchase = "Minimum purchase must be a non-negative value";
     }
-    if(discountType === 'percentage' && (discountValue < 0 || discountValue > 100)) {
-      errors.discountValue = "Discount value must be between 0 and 100 for percentage discount";
+    if(discountType === 'percentage' && (discountValue < 0 || discountValue > 60)) {
+      errors.discountValue = "Discount value must be between 0 and 60 for percentage discount";
     }
     if (discountType === 'fixed' && discountValue < 0) {
       errors.discountValue = "Discount value must be a non-negative value for fixed discount";
@@ -136,8 +136,8 @@ export const updateCoupon = async (req, res) => {
     if (minimumPurchase < 0) {
       errors.minimumPurchase = "Minimum purchase must be a non-negative value";
     }
-    if(discountType === 'percentage' && (discountValue < 0 || discountValue > 100)) {
-      errors.discountValue = "Discount value must be between 0 and 100 for percentage discount";
+    if(discountType === 'percentage' && (discountValue < 0 || discountValue > 60)) {
+      errors.discountValue = "Discount value must be between 0 and 60 for percentage discount";
     }
     if (discountType === 'fixed' && discountValue < 0) {
       errors.discountValue = "Discount value must be a non-negative value for fixed discount";

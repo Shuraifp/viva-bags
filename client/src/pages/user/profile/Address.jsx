@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { AuthContext } from '../../../context/AuthProvider';
 import { addAddress, getAddresses, editAddress, deleteAddress, changeDefaultAddress } from '../../../api/address';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import AddAddress from './AddAddress';
 
 const Address = () => {
+  const { logout } = useContext(AuthContext);
   const addressFormScrollRef = useRef(null);
   const [addresses, setAddresses] = useState([])
   const [defaultAddr, setDefaultAddr] = useState(null);
@@ -14,7 +16,13 @@ const Address = () => {
         const response = await getAddresses();
         setAddresses([...response.data])
       } catch(err){
-        console.log(err)
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        } else {
+          console.log(err)
+        }
       }
     }
     getAllAddr();

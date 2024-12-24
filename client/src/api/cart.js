@@ -19,7 +19,7 @@ export const fetchCart = async () => {
     const response = await api.get(`${API_URL}/user/cart`);
     return response;
   } catch (error) {
-    return error.response.data;
+    throw error;
   }
 };
 

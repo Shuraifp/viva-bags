@@ -19,8 +19,7 @@ export const getAllOrdersForUser = async (currentPage,limitPerPage) => {
     const response = await api.get(`${API_URL}/user/orders`,{params:{currentPage,limitPerPage}})
     return response
   } catch (err){
-    console.log(err)
-    return err.message
+    throw err
   }
 }
 

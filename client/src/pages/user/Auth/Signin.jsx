@@ -38,7 +38,18 @@ const Signin = () => {
         }
       })
       .catch((error) => {
-        toast.error('An error occurred. Please try again.');
+        if (error.response?.status === 401&&error.response?.data?.message === "User is blocked") {
+          toast.error("You are blocked by admin. Please contact admin.");
+          return;
+        }
+        if (error.response?.status === 404) {
+              console.warn("User not found");
+              return error.response; 
+        }
+        if(error.response?.status === 401) {
+          console.warn("incorrect credentials");
+          return error.response;
+        }
       });
   };
 

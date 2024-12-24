@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../../context/AuthProvider";
 import { getAllOrdersForUser, cancelOrder,cancelItem } from "../../../api/order";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from '../../../components/Pagination'
@@ -6,6 +7,7 @@ import toast from "react-hot-toast";
 
 const MyOrders = () => {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("All Orders");
@@ -29,7 +31,11 @@ const MyOrders = () => {
         setTotalPages(response.data.totalPages)
         window.scrollTo({top:0,behavior:'instant'})
       } catch (err) {
-        console.log(err);
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        }
       }
     };
     fetchOrders();

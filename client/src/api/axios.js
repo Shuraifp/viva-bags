@@ -19,7 +19,6 @@ export const apiWithoutAuth = axios.create({
 
 adminApiWithAuth.interceptors.request.use(
   (config) => {
-    console.log('added config');
     const accessToken = localStorage.getItem('adminAccessToken');
     if (accessToken) {
       config.headers['authorization'] = `Bearer ${accessToken}`;

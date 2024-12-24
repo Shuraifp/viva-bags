@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../../context/AuthProvider";
 import { useParams ,Link} from "react-router-dom";
 import { getSingleOrder } from "../../../api/order";
 
@@ -14,17 +15,22 @@ const OrderDetails = () => {
   }
 
   useEffect(() => {
+    const { logout } = useContext(AuthContext);
     const fetchOrder = async () => {
       try {
         const response = await getSingleOrder(id);
         setOrder(response.data);
       } catch (error) {
-        console.log(error);
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        }
       }
     };
     fetchOrder();
   }, [id]);
-  console.log(order)
+  
   
   useEffect(() => {
     if (order) {

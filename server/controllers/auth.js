@@ -72,6 +72,9 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.isBlocked) {
+      return res.status(401).json({ message: "User is blocked" });
+    }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -184,11 +187,14 @@ export const loginUserWithGoogle = async (req, res) => {
         path: picture
       }
     });
-    await user.save();
+  
   } else if(!user.googleId) {
     user.googleId = uid;
-    await user.save();
   }
+  if (user.isBlocked) {
+    return res.status(401).json({ message: "User is blocked" });
+  }
+  await user.save();
   const accessToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '1d'})
   const refreshToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '7d'})
   return res.status(200).json({

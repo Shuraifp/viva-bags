@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../../context/AuthProvider';
 import { fetchUserProfileData, editProfile, changePassword } from '../../../api/users.js';
 import toast from 'react-hot-toast';
 import ForgotPassword from './ForgotPassword.jsx';
 
 const UserProfile = () => {
+  const { logout } = useContext(AuthContext);
   const [user, setUser] = useState();
   const [editing, setEditing] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -25,7 +27,11 @@ const UserProfile = () => {
           console.log(response.data.message);
         }
       } catch (error) {
-        console.log(error);
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        }
       }
     };
     fetchUserData();

@@ -31,7 +31,7 @@ export const getAddresses = async () => {
     const response = await api.get(`${API_URL}/user/address`);
   return response;
   } catch (error) {
-    return error.response.data;
+    throw error;
   }
 }
 

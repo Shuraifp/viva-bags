@@ -24,7 +24,7 @@ const Sidebar = () => {
     { name: "Brands", link: "/admin/brands", icon: <FaShapes /> },
     { name: "Products", link: "/admin/products", icon: <FaBox /> },
     { name: "Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
-    { name: "Offers", link: "#", icon: <FaTags /> },
+    { name: "Offers", link: "/admin/offers", icon: <FaTags /> },
     { name: "Coupons", link: "/admin/coupons", icon: <FaTicketAlt /> },
     { name: "Settings", link: "#", icon: <FaCog /> },
   ];

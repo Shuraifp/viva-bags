@@ -33,15 +33,7 @@ export const loginUser = async (email, password) => {
     const response = await api.post('/user/auth/login', { email, password });
     return response; 
   } catch (error) {
-    if (error.response?.status === 404) {
-      console.warn("User not found");
-      return error.response; 
-    }
-    if(error.response?.status === 401) {
-      console.warn("incorrect credentials");
-      return error.response;
-    }
-    throw new Error(error.response?.data?.message || 'not needed...');
+    throw error;
   }
 };
 

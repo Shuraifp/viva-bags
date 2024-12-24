@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 import Admin from "../models/adminModel.js";
 
 
-export const isUser = (req, res, next) => {
+export const isUser = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];  
 
   if (!token) return res.status(403).json({ message: 'No token provided' });
@@ -11,10 +11,13 @@ export const isUser = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
     if(decoded.role !== 'user') return res.status(401).json({ message: 'Invalid user token' });
+    const user = await User.findById(decoded.Id).select('isBlocked');
+    if(user.isBlocked) return res.status(401).json({ message: 'User is blocked' }); 
     req.user = decoded;
     console.log('token verified and continued..');
     next();
   } catch (err) {
+    console.log(err);
     return res.status(401).json({ message: 'Invalid token' });
   } 
 };

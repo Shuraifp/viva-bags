@@ -20,7 +20,11 @@ const CheckoutPage = () => {
         const response = await fetchCart();
         setCartItems([...response.data])
       } catch(err){
-        console.log(err)
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        }
       }
     }
     fetchCartItems();
@@ -273,7 +277,7 @@ console.log(coupon)
               </div>
               <div className="flex justify-between mb-2">
                 <span>Discount:</span>
-                <span className="text-green-500">{discount}</span>
+                <span className="text-green-500 font-medium">{discount}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Shipping:</span>

@@ -106,7 +106,7 @@ const OrderDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           <div className="md:col-span-4 mb-6 bg-white p-6 space-y-4 border border-gray-200">
             <h3 className="text-lg font-semibold mb-1 py-3">Customer And Order Details</h3>
-            <p className="border-b py-3 flex justify-between mx-3">Customer Name: <span className="font-medium">{order?.address.firstName} {order?.address.lastName}</span></p>
+            <p className="border-b py-3 flex justify-between mx-3">Customer Name: <span className="font-medium">{order?.address.fullName.toUpperCase()}</span></p>
             <p className="border-b py-3 flex justify-between mx-3">Phone Number: <span className="font-medium">{order?.address.mobile}</span></p>
             <p className="border-b py-3 flex justify-between mx-3">Payment Method: <span className="font-medium">{order?.paymentMethod}</span></p>
             <p className="border-b py-3 flex justify-between mx-3">Delivery: <span className="font-medium">Delivery</span></p>
@@ -133,7 +133,11 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>{order?.totalAmount}</span>
+                  <span>{order?.products.reduce((total, product) => total + product.productId.discountedPrice * product.quantity, 0)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Discount:</span>
+                  <span className="text-green-600 font-medium">{order?.coupon.discountType === "percentage" ? `-${order?.coupon.discountValue}%` : `-₹${order?.coupon.discountValue}`}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Fee:</span>
@@ -141,14 +145,14 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex justify-between font-semibold text-lg mt-2">
                   <span>Total:</span>
-                  <span>{order?.totalAmount+order?.shippingCost}</span>
+                  <span>{order?.totalAmount}</span>
                 </div>
               </div>
             
               {/* Delivery Address */}
               <div className="bg-orange-200 p-6 mt-4 mb-6 border rounded-md border-gray-200">
                 <h3 className="text-lg font-semibold mb-2">Delivery Address</h3>
-                <p>Address: <span className="font-medium">{order?.address.address}, {order?.address.city}, {order?.address.state}, {order?.address.country}</span></p>
+                <p>Address: <span className="font-medium">{order?.address.address}, {order?.address.locality}, {order?.address.state}, {order?.address.country}</span></p>
                 <p>Pincode: <span className="font-medium">{order?.address.pincode}</span></p>
               </div>
             </div>

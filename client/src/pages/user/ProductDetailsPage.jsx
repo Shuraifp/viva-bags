@@ -127,7 +127,7 @@ const ProductPage = () => {
       <div className="w-full md:w-3/5 bg-white p-6 px-12 shadow-lg">
         <h1 className="text-2xl font-semibold text-gray-800">{currentProduct?.name}</h1>
         <p className="text-sm text-gray-500">(99 Reviews)</p>
-        <p className="text-xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.regularPrice}</span></p>
+        <p className="text-xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice? currentProduct?.discountedPrice : currentProduct?.regularPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.discountedPrice && currentProduct?.regularPrice}</span></p>
         <p className="text-gray-600 mt-4">
           {currentProduct?.description}
         </p>

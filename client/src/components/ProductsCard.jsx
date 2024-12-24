@@ -50,7 +50,7 @@ const ProductCard = ({ product }) => {
       <h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
       <div className="flex items-center justify-center mb-2 pb-4">
         <span className="text-lg font-bold">{product?.discountedPrice}</span>
-        <span className="text-gray-500 line-through ml-2">{product?.regularPrice}</span>
+        <span className={`${product?.discountedPrice ? 'text-gray-500 line-through ml-2' : 'text-lg font-bold'} ml-2`}>{product?.regularPrice}</span>
       </div>
       {/* <div className="flex items-center justify-center">
         <div className="flex items-center">

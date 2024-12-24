@@ -10,10 +10,8 @@ import AvailableCoupons from "./AvailableCoupon";
 import { applyCoupon, removeCoupon } from "../../../api/coupon";
 
 const CartPage = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  // const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
@@ -30,7 +28,11 @@ const CartPage = () => {
           setIsLoading(false);
         } 
       } catch(err){
-        console.log(err)
+        if(err.response){
+          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+            logout();
+          }
+        }
       }
     }
     fetchCartItems();
@@ -164,7 +166,7 @@ const CartPage = () => {
                     <span>{item.product.name}</span>
                   </td>
                   <td className="p-4 text-center">{item.product.category.name}</td>
-                  <td className="p-4 text-center">{item.product.discountedPrice}</td>
+                  <td className="p-4 text-center">{item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice}</td>
                   <td className="p-4 text-center">
                     <div className="flex items-center bg-slate-100 w-fit">
                       <button
@@ -182,7 +184,7 @@ const CartPage = () => {
                       </button>
                     </div>
                   </td>
-                  <td className="p-4 text-center">{item.product.discountedPrice * item.quantity}</td>
+                  <td className="p-4 text-center">{item.product.discountedPrice ? item.product.discountedPrice * item.quantity : item.product.regularPrice * item.quantity}</td>
                   <td className="p-4 text-center">
                     <button
                       onClick={() => handleRemoveItem(item.product._id)}

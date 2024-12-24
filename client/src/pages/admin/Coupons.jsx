@@ -222,19 +222,21 @@ const CouponManagement = () => {
               <td className="py-2 px-4">{item.validTill.split('T')[0]}</td>
               <td className="py-2 px-4">{item.isDeleted === true ? "Cancelled" : item.isActive === true ? item.validFrom > new Date().toISOString() ? "Upcoming" : "Active" : item.validTill < new Date().toISOString() ? "Expired" : "Inactive"}</td>
               <td className="py-2 px-4 space-x-2">
-                <button 
-                onClick={() => {
-                  setCouponData({...item, validFrom: item.validFrom.split('T')[0], validTill: item.validTill.split('T')[0]});
-                  setIsModalOpen(true);
-                  setIsEditing(true);
-                }}
-                className="bg-yellow-700 text-white px-3 py-1 rounded-md">
+                <button
+                  onClick={() => {
+                    setCouponData({ ...item, validFrom: item.validFrom.split("T")[0], validTill: item.validTill.split("T")[0] });
+                    setIsEditing(true);
+                    setIsModalOpen(true);
+                  }}
+                  className="text-blue-500 hover:underline"
+                >
                   Edit
                 </button>
-                <button 
-                onClick={() => handleDeleteAndRestore(item._id)}
-                className={`${item.isDeleted ? ' bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white px-3 py-1 rounded-md`}>
-                  {item.isDeleted ? 'Restore' : 'Delete'}
+                <button
+                  onClick={() => handleDeleteAndRestore(item._id)}
+                  className={`text-${item.isDeleted ? 'green' : 'red'}-500 hover:underline`}
+                >
+                  {item.isDeleted ? "Restore" : "Delete"}
                 </button>
               </td>
             </tr>
@@ -261,7 +263,9 @@ const CouponManagement = () => {
       </div>
 
       {/*                      Add Modal            */}
-      { isModalOpen && <div className="absolute top-2 bottom-5 left-1/2 -translate-x-1/2 overflow-y-scroll no-scrollbar"><div className=" bg-gray-800 bg-opacity-50  flex justify-center items-center z-50">
+      { isModalOpen && 
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="absolute top-2 bottom-5 left-1/2 -translate-x-1/2 overflow-y-scroll no-scrollbar"><div className=" bg-gray-800 bg-opacity-50  flex justify-center items-center z-50">
       <div className="bg-white shadow-lg p-6 border border-gray-300 md:min-w-[600px] sm:min-w-[500px] lg:min-w-[800px]">
         <h2 className="text-xl font-semibold mb-4 text-center">Add New Coupon</h2>
         <form onSubmit={handleSubmit}>
@@ -465,7 +469,9 @@ const CouponManagement = () => {
           </div>
         </form>
       </div>
-    </div></div>}
+    </div>
+    </div>
+    </div>}
     </div>
   );
 };

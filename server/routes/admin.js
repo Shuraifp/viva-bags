@@ -8,6 +8,7 @@ import { createCategory, getAllCategories, updateCategory, deleteOrRestoreCatego
 import { createBrand, getAllBrands, updateBrand, deleteOrRestoreBrand } from "../controllers/brands.js";
 import { countOrders, getAllOrders, updateOrderStatus, updateProductStatus } from "../controllers/order.js";
 import { addCoupon, getCoupons, updateCoupon, deleteOrRestoreCoupon } from "../controllers/coupon.js";
+import { addOffer, getOffers, updateOffer, deleteOrRestoreOffer, getCategoriesAndProductsList, applyOffer, removeOffer } from "../controllers/offers.js";
 
 
 
@@ -69,5 +70,15 @@ router.get('/coupons', isAdmin, getCoupons)
 router.post('/coupons', isAdmin, addCoupon)
 router.put('/coupons/:id', isAdmin, updateCoupon)
 router.patch('/coupons/:id', isAdmin, deleteOrRestoreCoupon)
+
+
+// Offers
+router.post('/offers', isAdmin, addOffer)
+router.get('/offers', isAdmin, getOffers)
+router.put('/offers/:id', isAdmin, updateOffer)
+router.patch('/offers/:id', isAdmin, deleteOrRestoreOffer)
+router.get('/offers/categories-and-products', isAdmin, getCategoriesAndProductsList)
+router.post('/offers/apply' , isAdmin, applyOffer)
+router.post('/offers/remove' , isAdmin, removeOffer)
 
 export default router;

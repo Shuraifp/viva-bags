@@ -36,8 +36,7 @@ export const fetchUserProfileData = async () => {
     const response = await userApi.get(`/user/profile`);
     return response;
   } catch (error) {
-    console.log(error)
-    return error.response;
+    throw error;
   };
 }
 
