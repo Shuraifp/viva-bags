@@ -1,7 +1,9 @@
 import React, { useEffect} from 'react';
+import { Link } from 'react-router-dom';
 import { FaCartPlus, FaHeart, FaExchangeAlt, FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';  
 import { addToCart } from '../api/cart.js';
+import { addToWishlist } from '../api/wishlist.js';
 
 const ProductCard = ({ product }) => {
 
@@ -12,20 +14,47 @@ const ProductCard = ({ product }) => {
     try {
       const response = await addToCart(product._id, 1);
       if (response.status === 200) {
-        toast.success('Product added to cart successfully');
+        toast.success('Product added to cart');
+        localStorage.setItem('cartCount', parseInt(localStorage.getItem('cartCount')) + 1);
       } else {
         toast.error('Failed to add product to cart');
       }
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error(error);
       toast.error('Failed, please try again');
     }
   };
+
+  const handleAddTowishlist = async (e) => {
+    e.stopPropagation();
+    try {
+      const response = await addToWishlist(product._id);
+      if (response.status === 200) {
+        toast.success('Product added to wishlist');
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.username) {
+          const wishlistKey = `wishlistCount_${user.username}`;
+          const currentCount = parseInt(localStorage.getItem(wishlistKey) || 0)
+          localStorage.setItem(wishlistKey, currentCount + 1);
+        } else {
+          console.log("User not found or username missing.");
+        }
+      } else {
+        toast.error('Failed to add product to wishlist');
+      }
+    } catch (error) {
+      console.error(error);
+      if(error.response){
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
   return (
     <div className=" shadow-lg bg-white">
       
       <div className="relative group mb-3 overflow-hidden">
-        <img
+      <img
           src={`${import.meta.env.VITE_API_URL}${product.images[0]?.url}`}
           alt={product.name}
           className="w-full h-56 object-cover transition-transform duration-700 transform group-hover:scale-125"
@@ -35,23 +64,20 @@ const ProductCard = ({ product }) => {
           <button onClick={handleAddToCart} className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
             <FaCartPlus />
           </button>
-          <button className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
+          <button onClick={handleAddTowishlist} className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
             <FaHeart />
           </button>
-          <button className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
-            <FaExchangeAlt />
-          </button>
-          <button className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
+          <Link to={`/product/${product._id}`}><button className="p-1.5 border border-black mx-0.5 text-gray-800 hover:text-yellow-500 hover:bg-gray-700 hover:border-gray-700">
             <FaEye />
-          </button>
+          </button></Link>
         </div>
       </div>
     
-      <h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
+      <Link to={`/product/${product._id}`}><h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
       <div className="flex items-center justify-center mb-2 pb-4">
         <span className="text-lg font-bold">{product?.discountedPrice && product?.discountedPrice > 0 ? product?.discountedPrice : null}</span>
         <span className={`${product?.discountedPrice ? 'text-gray-500 line-through ml-2' : 'text-lg font-bold'} ml-2`}>{product?.regularPrice}</span>
-      </div>
+      </div></Link>
       {/* <div className="flex items-center justify-center">
         <div className="flex items-center">
           {Array.from({ length: 5 }, (_, index) => (

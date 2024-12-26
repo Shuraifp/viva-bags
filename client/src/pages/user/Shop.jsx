@@ -109,10 +109,10 @@ const Shop = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {category?
             filteredProducts?.map((product) => (
-              product.category.name === category ? (<Link to={`/product/${product._id}`} key={product._id}><ProductCard key={product._id} product={product} /></Link> ): null
+              product.category.name === category ? (<ProductCard key={product._id} product={product} /> ): null
             )) :
             filteredProducts?.map((product) => (
-              <Link to={`/product/${product._id}`} key={product._id}><ProductCard key={product._id} product={product} /></Link>
+            <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </main>

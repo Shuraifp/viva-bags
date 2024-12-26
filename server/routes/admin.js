@@ -86,18 +86,5 @@ router.post('/offers/remove' , isAdmin, removeOffer)
 router.post('/sales/report', isAdmin, generateSalesReport)
 router.post('/sales/download/:format', isAdmin, downloadReport)
 
+
 export default router;
-
-
-// salesData.forEach((order) => {
-//   doc.text(
-//     `${order.orderId}  
-//      ${order.createdAt.toISOString().split('T')[0]} 
-//      ${order.productDetails.length}   
-//     ₹${order.productDetails.reduce((total, product) => total + product.regularPrice, 0)}  
-//     ₹${order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0)
-//       + (order.coupon ? order.coupon.discountType === 'percentage'? 
-//          order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0)}  
-//     ₹${order.totalAmount}`
-//   );
-// });

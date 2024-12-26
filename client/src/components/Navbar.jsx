@@ -12,8 +12,12 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartCount, setCartCount] = useState(localStorage.getItem('cartCount') || 0)
-  
   let user = JSON.parse(localStorage.getItem('user')) || null
+  let currentWhishlistCount = 0;
+  if (user && user.username) {
+    const wishlistKey = `wishlistCount_${user.username}`;
+    currentWhishlistCount = parseInt(localStorage.getItem(wishlistKey) || 0)
+  } 
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -85,7 +89,7 @@ const Navbar = () => {
         <div className="flex md:hidden items-center space-x-4 mx-auto">
           <div className="flex items-center text-yellow-500"> 
           <Link to={'/wishlist'}><FaHeart className="mr-1" /></Link> 
-            <span>0</span> 
+            <span>{currentWhishlistCount? currentWhishlistCount:0}</span> 
           </div>
           <div className="flex items-center text-yellow-500"> 
             <Link to={'/cart'}><FaShoppingCart className="mr-1" /></Link> 
@@ -175,7 +179,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center text-yellow-500"> 
               <Link to={'/wishlist'}><FaHeart className="mr-1 w-5 h-5" /></Link> 
-              <span>0</span> 
+              <span>{currentWhishlistCount? currentWhishlistCount:0}</span> 
             </div>
             <div className="flex items-center text-yellow-500"> 
             <Link to={'/cart'}><FaShoppingCart className="mr-1 w-5 h-5" /></Link> 
