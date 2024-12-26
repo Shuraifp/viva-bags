@@ -35,6 +35,20 @@ export const createOrder = async (req, res) => {
     
     await Product.bulkWrite(productUpdates);
 
+    const validatedCoupon = coupon
+      ? {
+          code: coupon.code,
+          discountType: coupon.discountType,
+          discountValue: !isNaN(Number(coupon.discountValue)) ? Number(coupon.discountValue) : 0, 
+        }
+      : null;
+      let paymentStatus = 'Pending'; 
+      if (paymentMethod === 'COD') {
+        paymentStatus = 'Pending'; 
+      } else if (paymentMethod === 'Razorpay') {
+        paymentStatus = 'Completed'; 
+      } 
+
       const order = {
           orderNumber: newOrderNumber,
           user: userId,
@@ -43,13 +57,10 @@ export const createOrder = async (req, res) => {
             quantity: Number(product.quantity),
         })),
           address,
-          coupon : {
-            code: coupon.code,
-            discountType: coupon.discountType,
-            discountValue: Number(coupon.discountValue)
-          },
+          coupon : validatedCoupon,
           totalAmount: Number(totalAmount),
           paymentMethod,
+          paymentStatus,
           shippingCost: Number(shippingCost),
       };
     const newOrder = await Order.create(order);

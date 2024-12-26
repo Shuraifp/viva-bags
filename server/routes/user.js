@@ -10,6 +10,7 @@ import { addAddress, getAllAddresses, editAddress, deleteAddress, toggleDefault 
 import { createOrder, getAllOrdersForUser, getOrderById, cancelOrder, cancelOrderItem } from "../controllers/order.js"
 import { editProfile, fetchProfile, changePassword } from "../controllers/users.js";
 import { getCouponsForUser, applyCoupon, removeAppliedCoupon } from "../controllers/coupon.js";
+import { makePayment } from "../controllers/payment.js";
 
 
 // Auth
@@ -72,5 +73,9 @@ router.patch('/orders/cancel-item/', isUser, cancelOrderItem)
 router.get('/coupons', isUser, getCouponsForUser)
 router.post('/coupons/apply', isUser, applyCoupon)
 router.delete('/coupons/remove/:id', isUser, removeAppliedCoupon)
+
+
+// Payments
+router.post('/razorpay/order', isUser, makePayment);
 
 export default router;

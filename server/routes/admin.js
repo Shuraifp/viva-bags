@@ -9,7 +9,7 @@ import { createBrand, getAllBrands, updateBrand, deleteOrRestoreBrand } from "..
 import { countOrders, getAllOrders, updateOrderStatus, updateProductStatus } from "../controllers/order.js";
 import { addCoupon, getCoupons, updateCoupon, deleteOrRestoreCoupon } from "../controllers/coupon.js";
 import { addOffer, getOffers, updateOffer, deleteOrRestoreOffer, getCategoriesAndProductsList, applyOffer, removeOffer } from "../controllers/offers.js";
-
+import { generateSalesReport,downloadReport } from "../controllers/sales.js";
 
 
 // Auth
@@ -81,4 +81,23 @@ router.get('/offers/categories-and-products', isAdmin, getCategoriesAndProductsL
 router.post('/offers/apply' , isAdmin, applyOffer)
 router.post('/offers/remove' , isAdmin, removeOffer)
 
+
+// Sales Report
+router.post('/sales/report', isAdmin, generateSalesReport)
+router.post('/sales/download/:format', isAdmin, downloadReport)
+
 export default router;
+
+
+// salesData.forEach((order) => {
+//   doc.text(
+//     `${order.orderId}  
+//      ${order.createdAt.toISOString().split('T')[0]} 
+//      ${order.productDetails.length}   
+//     ₹${order.productDetails.reduce((total, product) => total + product.regularPrice, 0)}  
+//     ₹${order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0)
+//       + (order.coupon ? order.coupon.discountType === 'percentage'? 
+//          order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0)}  
+//     ₹${order.totalAmount}`
+//   );
+// });
