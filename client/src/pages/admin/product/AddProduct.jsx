@@ -97,12 +97,12 @@ const AddProductPage = () => {
       isValid = false;
     }
     
-    if (!product.discountedPrice || Number(product.discountedPrice) <= 0) {
-      newErrors["discountedPrice"] = "Discounted Price is required and must be greater than 0.";
+    if (product.discountedPrice && Number(product.discountedPrice) <= 0) {
+      newErrors["discountedPrice"] = "Discounted Price must be greater than 0.";
       isValid = false;
     }
     
-    if (Number(product.discountedPrice) >= Number(product.regularPrice)) {
+    if (product.discountedPrice && Number(product.discountedPrice) >= Number(product.regularPrice)) {
       newErrors["discountedPrice"] = "Discounted Price must be less than regular price.";
       isValid = false;
     }

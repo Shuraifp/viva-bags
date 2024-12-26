@@ -52,6 +52,14 @@ adminApiWithAuth.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return adminApiWithAuth(originalRequest);
       } catch (refreshError) {
+        // if (refreshError.response?.status === 403  && refreshError.response?.data?.message === 'Invalid refresh token') {
+        //   console.error("Refresh token expired or invalid.");
+        //   localStorage.removeItem("adminRefreshToken");
+        //   localStorage.removeItem("adminAccessToken");
+        //   localStorage.removeItem("admin");
+        //   window.location.href = "/admin/signin"; 
+        // }
+        // console.log(refreshError)
         return Promise.reject(refreshError);
       }
     }

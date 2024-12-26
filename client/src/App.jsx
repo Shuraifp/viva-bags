@@ -18,6 +18,7 @@ import Account from './pages/user/profile/Profile'
 import Orders from './pages/user/profile/Orders'
 import { AuthProvider } from './context/AuthProvider' 
 import Cart from './pages/user/cart/Cart'
+import Wishlist from './pages/user/Wishlist'
 import Checkout from './pages/user/checkout/Checkout'
 import SuccessPage from './pages/user/Success'
 import OrderDetails from './pages/user/profile/OrderDetails'
@@ -27,6 +28,7 @@ import PageNotFound from './pages/404PageNotFound'
 import AdminOrderDetails from './pages/admin/OrderDetails'
 import Coupons from './pages/admin/Coupons'
 import Offers from './pages/admin/Offers'
+import SalesReport from './pages/admin/SalesReport'
 
 const App = () => {
   return (
@@ -49,6 +51,7 @@ const App = () => {
         <Route path="*" element={<PageNotFound />} />
         <Route path="/404" element={<PageNotFound />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path='/wishlist' element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/success" element={<SuccessPage />} />
       
@@ -66,6 +69,7 @@ const App = () => {
         <Route path="Products/new" element={<AddProduct />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="offers" element={<Offers />} />
+        <Route path="sales" element={<SalesReport />} />
       </Route>
     </Routes>
     </AuthProvider>

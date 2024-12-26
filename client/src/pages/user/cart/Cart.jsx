@@ -104,9 +104,9 @@ const CartPage = () => {
   
   const calculateTotalWithCoupon = () => {
     if (coupon.discountType === "percentage") {
-      return subtotal * (1 - coupon.discountValue / 100)+ shipping;
+      return (subtotal * (1 - coupon.discountValue / 100)+ shipping).toFixed(2);
     } else {
-      return subtotal - coupon.discountValue + shipping;
+      return (subtotal - coupon.discountValue + shipping).toFixed(2);
     }
   };
   const calculateTotalwithoutCoupon = () => {

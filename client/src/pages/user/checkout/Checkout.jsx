@@ -6,9 +6,11 @@ import { fetchCart, clearCart } from '../../../api/cart.js'
 import SavedAddress from './SelectAddress.jsx'
 import { createOrder } from "../../../api/order.js";
 import toast from "react-hot-toast";
+import { createRazorpayOrder } from "../../../api/payment.js";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([])
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -30,7 +32,18 @@ const CheckoutPage = () => {
     fetchCartItems();
   },[])
 
+  const handlePaymentMethodChange = (event) => {
+    setPaymentMethod(event.target.value);
+  };
   const handlePlaceOrder = async () => {
+    if (paymentMethod === 'Razorpay') {
+      handlePayment();
+    } else {
+      placeOrder();
+    }
+  };
+
+  const handlePayment = async () => {
     if (!selectedAddress) {
       toast.error("Please select an address.");
       return;
@@ -39,7 +52,40 @@ const CheckoutPage = () => {
       toast.error('products are missing')
       return;
     }
+    try {
+      const response = await createRazorpayOrder(total);
+      const { id, amount } = response.data;
+      const options = {
+        key: "rzp_test_RV3WvAL2SuYG54",
+        amount: amount.toString(), 
+        currency: 'INR',
+        order_id: id,
+        handler: function (response) {
+          console.log('Payment successful:', response);
+          
+          placeOrder();
+        },
+        prefill: {
+          name: selectedAddress?.firstName + ' ' + selectedAddress?.lastName,
+          email: selectedAddress?.email,
+          contact: selectedAddress?.mobile,
+        },
+        theme: {
+          color: '#F7B800', 
+        },
+      };
+  
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Error initiating Razorpay payment:'+ err);
+      toast.error('An error occurred. Please try again.');
+    }
+  };
+  
 
+  const placeOrder = async () => {
+    
     try {
       const orderData = {
         products: cartItems.map((item) => ({
@@ -62,7 +108,7 @@ const CheckoutPage = () => {
           discountValue: coupon?.discountValue,
         },
         shippingCost: shipping,
-        paymentMethod: "COD", 
+        paymentMethod: paymentMethod, 
         totalAmount: total,
       };
   
@@ -86,9 +132,9 @@ const CheckoutPage = () => {
   
   const calculateTotalWithCoupon = () => {
     if (coupon.discountType === "percentage") {
-      return subtotal * (1 - coupon.discountValue / 100)+ shipping;
+      return (subtotal * (1 - coupon.discountValue / 100)+ shipping).toFixed(2);
     } else {
-      return subtotal - coupon.discountValue + shipping;
+      return (subtotal - coupon.discountValue + shipping).toFixed(2);
     }
   };
   const calculateTotalwithoutCoupon = () => {
@@ -97,8 +143,8 @@ const CheckoutPage = () => {
   
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
   const shipping = 10;
-  const discount = coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`
-  const total = coupon.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
+  const discount = coupon? coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}` : 0;
+  const total = coupon?.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
 console.log(coupon)
   return (
     <div className="min-h-screen bg-gray-100">
@@ -299,15 +345,15 @@ console.log(coupon)
           <div className="bg-white h-fit p-6 pt-6 pb-10 text-lg text-gray-600">
             <div>
               <label className="block ml-6 my-2">
-                <input type="radio" name="payment" checked className="mr-3" />
-                Cash on Delivery
+                <input type="radio" name="paymentMethod" value="Razorpay" checked={paymentMethod === "Razorpay"} onChange={handlePaymentMethodChange} className="mr-3" />
+                Razorpay
               </label>
               <label className="block ml-6 my-2">
-                <input type="radio" name="payment" disabled className="mr-3" />
-                Online Payment
+                <input type="radio" name="paymetMethod" value="Cod" checked={paymentMethod === "Cod"} onChange={handlePaymentMethodChange} className="mr-3" />
+                Cash on Delivery (COD)
               </label>
               <label className="block ml-6 my-2">
-                <input type="radio" name="payment" disabled className="mr-3" />
+                <input type="radio" name="paymntMethod" value="Wallet" checked={paymentMethod === "Wallet"} onChange={handlePaymentMethodChange} className="mr-3" />
                 Wallet
               </label>
               <hr className="my-4" />

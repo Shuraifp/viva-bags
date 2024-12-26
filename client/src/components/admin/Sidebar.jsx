@@ -9,7 +9,7 @@ import {
   FaShapes,
   FaTags,
   FaTicketAlt,
-  FaCog,
+  FaChartLine
 } from "react-icons/fa";
 
 const Sidebar = () => {
@@ -26,7 +26,7 @@ const Sidebar = () => {
     { name: "Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
     { name: "Offers", link: "/admin/offers", icon: <FaTags /> },
     { name: "Coupons", link: "/admin/coupons", icon: <FaTicketAlt /> },
-    { name: "Settings", link: "#", icon: <FaCog /> },
+    { name: "Sales Report", link: "/admin/sales", icon: <FaChartLine /> },
   ];
 
   const handleItemClick = (itemName) => {

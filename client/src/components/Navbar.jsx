@@ -84,7 +84,7 @@ const Navbar = () => {
 
         <div className="flex md:hidden items-center space-x-4 mx-auto">
           <div className="flex items-center text-yellow-500"> 
-            <FaHeart className="mr-1" /> 
+          <Link to={'/wishlist'}><FaHeart className="mr-1" /></Link> 
             <span>0</span> 
           </div>
           <div className="flex items-center text-yellow-500"> 
@@ -174,7 +174,7 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center text-yellow-500"> 
-              <FaHeart className="mr-1 w-5 h-5" /> 
+              <Link to={'/wishlist'}><FaHeart className="mr-1 w-5 h-5" /></Link> 
               <span>0</span> 
             </div>
             <div className="flex items-center text-yellow-500"> 

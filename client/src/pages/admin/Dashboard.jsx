@@ -17,6 +17,12 @@ const AdminDashboard = () => {
     })
     .catch((error) => {
       console.error("Error validating token:", error);
+      // if (error.response && error.response.status === 403 && error.response.data.message === 'Invalid refresh token') {
+      //   console.log('perr')
+      //   localStorage.removeItem("adminRefreshToken");
+      //   localStorage.removeItem("adminAccessToken");
+      //   localStorage.removeItem("admin");
+      // }
       setIsLoading(false);  
     });
   }, []);
