@@ -12,6 +12,7 @@ import { editProfile, fetchProfile, changePassword } from "../controllers/users.
 import { getCouponsForUser, applyCoupon, removeAppliedCoupon } from "../controllers/coupon.js";
 import { makePayment } from "../controllers/payment.js";
 import { addToWishlist, getWishlist, deleteWishlistItem } from "../controllers/wishlist.js";
+import { getWallet } from "../controllers/wallet.js";
 
 
 // Auth
@@ -84,5 +85,9 @@ router.post('/razorpay/order', isUser, makePayment);
 router.post('/wishlist/add', isUser, addToWishlist);
 router.get('/wishlist', isUser, getWishlist);
 router.delete('/wishlist/remove/:id', isUser, deleteWishlistItem);
+
+
+// Wallet
+router.get('/wallet', isUser, getWallet);
 
 export default router;

@@ -14,8 +14,8 @@ const OrderDetails = () => {
     4: "Cancelled"
   }
 
+  const { logout } = useContext(AuthContext);
   useEffect(() => {
-    const { logout } = useContext(AuthContext);
     const fetchOrder = async () => {
       try {
         const response = await getSingleOrder(id);

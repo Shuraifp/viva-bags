@@ -174,21 +174,27 @@ export const getFilteredProducts = async (req, res) => {
 
 export const getSortedProducts = async (req, res) => {
   try {
-    const { option, currentPage, limitPerPage } = req.query;
+    const { option, currentPage, limitPerPage,searchQuery } = req.query;
     if (!option) {
       return res.status(400).json({ message: "Sort option is required" });
   }
 
+    const filters = {islisted: true};
+    if (searchQuery) {
+      filters.$or = [
+        { name: { $regex: searchQuery, $options: "i"} },   
+      ];
+    }
     let sortOption = {};
     switch (option) {
       case "popularity":
         sortOption.popularity = -1;
         break;
       case "price_low_high":
-        sortOption.discountedPrice = 1;
+        sortOption.finalPrice = 1;
         break;
       case "price_high_low":
-        sortOption.discountedPrice = -1;
+        sortOption.finalPrice = -1;
         break;
       case "average_rating":
         sortOption.rating = -1;
@@ -205,13 +211,67 @@ export const getSortedProducts = async (req, res) => {
       default:
         sortOption.createdAt = 1; 
     }
-
+    
     const listedCategories = await Category.find({ isDeleted: false }).select('_id');
     const listedCategoryIds = listedCategories.map(category => category._id);
-    const productsCount = await Product.countDocuments({ islisted: true, category: { $in: listedCategoryIds } });
-    const totalPages = Math.ceil(productsCount / limitPerPage);
+
+    filters.category = { $in: listedCategoryIds };
+
     const skip = (currentPage - 1) * limitPerPage;
-    const products = await Product.find({ islisted: true, category: { $in: listedCategoryIds } }).sort(sortOption).skip(skip).limit(limitPerPage).select('-__v -createdAt -updatedAt').populate('category','name')
+
+    const pipeline = [
+      {
+        $addFields: {
+          finalPrice: {
+            $cond: {
+              if: { $eq: ["$discountedPrice", 0] },
+              then: "$regularPrice",
+              else: "$discountedPrice",
+            }
+          }
+        }
+      },
+      {
+        $match: filters
+      },
+      {
+        $sort: sortOption
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limitPerPage),
+      },
+      {
+        $project: {
+          __v: 0,
+          createdAt: 0,
+          updatedAt: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: {
+          path: "$category",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]
+
+    const products = await Product.aggregate(pipeline);
+  
+    const productsCount = await Product.countDocuments(filters);
+    const totalPages = Math.ceil(productsCount / limitPerPage);
+
+    
     res.status(200).json({ success: true, productsData: products, totalPages });
   } catch (error) {
     console.error(error);

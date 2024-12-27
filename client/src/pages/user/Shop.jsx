@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from 'react';
 import { fetchProductsForUsers,getSortedProducts } from '../../api/products';
-import { Link ,useParams} from 'react-router-dom';
+import { Link ,useParams, useLocation} from 'react-router-dom';
 import FilterOptions from '../../components/FilterOptions';
 import ProductCard from '../../components/ProductsCard';
 import Navbar from '../../components/Navbar';
@@ -11,23 +11,26 @@ import toast from 'react-hot-toast';
 
 
 const Shop = () => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const {category} = useParams();
-  const [sort, setSort] = useState("default");
-  // const [filters, setFilters] = useState({ price: [], color: [], size: [] });
+  const [sort, setSort] = useState("default");;
   const [currentPage, setCurrentPage] = useState(1);
   const [ totalPages, setTotalPages] = useState(1);
-
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get('search') || '';
+ console.log(searchQuery)
+ 
   const limitPerPage = 9;
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage,sort]);
+  }, [currentPage,sort,searchQuery]);
 
   const fetchProducts = async () => {
     try {
-      const response = await getSortedProducts(currentPage,limitPerPage,sort);
+      const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery);
       console.log(response)
       setProducts(response.data.productsData);
       setFilteredProducts(response.data.productsData);

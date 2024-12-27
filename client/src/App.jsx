@@ -16,6 +16,7 @@ import ProfilePage from './pages/user/profile/Main'
 import Address from './pages/user/profile/Address'
 import Account from './pages/user/profile/Profile'
 import Orders from './pages/user/profile/Orders'
+import Wallet from './pages/user/profile/Wallet'
 import { AuthProvider } from './context/AuthProvider' 
 import Cart from './pages/user/cart/Cart'
 import Wishlist from './pages/user/Wishlist'
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="profileInfo" element={<Account />} />
           <Route path="address" element={<Address />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="wallet" element={<Wallet />} />
           <Route path="orders/:orderId" element={<OrderDetails />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />

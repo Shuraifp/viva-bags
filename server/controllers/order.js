@@ -1,4 +1,4 @@
-import Coupon from "../models/couponModel.js";
+import Wallet from "../models/walletModel.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 
@@ -135,9 +135,28 @@ export const cancelOrder = async (req, res) => {
     }));
     await Product.bulkWrite(productUpdates);
 
+    if (order.paymentStatus === "Completed") {
+      const refundAmount = order.totalAmount;
+
+      let wallet = await Wallet.findOne({ user: order.user });
+      if (!wallet) {
+        wallet = new Wallet({ user: order.user, balance: 0, transactions: [] });
+      }
+      wallet.balance += refundAmount;
+      wallet.transactions.push({
+        type: "Credit",
+        amount: refundAmount,
+        description: "Refund",
+        orderId: order._id,
+        balanceAfter: wallet.balance,
+      });
+      await wallet.save();
+    }
+
     await order.save();
     res.status(200).json({ message: "Order cancelled successfully" });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Failed to cancel order", error });
   }
 };
@@ -170,6 +189,56 @@ console.log(order)
       order.status = product.status; 
       await order.save();
     }
+    // wallet
+    const allProductsCancelled = order.products.every(
+      (item) => item.status === "Cancelled"
+    );
+    if (allProductsCancelled) {
+      order.status = "Cancelled";
+
+      
+      if (order.paymentStatus === "Completed") {
+        const refundAmount = order.totalAmount;
+
+        let wallet = await Wallet.findOne({ user: order.user });
+        if (!wallet) {
+          wallet = new Wallet({ user: order.user, balance: 0, transactions: [] });
+        }
+
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+          type: "Credit",
+          amount: refundAmount,
+          description: "Refund",
+          orderId: order._id,
+          balanceAfter: wallet.balance,
+        });
+        await wallet.save();
+      }
+    } else {
+      // Partial refund for the cancelled item
+      if (order.paymentStatus === "Completed") {
+        const refundAmount =
+          (product.quantity / order.products.reduce((sum, p) => sum + p.quantity, 0)) *
+          order.totalAmount;
+
+        let wallet = await Wallet.findOne({ user: order.user });
+        if (!wallet) {
+          wallet = new Wallet({ user: order.user, balance: 0, transactions: [] });
+        }
+
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+          type: "Credit",
+          amount: refundAmount,
+          description: "Refund",
+          orderId: order._id,
+          balanceAfter: wallet.balance,
+        });
+        await wallet.save();
+      }
+    }
+
     const uncancelledProducts = order.products.filter(item => item.status !== "Cancelled");
     if (uncancelledProducts.length === 1) {
       order.status = uncancelledProducts[0].status;

@@ -86,9 +86,9 @@ export const getproductsFromSameCat = async (category) => {
 }
 
 
-export const getSortedProducts = async (currentPage,limitPerPage,option) => {
+export const getSortedProducts = async (currentPage,limitPerPage,option,searchQuery) => {
   try{
-    const response = await apiNonSecure.get(`/user/products`,{params:{currentPage,limitPerPage,option}})
+    const response = await apiNonSecure.get(`/user/products`,{params:{currentPage,limitPerPage,option,searchQuery}})
     return response
   } catch (error) {
     console.log(error)

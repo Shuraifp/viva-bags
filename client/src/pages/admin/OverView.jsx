@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaShoppingCart, FaDollarSign } from "react-icons/fa";
+import { FaUsers, FaShoppingCart ,FaRupeeSign} from "react-icons/fa";
 import { countUsers } from "../../api/users";
 import { countOrders } from "../../api/order";
 
@@ -51,10 +51,10 @@ const DashboardContent = () => {
       
       <div className="bg-white/30 backdrop-blur-lg p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out">
         <div className="flex items-center space-x-4">
-          <FaDollarSign className="text-4xl text-green-500" />
+          <FaRupeeSign className="text-4xl text-green-500" />
           <div>
             <h2 className="text-xl font-semibold text-gray-600">Revenue</h2>
-            <p className="text-3xl font-bold text-gray-600">$12,345</p>
+            <p className="text-3xl font-bold text-gray-600">12,345</p>
           </div>
         </div>
       </div>

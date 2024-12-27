@@ -20,6 +20,10 @@ const Sidebar = ({user, activeItem, setActiveItem}) => {
       path: "/profile/address"
     },
     {
+      label: "Wallet",
+      path: "/profile/wallet"
+    },
+    {
       label: "Logout",
       path: "/"
     }  

@@ -2,15 +2,17 @@ import { useState, useContext, useEffect } from 'react';
 import { getCategories } from '../api/category';
 import { AuthContext } from '../context/AuthProvider';
 import { FaHeart, FaShoppingCart, FaBars } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import { getCountOfCartItems } from '../api/cart';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const { logout } = useContext(AuthContext); //user
   const [categories, setCategories] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(localStorage.getItem('cartCount') || 0)
   let user = JSON.parse(localStorage.getItem('user')) || null
   let currentWhishlistCount = 0;
@@ -28,7 +30,7 @@ const Navbar = () => {
         console.error('Error fetching categories:', error);
       }
     };
-    
+
     const getCartCount = async () => {
       try {
         const response = await getCountOfCartItems();
@@ -41,6 +43,14 @@ const Navbar = () => {
     fetchCategories();
     getCartCount();
   },[])
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${searchQuery.trim()}`);
+      // window.location.href = `/shop?search=${searchQuery.trim()}`;
+    }
+  };
 
   const handleProfileClick = () => {
     setDropdownOpen(!dropdownOpen);
@@ -66,9 +76,12 @@ const Navbar = () => {
           <input 
             type="text" 
             placeholder="Search for products" 
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="border-none outline-none px-2 py-1 w-full text-gray-700"
           />
-          <button className="text-yellow-500 hover:text-yellow-600 transition duration-300 ease-in-out">
+          <button
+          onClick={handleSearch}
+          className="text-yellow-500 hover:text-yellow-600 transition duration-300 ease-in-out">
             <svg 
               className="w-5 h-5" 
               fill="none" 

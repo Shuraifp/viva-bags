@@ -183,7 +183,7 @@ const MyOrders = () => {
                   <p className="text-gray-600 text-sm">Quantity: {item.quantity}</p>
                 </div>
               </div>
-              { order.products.length > 1 ? item.status !== "Cancelled"? <button
+              { order.products.length > 1 ? item.status !== "Cancelled" && order.status !== "Cancelled" ? <button
                 onClick={() => handleCancelItem(order._id, item.productId._id)}
                 className="h-fit md:mr-12 text-sm md:text-base px-4 py-2 border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"
               >
