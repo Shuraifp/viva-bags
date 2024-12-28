@@ -29,6 +29,7 @@ const CartPage = () => {
         if(response.status === 200){
           setCartItems([...response.data]);
           setIsLoading(false);
+          dispatch(setCartCount(response.data.reduce((acc, item) => acc + item.quantity, 0)));
         } 
       } catch(err){
         if(err.response){
@@ -42,7 +43,6 @@ const CartPage = () => {
 },[])
 
   const handleQuantityChange = async (id, quantity) => {
-    // if(quantity < 1) return
     try {
       const response = await updateCart(id, quantity);
       if (response.status === 200) {

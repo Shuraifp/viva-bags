@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { setCartCount } from "../../redux/cartwishlistSlice";
+import { setCartCount, setWishlistCount } from "../../redux/cartwishlistSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductByIdForUsers, getproductsFromSameCat } from "../../api/products";
 import { FaMinus, FaPlus, FaCartPlus, FaHeart } from "react-icons/fa";
@@ -11,7 +11,7 @@ import FeaturedProducts from "../../components/FeaturedProducts";
 import Footer from "../../components/Footer";
 import toast from 'react-hot-toast';
 import { addToCart } from "../../api/cart";
-import PageNotFound from "../404PageNotFound";
+import { addToWishlist } from "../../api/wishlist";
 
 const ProductPage = () => {
   const navigate = useNavigate()
@@ -86,8 +86,31 @@ const ProductPage = () => {
         toast.error(response.message);
       }
     } catch (error) {
-      console.error('Error adding to cart:'+ error);
-      toast.error('Failed, please try again.');
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        console.error(error);
+        toast.error('Failed to add product to cart');
+      }
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    try {
+      const response = await addToWishlist(currentProduct._id);
+      if (response.status==200) {
+        toast.success('Product added to wishlist');
+        dispatch(setWishlistCount(response.data.products.length));
+      }else{
+        toast.error(response.message);
+      }
+    } catch (error) {
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        console.error(error);
+        toast.error('Failed to add product to wishlist');
+      }
     }
   };
 
@@ -188,15 +211,22 @@ const ProductPage = () => {
 
         <div className="flex flex-wrap md:flex-nowrap space-x-2  h-stretch">
         <button onClick={handleAddToCart} className=" w-5/12 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center justify-center space-x-2 hover:bg-yellow-600">
-          <FaCartPlus />
-          <span>Add To Cart</span>
+          <div className="flex items-center gap-2">
+          <FaCartPlus className="text-white hidden md:block"/>
+          <span className="text-nowrap">Add To Cart</span>
+          </div>
         </button>
         {/* <div className="flex w-7/12 space-x-2 mt-4"> */}
         {/* <button className=" w-5/6 border border-gray-700 hover:text-white hover:border-yellow-500 text-lg bg-transparent text-black py-3 px-8 flex items-center justify-center hover:bg-yellow-600">
           <span>Buy Now</span>
         </button> */}
-        <button className=" p-4 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
-            <FaHeart /> Wishlist
+        <button 
+        onClick={handleAddToWishlist}
+        className=" p-4 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
+            <div className="flex items-center gap-2">
+            <FaHeart className="text-white hidden md:block" />
+            <span className="text-nowrap">Add To Wishlist</span>
+            </div>
           </button>
           {/* </div> */}
         </div>
