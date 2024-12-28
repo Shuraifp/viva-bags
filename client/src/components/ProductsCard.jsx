@@ -1,4 +1,5 @@
-import React, { useEffect} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCartCount, setWishlistCount } from '../redux/cartwishlistSlice.js';
 import { Link } from 'react-router-dom';
 import { FaCartPlus, FaHeart, FaExchangeAlt, FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';  
@@ -6,23 +7,25 @@ import { addToCart } from '../api/cart.js';
 import { addToWishlist } from '../api/wishlist.js';
 
 const ProductCard = ({ product }) => {
+  const dispatch = useDispatch();
+  const {cartCount, wishlistCount} = useSelector(state => state.cartWishlist)
 
   const handleAddToCart = async (e) => {
-    console.log('1')
     e.stopPropagation();
-    console.log('w')
     try {
       const response = await addToCart(product._id, 1);
       if (response.status === 200) {
         toast.success('Product added to cart');
-        localStorage.setItem('cartCount', parseInt(localStorage.getItem('cartCount')) + 1);
+        dispatch(setCartCount(response.data.quantity));
+      } 
+    } catch (error) {
+      if(error.response){
+        toast.error(error.response.data.message);
       } else {
+        console.error(error);
         toast.error('Failed to add product to cart');
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed, please try again');
-    }
+      }
   };
 
   const handleAddTowishlist = async (e) => {
@@ -31,16 +34,7 @@ const ProductCard = ({ product }) => {
       const response = await addToWishlist(product._id);
       if (response.status === 200) {
         toast.success('Product added to wishlist');
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.username) {
-          const wishlistKey = `wishlistCount_${user.username}`;
-          const currentCount = parseInt(localStorage.getItem(wishlistKey) || 0)
-          localStorage.setItem(wishlistKey, currentCount + 1);
-        } else {
-          console.log("User not found or username missing.");
-        }
-      } else {
-        toast.error('Failed to add product to wishlist');
+        dispatch(setWishlistCount(response.data.products.length));
       }
     } catch (error) {
       console.error(error);

@@ -10,7 +10,7 @@ export const addToCart = async (productId, quantity) => {
     });
     return response;
   } catch (error) {
-    return error.response.data;
+    throw error;
   }
 };
 
@@ -31,7 +31,7 @@ export const updateCart = async (productId, quantity) => {
     });
     return response;
   } catch (error) {
-    return error.response.data;
+    throw error;
   }
 };
 
@@ -40,7 +40,7 @@ export const removeFromCart = async (productId) => {
     const response = await api.delete(`${API_URL}/user/cart/remove/${productId}`);
     return response;
   } catch (error) {
-    return error.response.data;
+    throw error;
   }
 };
 

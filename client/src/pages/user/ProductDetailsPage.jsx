@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { setCartCount } from "../../redux/cartwishlistSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchProductByIdForUsers, getproductsFromSameCat } from "../../api/products";
 import { FaMinus, FaPlus, FaCartPlus, FaHeart } from "react-icons/fa";
 import Navbar from "../../components/Navbar";
@@ -13,6 +15,8 @@ import PageNotFound from "../404PageNotFound";
 
 const ProductPage = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const { cartCount } = useSelector((state) => state.cartWishlist);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [quantity,setQuantity] = useState(1);
@@ -75,6 +79,7 @@ const ProductPage = () => {
       const response = await addToCart(currentProduct._id, quantity);
       if (response.status==200) {
         toast.success('Product added to cart successfully.');
+        dispatch(setCartCount(cartCount + quantity));
         setQuantity(1)
         navigate('/cart')
       }else{

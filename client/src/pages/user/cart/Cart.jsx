@@ -1,4 +1,6 @@
 import React, { useState, useEffect,useContext } from "react";
+import { setCartCount } from "../../../redux/cartwishlistSlice";
+import { useDispatch } from "react-redux";
 import { AuthContext } from "../../../context/AuthProvider";
 import Footer from "../../../components/Footer";
 import { FaMinus, FaPlus, FaBars,FaHeart,FaTimes } from "react-icons/fa";
@@ -12,6 +14,7 @@ import { applyCoupon, removeCoupon } from "../../../api/coupon";
 const CartPage = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
@@ -39,21 +42,28 @@ const CartPage = () => {
 },[])
 
   const handleQuantityChange = async (id, quantity) => {
-    if(quantity < 1) return
+    // if(quantity < 1) return
     try {
       const response = await updateCart(id, quantity);
       if (response.status === 200) {
-        setCartItems((prev) =>
-          prev.map((item) =>
-            item.product._id === id ? { ...item, quantity: quantity } : item
-          )
+        const updatedCartItems = cartItems.map((item) =>
+          item.product._id === id ? { ...item, quantity: item.quantity + quantity } : item
         );
-
-      } else {
-        toast.error(response.message);
-      }
+  
+        setCartItems(updatedCartItems);
+        const totalQuantity = updatedCartItems.reduce(
+          (acc, item) => acc + item.quantity,
+          0
+        );
+        dispatch(setCartCount(totalQuantity));
+      } 
     } catch (error) {
-      console.error("Error updating cart:", error);
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        console.error(error);
+        toast.error('Failed to change product quantity');
+      }
     }
   };
 
@@ -92,13 +102,22 @@ const CartPage = () => {
     try {
       const response = await removeFromCart(id);
       if (response.status === 200) {
-        setCartItems((prev) => prev.filter((item) => item.product._id !== id));
+        const updatedCart = cartItems.filter((item) => item.product._id !== id);
+        setCartItems(updatedCart);
+        const totalQuantity = updatedCart.reduce(
+          (acc, item) => acc + item.quantity,
+          0
+        )
+        dispatch(setCartCount(totalQuantity));
         toast.success("Item removed from cart successfully!");
-      } else {
-        toast.error("Failed to remove item from cart!");
-      }
+      } 
     } catch (error) {
-      console.error("Error removing item from cart:", error);
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        console.error(error);
+        toast.error('Failed to remove product');
+      }
     }
   };
   
@@ -170,14 +189,14 @@ const CartPage = () => {
                   <td className="p-4 text-center">
                     <div className="flex items-center bg-slate-100 w-fit">
                       <button
-                        onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
+                        onClick={() => handleQuantityChange(item.product._id, -1)}
                         className="p-2 bg-yellow-500 hover:bg-yellow-600 text-slate-700"
                       >
                         <FaMinus />
                       </button>
                       <span className="text-lg px-3">{item.quantity}</span>
                       <button
-                        onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
+                        onClick={() => handleQuantityChange(item.product._id, 1)}
                         className="p-2 bg-yellow-500 hover:bg-yellow-600 text-slate-700"
                       >
                         <FaPlus />

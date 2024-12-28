@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { setWishlistCount, setCartCount } from '../../redux/cartwishlistSlice';
+import { useDispatch } from 'react-redux';
 import Navbar from '../../components/Navbar';
 import { useNavigate, Link } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import { getWishlist, removeFromWishlist } from '../../api/wishlist';
-import { addToCart } from '../../api/cart';
+import { updateCart } from '../../api/cart';
 import toast from 'react-hot-toast';
 
 const Wishlist = ({}) => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [wishlistItems, setWishlistItems] = useState([ ])
 
   useEffect(() => {
@@ -28,19 +31,25 @@ const Wishlist = ({}) => {
 
   const handleAddToCart = async (productId) => {
     try {
-      const response = await addToCart(productId, 1)
-      if (response.status === 200) {
+      const response1 = await updateCart(productId, 1)
+      if (response1.status === 200) {
+        dispatch(setCartCount(response1.data.quantity))
         const response = await removeFromWishlist(productId)
         if (response.status === 200) {
           setWishlistItems(response.data)
+          dispatch(setWishlistCount(response.data.length))
         }
         toast.success('Product added to cart')
       } else {
         toast.error('Failed to add product to cart')
       }
     } catch (error) {
-      console.log(error)
-      toast.error('Failed, please try again')
+      if(error.response){
+        toast.error(error.response.data.message)
+      } else {
+        console.log(error)
+        toast.error('Failed, please try again')
+      }
     }
   }
   const handleRemove = async (productId) => {
@@ -48,13 +57,18 @@ const Wishlist = ({}) => {
       const response = await removeFromWishlist(productId)
       if (response.status === 200) {
         setWishlistItems(response.data)
+        dispatch(setWishlistCount(response.data.length))
         toast.success('Product removed from wishlist')
       } else {
         toast.error('Failed to remove product from wishlist')
       }
     } catch (error) {
-      console.log(error)
-      toast.error('Failed, please try again')
+      if(error.response){
+        toast.error(error.response.data.message)
+      } else {
+        console.log(error)
+        toast.error('Failed, please try again')
+      }
     }
   }
 

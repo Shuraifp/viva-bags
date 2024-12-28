@@ -10,13 +10,15 @@ export const addToCart = async (req, res) => {
     if (!cart) {
       cart = new Cart({ user, items: [] });
     }
-    
+    const currQunty = cart.items.find(item => item.product.toString() === productId.toString())?.quantity || 0
+
     const product = await Product.findById(productId);
-    if (product.stock < quantity) {
+    if (product.stock < currQunty + quantity) {
       return res.status(400).json({ message: 'Not enough stock available' });
     }
 
-    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    const productIndex = cart.items.findIndex(item => item.product.toString() === productId.toString());
+
     if (productIndex > -1) {
       const currentQuantity = cart.items[productIndex].quantity;
       if (currentQuantity + quantity > 10) {
@@ -25,17 +27,23 @@ export const addToCart = async (req, res) => {
         });
       }
       cart.items[productIndex].quantity += quantity;
+      await cart.save();
     } else {
       if (quantity > 10) {
         return res.status(400).json({
           message: `You can only add up to 10 units of this product to your cart.`,
         });
       }
-      cart.items.push({ product:productId, quantity });
+      const updated = await Cart.findOneAndUpdate(
+        { user , "items.product": { $ne: productId } },
+        { $push: { items: { product: productId, quantity } } },
+        { new: true }
+      );
+      cart = updated;
     }
 
-    await cart.save();
-    res.status(200).json({ message: 'Product added to cart'});
+    const totalQuantity = cart.items.reduce((total, item) => total + item.quantity, 0);
+    res.status(200).json({ message: 'Product added to cart', quantity: totalQuantity});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
@@ -71,31 +79,41 @@ export const fetchCart = async (req, res) => {
 export const updateCart = async (req, res) => {
   const { productId, quantity } = req.body; 
   const user = req.user.Id;
-
+console.log(productId)
   try {
-    const cart = await Cart.findOne({ user });
+    let cart = await Cart.findOne({ user });
 
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
+    const currQunty = cart.items.find(item => item.product.toString() === productId.toString())?.quantity || 0
+
+    if (currQunty + quantity <= 0) {
+      return res.status(400).json({ message: 'Cannot reduce quantity below 1' });
+    }
+
     const product = await Product.findById(productId);
-    if (product.stock < quantity) {
+    if (product.stock < quantity+currQunty) {
       return res.status(400).json({ message: 'Not enough stock available' });
     }
 
-    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
-    if (productIndex === -1) {
-      return res.status(404).json({ message: 'Product not found in cart' });
-    }
-    if (quantity > 10) {
+    if (quantity+currQunty  > 10) {
       return res.status(400).json({
         message: `You can only add up to 10 units of this product to your cart.`,
       });
     }
-    cart.items[productIndex].quantity = quantity; 
+    
+    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    if (productIndex === -1) {
+        cart.items.push({ product: productId, quantity });
+    } else {
+        cart.items[productIndex].quantity += quantity;
+    }
+     
     await cart.save(); 
-    res.status(200).json({ message: 'Cart updated successfully'});
+    const totalQuantity = cart.items.reduce((total, item) => total + item.quantity, 0);
+    res.status(200).json({ message: 'Cart updated successfully', quantity: totalQuantity, cart });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
