@@ -15,14 +15,19 @@ export const generateSalesReport = async (req, res) => {
           $lte: new Date(new Date().setHours(23, 59, 59, 999)),
         };
         break;
+
       case 'weekly':
         const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); 
+        const dayOfWeek = startOfWeek.getDay(); 
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+        startOfWeek.setDate(startOfWeek.getDate() - diff); 
+      
         matchStage.createdAt = {
-          $gte: startOfWeek,
+          $gte: startOfWeek, 
           $lte: new Date(),
         };
         break;
+
       case 'monthly':
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); 
         matchStage.createdAt = {
@@ -58,6 +63,7 @@ export const generateSalesReport = async (req, res) => {
         }
       } 
     ]);
+    console.log(salesData)
     let couponDiscount = 0;
     const totalDiscount = salesData.reduce((acc, order) => {
       couponDiscount += order.coupon
@@ -103,14 +109,17 @@ export const downloadReport = async (req, res) => {
           $lte: new Date(new Date().setHours(23, 59, 59, 999)),
         };
         break;
-      case 'weekly':
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); 
-        matchStage.createdAt = {
-          $gte: startOfWeek,
-          $lte: new Date(),
-        };
-        break;
+        case 'weekly':
+          const startOfWeek = new Date();
+          const dayOfWeek = startOfWeek.getDay(); 
+          const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+          startOfWeek.setDate(startOfWeek.getDate() - diff); 
+        
+          matchStage.createdAt = {
+            $gte: startOfWeek, 
+            $lte: new Date(),
+          };
+          break;
       case 'monthly':
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); 
         matchStage.createdAt = {
@@ -146,6 +155,7 @@ export const downloadReport = async (req, res) => {
         }
       } 
     ]);
+  
     let couponDiscount = 0;
     const totalDiscount = salesData.reduce((acc, order) => {
       couponDiscount += order.coupon
@@ -163,13 +173,19 @@ export const downloadReport = async (req, res) => {
     
     const totalDiscountValue = (totalDiscount + productDiscount).toFixed(2);
     const ordersAmount = salesData.reduce((total,ord) => total + ord.totalAmount, 0)
+    const reportType = filter === 'daily' ? "Daily Sales Report" 
+    : filter === 'weekly' ? "Weekly Sales Report" 
+    : filter === 'monthly' ? "Monthly Sales Report" 
+    : filter === 'yearly' ? "Yearly Sales Report" 
+    : `Custom Sales Report from ${customDateRange.start} to ${customDateRange.end}`;
 
-    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData ,totalDiscountValue,couponDiscount,ordersAmount); 
+
+    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData ,totalDiscountValue,couponDiscount,ordersAmount,reportType); 
         res.setHeader('Content-Type', 'application/pdf'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.pdf"'); 
         res.send(pdfBuffer); 
       } else if (format === 'excel') { 
-        const excelBuffer = await generateExcelReport(salesData,totalDiscountValue,couponDiscount,ordersAmount); 
+        const excelBuffer = await generateExcelReport(salesData,totalDiscountValue,couponDiscount,ordersAmount,reportType); 
         res.setHeader('Content-Type', 'application/vnd.ms-excel'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.xlsx"'); 
         res.send(excelBuffer); 

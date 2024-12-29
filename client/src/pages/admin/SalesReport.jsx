@@ -92,7 +92,7 @@ console.log(reportData)
             <li className="mb-2 flex justify-between border-b border-gray-200 pb-2"><strong>Overall Order Amount:</strong> <p>₹{reportData.orderAmount}</p></li>
             <li className="mb-2 flex justify-between border-b border-gray-200 pb-2"><strong>Overall Discount:</strong> <p>₹{reportData.totalDiscount}</p></li>
             <li className="mb-2 flex justify-between border-b border-gray-200 pb-2"><strong>Coupons Deduction:</strong> <p>₹{reportData.couponsDeduction}</p></li>
-            <li className="mb-2 flex justify-between text-xl text-green-600 border-b border-gray-200 pb-2"><strong>Net Sales:</strong> <p>₹{reportData.orderAmount - reportData.totalDiscount}</p></li>
+            <li className="mb-2 flex justify-between text-xl text-green-600 border-b border-gray-200 pb-2"><strong>Net Sales:</strong> <p>₹{(reportData.orderAmount - reportData.totalDiscount).toFixed(2)}</p></li>
           </ul>
           <div className="mt-2 flex gap-1 justify-end font-normal items-end text-sm">
             <button

@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 
 
-export const generatePdfReport = async (salesData, totalDiscountValue, couponDiscount,ordersAmount) => {
+export const generatePdfReport = async (salesData, totalDiscountValue, couponDiscount,ordersAmount, reportType) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 30 });
     const buffers = [];
@@ -13,8 +13,8 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
 
     doc.fontSize(20)
       .fillColor('#007ACC')
-      .text('Sales Report', { align: 'center' })
-      .moveDown(1);
+      .text(reportType, { align: 'center' })
+      .moveDown(3);
 
     doc.fontSize(12)
       .fillColor('black')
@@ -24,12 +24,12 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
       .text(`Coupons Deduction: ₹${couponDiscount.toFixed(2)}`)
       .moveDown(2);
 
-    const startX = 50;
+    const startX = 30;
     let startY = doc.y;
-    const rowHeight = 20;
+    const rowHeight = 25;
 
-    doc.rect(startX, startY, 500, rowHeight)
-      .fill('#f4f4f4')
+    doc.rect(startX, startY, 510, rowHeight)
+      .fill('#a1a1a1')
       .stroke('#cccccc');
 
     doc.fontSize(10).fillColor('black').text('Order ID', startX + 5, startY + 5);
@@ -41,16 +41,14 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
 
     startY += rowHeight;
 
-    // Table Rows
+  
     salesData.forEach((order, index) => {
       const isEvenRow = index % 2 === 0;
 
-      // Alternate row background
-      doc.rect(startX, startY, 500, rowHeight)
-        .fill(isEvenRow ? '#ffffff' : '#f9f9f9')
+      doc.rect(startX, startY, 510, rowHeight)
+        .fill(isEvenRow ? '#ffffff' : '#d2d2d2')
         .stroke('#cccccc');
 
-      // Row Data
       doc.fontSize(9)
         .fillColor('black')
         .text(order.orderNumber, startX + 5, startY + 5)
@@ -71,57 +69,90 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
 };
 
 
-
-export const generateExcelReport = async (salesData,totalDiscountValue,couponDiscount,ordersAmount) => {
+export const generateExcelReport = async (salesData, totalDiscountValue, couponDiscount, ordersAmount, reportType) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Sales Report');
 
+  const titleRow = worksheet.addRow([reportType]);
+  // worksheet.mergeCells('A1:F1');
+  titleRow.font = { name: 'Calibri', size: 16, bold: true };
+  titleRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
-  worksheet.addRow(['Sales Report']);
-  worksheet.addRow([]);
-  
   worksheet.addRow([]);
   worksheet.addRow([]);
 
-  
   worksheet.columns = [
-    { header: 'Order ID', key: 'orderId', width: 15 },
-    { header: 'Order Date', key: 'orderDate', width: 15 },
-    { header: 'Product Count', key: 'productCount', width: 15 },
-    { header: 'Order Amount', key: 'orderAmount', width: 15 },
-    { header: 'Discount', key: 'discount', width: 15 },
-    { header: 'Net Amount', key: 'netAmount', width: 15 },
+    { header: 'Order ID', key: 'orderId', width: 25 },
+    { header: 'Order Date', key: 'orderDate', width: 25 },
+    { header: 'Product Count', key: 'productCount', width: 25 },
+    { header: 'Order Amount', key: 'orderAmount', width: 25 },
+    { header: 'Discount', key: 'discount', width: 25 },
+    { header: 'Net Amount', key: 'netAmount', width: 25 },
   ];
 
-  
+  worksheet.columns.forEach(column => {
+    column.header = column.header.toUpperCase();
+    column.style = {
+      font: { name: 'Calibri', size: 10, bold: true },
+      alignment: { vertical: 'middle', horizontal: 'center' },
+      border: {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      },
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'D9EAD3' }
+      }
+    };
+  });
+
   salesData.forEach((order) => {
-    worksheet.addRow({
+    const row = worksheet.addRow({
       orderId: order.orderNumber,
       orderDate: order.createdAt.toISOString().split('T')[0],
       productCount: order.productDetails.length,
       orderAmount: order.productDetails.reduce((total, product) => total + product.regularPrice, 0),
-      discount: order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0) + (order.coupon ? order.coupon.discountType === 'percentage'? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0),
+      discount: order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0) +
+        (order.coupon ? order.coupon.discountType === 'percentage' ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0),
       netAmount: order.totalAmount,
+    });
+
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
     });
   });
 
-  worksheet.addRow([])
-  worksheet.addRow([])
-  worksheet.addRow([])
-  worksheet.addRow([
-    'Overall Sales Count',
-    salesData.length,
-    'Overall Order Amount',
-    `₹${salesData.reduce((acc, order) => acc + order.totalAmount, 0)}`,
-  ]);
-  worksheet.addRow([
-    'Overall Discount',
-    `₹${totalDiscountValue}`,
-    'Coupons Deduction',
-    `₹${couponDiscount.toFixed(2)}`,
-  ]);
+  worksheet.addRow([]);
+  worksheet.addRow([]);
+  worksheet.addRow([]);
 
-  
+  const overallSalesRow = worksheet.addRow([
+    'Overall Sales Count', salesData.length,
+    'Overall Order Amount', `₹${salesData.reduce((acc, order) => acc + order.totalAmount, 0)}`
+  ]);
+  overallSalesRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'green' }, size: 15, textDecoration: 'underline', textWrap: true };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+
+  const discountRow = worksheet.addRow([
+    'Overall Discount', `₹${totalDiscountValue}`,
+    'Coupons Deduction', `₹${couponDiscount.toFixed(2)}`
+  ]);
+  discountRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'red' }, size: 15, textDecoration: 'underline', textWrap: true };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+
   const buffer = await workbook.xlsx.writeBuffer();
   return buffer;
 };
+
