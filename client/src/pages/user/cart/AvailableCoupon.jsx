@@ -2,23 +2,42 @@ import React, { useEffect, useState, useRef } from "react";
 import { getCouponsForUser } from "../../../api/coupon";
 import toast from "react-hot-toast";
 
-const AvailableCoupons = ({ selectedCoupon, setSelectedCoupon }) => {
+const AvailableCoupons = ({ selectedCoupon, setSelectedCoupon,purchaseAmount }) => {
   const [coupons, setCoupons] = useState([]);
   const couponListRef = useRef(null);
 
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
-        const response = await getCouponsForUser();
-        setCoupons(response.data.coupons);
+        const response = await getCouponsForUser(purchaseAmount);
+        let fetchedCoupons = response.data.coupons;
+
+        if (fetchedCoupons.length > 1) {
+          fetchedCoupons = fetchedCoupons
+            .sort((a, b) =>
+              a.discountType === b.discountType
+                ? b.discountValue - a.discountValue
+                : a.discountType === "percentage"
+                ? b.discountValue - purchaseAmount * (a.discountValue / 100)
+                : purchaseAmount * (b.discountValue / 100) - a.discountValue
+            )
+            .slice(0, 2);
+        }
+
+        setCoupons(fetchedCoupons);
       } catch (error) {
         console.error("Error fetching coupons: " + error);
       }
     };
 
     fetchCoupons();
-  }, []);
+  }, [purchaseAmount]);
 
+  if(coupons.length === 0) {
+    return (
+      <div className="text-center text-yellow-600 my-6">No coupons available for this purchase amount</div>
+    )
+  }
 
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code)

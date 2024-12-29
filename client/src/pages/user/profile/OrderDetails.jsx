@@ -6,7 +6,6 @@ import { getSingleOrder } from "../../../api/order";
 const OrderDetails = () => {
   const { orderId :id } = useParams();
   const [order, setOrder] = useState(null);
-  const [statusIndex, setStatusIndex] = useState(0);
   const orderstatusus = {
     1: "Pending",
     2: "Shipped",
@@ -30,24 +29,7 @@ const OrderDetails = () => {
     };
     fetchOrder();
   }, [id]);
-  
-  
-  useEffect(() => {
-    if (order) {
-      for (let i = 0; i < Object.keys(orderstatusus).length; i++) {
-        if (order.status === Object.values(orderstatusus)[i]) {
-          setStatusIndex(i);
-          break;
-        }
-      }
-    }
-  }, [order]);
-  
-  console.log(statusIndex)
 
-  // const subtotal = order?.products.reduce((acc, item) => acc + item.productId.discountedPrice * item.quantity, 0);
-  // const shipping = 10;
-  // const total = subtotal + shipping;
   return (
     <div className="p-4 md:p-8 bg-gray-100">
       {/* Progress Section */}
@@ -83,7 +65,7 @@ const OrderDetails = () => {
             <div
               key={index}
               className={`flex-1 text-center py-2 border ${
-                index <= statusIndex + 1 ? "bg-green-50 border-green-500" : "bg-gray-50 border-gray-200 text-gray-500"
+                index <= Object.values(orderstatusus).indexOf(order?.status) +1 ? "bg-green-50 border-green-500" : "bg-gray-50 border-gray-200 text-gray-500"
               } rounded-sm`}
             >
               <span className="block text-sm font-medium">{step}</span>
@@ -128,8 +110,8 @@ const OrderDetails = () => {
                  </div>
                 </td>
                 <td className="p-2 border border-gray-200 text-center">{product.quantity}</td>
-                <td className="p-2 border border-gray-200 text-center">{product.productId.discountedPrice.toFixed(2)}</td>
-                <td className="p-2 border border-gray-200 text-center">{(product.productId.discountedPrice * product.quantity).toFixed(2)}</td>
+                <td className="p-2 border border-gray-200 text-center">{product.price.toFixed(2)}</td>
+                <td className="p-2 border border-gray-200 text-center">{(product.price * product.quantity)}</td>
               </tr>
             ))}
           </tbody>
@@ -139,24 +121,24 @@ const OrderDetails = () => {
       {/* Payment and Customer Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Payment Section */}
-        <div className="bg-white shadow p-6">
+        <div className="bg-orange-200 shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Payment</h2>
           <ul>
             <li className="flex justify-between py-1">
               <span>Subtotal:</span>
-              <span>{order?.products.reduce((total, product) => total + product.productId.discountedPrice * product.quantity, 0).toFixed(2)}</span>
+              <span>{order?.products.reduce((total, product) => total + product.price * product.quantity, 0)}</span>
             </li>
-            <li className={`flex justify-between py-1 ${order?.coupon ? "" : "hidden"}`}>
-              <span>Discount :</span>
+            {order?.coupon.discountValue !== 0 && <li className={`flex justify-between py-1`}>
+              <span>Discount (Coupon):</span>
               <span>{order?.coupon.discountType === "percentage" ? `${order?.coupon.discountValue}%` : `₹${order?.coupon.discountValue}`}</span>
-            </li>
+            </li>}
             <li className="flex justify-between py-1">
               <span>Shipping Cost:</span>
               <span>{order?.shippingCost}</span>
             </li>
-            <li className="flex justify-between py-1 font-semibold">
+            <li className="flex justify-between py-1 text-lg mt-2 font-semibold">
               <span>Total:</span>
-              <span>{order?.totalAmount}</span>
+              <span className="text-green-600">{order?.totalAmount.toFixed(2)}</span>
             </li>
           </ul>
         </div>

@@ -14,32 +14,35 @@ const MyOrders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages,setTotalPages] = useState(1)
+  const [orderStatus, setOrderStatus] = useState({});
   const limitPerPage = 2;
   const orderActionsByStatus = {
-    Pending: ["Cancel Order"], // "Change Address", "View/Edit Details", 
-    Shipped: ["Track Your Package", "View/Edit Details"],
-    Delivered: ["Track Your Package", "View/Edit Details", "Return Item"],
-    // Cancelled: ["View/Edit Details"]
+    Pending: ["Cancel Order","View Details"], 
+    Shipped: ["View Details"],
+    Delivered: ["View Details"],
+    Cancelled: ["View Details"]
   };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await getAllOrdersForUser(currentPage,limitPerPage);
-        setOrders([...response.data.orders]);
-        setFilteredOrders(response.data.orders)
-        setTotalPages(response.data.totalPages)
-        window.scrollTo({top:0,behavior:'instant'})
-      } catch (err) {
-        if(err.response){
-          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
-            logout();
-          }
-        }
-      }
-    };
     fetchOrders();
   }, [currentPage]);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await getAllOrdersForUser(currentPage,limitPerPage);
+      setOrders([...response.data.orders]);
+      // setOrderStatus({...response.data.orders.map(order => order.products.length > 1 ? { ...order, status: "In-Progress Items" } : { ...order, status: order.products[0].status })});
+      setFilteredOrders(response.data.orders)
+      setTotalPages(response.data.totalPages)
+      window.scrollTo({top:0,behavior:'instant'})
+    } catch (err) {
+      if(err.response){
+        if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+          logout();
+        }
+      }
+    }
+  };
 
   const filterOrders = (tab) => {
     setActiveTab(tab);
@@ -68,7 +71,10 @@ const MyOrders = () => {
           toast.success(response.data.message);
           setFilteredOrders(filteredOrders.map(order => order._id === orderId ? { ...order, status: "Cancelled" } : order));
         }
-      } else {
+      } else if (action === "View Details") {
+        navigate(`/profile/orders/${orderId}`);
+      }
+       else {
         navigate(`/profile/orders`);
       }
     } catch (err) {
@@ -82,7 +88,7 @@ const MyOrders = () => {
       const response = await cancelItem(orderId, productId);
       if (response.status === 200) {
         toast.success(response.data.message);
-        // setFilteredOrders(filteredOrders.map(order => order._id === orderId ? { ...order, products: order.products.filter(product => product.productId._id !== productId) } : order));
+        fetchOrders();
       }
     } catch (err) {
       toast.error(err.response.data.message);
@@ -145,10 +151,10 @@ const MyOrders = () => {
             <div>
               <p className="text-gray-700 text-sm">Total Price: {order.totalAmount}</p>
               <Link
-                to={`/profile/orders/${order._id}`}
+                // to={}
                 className="text-blue-500 hover:underline text-sm"
               >
-                View Details
+                Download Invoice
               </Link>
             </div>
           </div>
@@ -183,11 +189,18 @@ const MyOrders = () => {
                   <p className="text-gray-600 text-sm">Quantity: {item.quantity}</p>
                 </div>
               </div>
-              { order.products.length > 1 ? item.status !== "Cancelled" && order.status !== "Cancelled" ? <button
-                onClick={() => handleCancelItem(order._id, item.productId._id)}
+              { order.products.length > 1 ? item.status !== "Cancelled" && order.status !== "Cancelled" ? 
+              <button
+                onClick={() => {
+                  if (order.status === "Delivered") {
+                    handleReturnItem(order._id, item.productId._id);
+                  } else {
+                    handleCancelItem(order._id, item.productId._id)
+                  }
+                }}
                 className="h-fit md:mr-12 text-sm md:text-base px-4 py-2 border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"
               >
-                Cancel item
+                {order.status === "Delivered" ? "Return Item" : "Cancel Item"}
               </button> : <p className="text-sm md:text-base md:mr-12 text-red-500">Cancelled</p> : ""}
             </div>
           ))}

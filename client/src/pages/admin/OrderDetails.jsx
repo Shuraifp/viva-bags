@@ -133,7 +133,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>{order?.products.reduce((total, product) => total + product.productId.discountedPrice * product.quantity, 0)}</span>
+                  <span>{order?.products.reduce((total, product) => total + product.price * product.quantity, 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Discount:</span>

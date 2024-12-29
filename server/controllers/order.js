@@ -54,6 +54,8 @@ export const createOrder = async (req, res) => {
           user: userId,
           products: products.map((product) => ({
             productId: product.productId,
+            price: Number(product.price),
+            discount: Number(product.discount),
             quantity: Number(product.quantity),
         })),
           address,
@@ -115,6 +117,9 @@ export const cancelOrder = async (req, res) => {
   try {
     const { id: orderId } = req.params;
 
+    console.log("dhsdjs",req.params);
+    
+
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: "Order not found" });
     if (order.status === "Cancelled")
@@ -125,7 +130,6 @@ export const cancelOrder = async (req, res) => {
       item.status = "Cancelled";
     })
     order.markModified("products");
-    console.log(order.products);
 
     const productUpdates = order.products.map((item) => ({
       updateOne: {
@@ -164,21 +168,28 @@ export const cancelOrder = async (req, res) => {
 export const cancelOrderItem = async (req, res) => {
   try {
     const { orderId, productId } = req.body;
-    console.log(orderId)
+    console.log(productId,orderId)
+
 
     const order = await Order.findById(orderId);
-console.log(order)
+
     if (!order) return res.status(404).json({ message: "Order not found" });
 
+    if(order.status === "Cancelled"){
+      return res.status(400).json({ message: "Order already cancelled" });
+    }
+    
     const productIndex = order.products.findIndex(
       (item) => item.productId._id.toString() === productId
     );
-    if (productIndex === -1)
+    if (productIndex === -1){
       return res.status(404).json({ message: "Product not found in the order" });
+    }
 
     const product = order.products[productIndex];
-
+     console.log(product.status)
     product.status = "Cancelled";
+    console.log(product.status, order.status)
 
     await Product.findByIdAndUpdate(productId, {
       $inc: { stock: product.quantity },
@@ -244,9 +255,7 @@ console.log(order)
       order.status = uncancelledProducts[0].status;
       await order.save();
     }
-    if(order.status === "Cancelled"){
-      return res.status(400).json({ message: "Order already cancelled" });
-    }
+    
 
     res.status(200).json({ message: "Item cancelled successfully", order });
   } catch (error) {

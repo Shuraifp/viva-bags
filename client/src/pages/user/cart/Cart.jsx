@@ -181,11 +181,11 @@ const CartPage = () => {
               {cartItems.map((item) => (
                 <tr key={item._id} className="my-2 bg-white hover:bg-gray-200">
                   <td className="p-2 flex items-center space-x-4">
-                    <img src={import.meta.env.VITE_API_URL + item.product.images[0].url} alt={item.product.name} className="w-16 h-16 rounded-md" />
+                    <img  loading="lazy" src={import.meta.env.VITE_API_URL + item.product.images[0].url} alt={item.product.name} className="w-16 h-16 rounded-md" />
                     <span>{item.product.name}</span>
                   </td>
                   <td className="p-4 text-center">{item.product.category.name}</td>
-                  <td className="p-4 text-center">{item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice}</td>
+                  <td className="p-4 text-center text-green-500">{item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice} <span className="text-sm text-gray-400 line-through">{item.product.discountedPrice ? item.product.regularPrice : ""}</span></td>
                   <td className="p-4 text-center">
                     <div className="flex items-center bg-slate-100 w-fit">
                       <button
@@ -218,7 +218,7 @@ const CartPage = () => {
           </table>
 
           {/* Available Coupons */}
-          <AvailableCoupons selectedCoupon={selectedCoupon} setSelectedCoupon={setSelectedCoupon} />
+          <AvailableCoupons selectedCoupon={selectedCoupon} setSelectedCoupon={setSelectedCoupon} purchaseAmount={total} />
         </div> 
 
         {/* Cart Summary */}
@@ -244,10 +244,10 @@ const CartPage = () => {
             <span>Subtotal:</span>
             <span>{subtotal}</span>
           </div>
-          <div className="flex justify-between mb-2">
+          { coupon && <div className="flex justify-between mb-2">
             <span>Discount:</span>
             <span className="text-green-500">{coupon ? coupon.discountType === "percentage" ? `${coupon.discountValue}%` : coupon.discountValue : "N/A"}</span>
-          </div>
+          </div>}
           <div className="flex justify-between mb-2">
             <span>Shipping:</span>
             <span>{cartItems.length > 0 ? shipping : "N/A"}</span>

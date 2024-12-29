@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { setCartCount } from "../../../redux/cartwishlistSlice.js";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHeart, FaBars, FaTimes } from "react-icons/fa";
 import Footer from "../../../components/Footer.jsx";
@@ -10,6 +12,7 @@ import { createRazorpayOrder } from "../../../api/payment.js";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([])
@@ -90,6 +93,8 @@ const CheckoutPage = () => {
       const orderData = {
         products: cartItems.map((item) => ({
           productId: item.product._id,
+          price: item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice,
+          discount: item.product.discountedPrice ? item.product.regularPrice - item.product.discountedPrice : 0,
           quantity: item.quantity
         })),
         address: {
@@ -111,12 +116,13 @@ const CheckoutPage = () => {
         paymentMethod: paymentMethod, 
         totalAmount: total,
       };
-  
+      localStorage.removeItem("coupon");
       const response = await createOrder(orderData);
       if(response.status===201){
         console.log(response.data.message)
         clearCart();
         setCartItems([]);
+        dispatch(setCartCount(0));
         navigate('/success')
       }
       
@@ -145,7 +151,7 @@ const CheckoutPage = () => {
   const shipping = 10;
   const discount = coupon? coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}` : 0;
   const total = coupon?.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
-console.log(coupon)
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* navbar */}
@@ -321,10 +327,10 @@ console.log(coupon)
                 <span>Subtotal:</span>
                 <span>{subtotal}</span>
               </div>
-              <div className="flex justify-between mb-2">
+              { coupon && <div className="flex justify-between mb-2">
                 <span>Discount:</span>
                 <span className="text-green-500 font-medium">{discount}</span>
-              </div>
+              </div>}
               <div className="flex justify-between mb-2">
                 <span>Shipping:</span>
                 <span>{shipping}</span>
@@ -349,7 +355,7 @@ console.log(coupon)
                 Razorpay
               </label>
               <label className="block ml-6 my-2">
-                <input type="radio" name="paymetMethod" value="Cod" checked={paymentMethod === "Cod"} onChange={handlePaymentMethodChange} className="mr-3" />
+                <input type="radio" name="paymetMethod" value="COD" checked={paymentMethod === "COD"} onChange={handlePaymentMethodChange} className="mr-3" />
                 Cash on Delivery (COD)
               </label>
               <label className="block ml-6 my-2">

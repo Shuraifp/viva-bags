@@ -130,13 +130,13 @@ console.log(reportData)
             >
               <td className="py-2 px-4">{order.orderNumber}</td>
               <td className="py-2 px-4">{order.createdAt.slice(0, 10)}</td>
-              <td className="py-2 px-4">{order.productDetails.length}</td>
+              <td className="py-2 px-4">{order.products.reduce((total, product) => total + product.quantity, 0)}</td>
               <td className="py-2 px-4">₹{order.productDetails.reduce((total, product) => total + product.regularPrice, 0)}</td>
               <td className="py-2 px-4 space-x-2">{order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0)
                + (order.coupon ? order.coupon.discountType === 'percentage'? 
                   order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0)}
               </td>
-              <td className="py-2 px-4">₹{order.totalAmount-order.shippingCost}</td>
+              <td className="py-2 px-4">₹{order.totalAmount}</td>
             </tr>
           ))}
         </tbody>

@@ -205,6 +205,8 @@ export const deleteOrRestoreCoupon = async (req, res) => {
 
 //                           User
 export const getCouponsForUser = async (req, res) => {
+  const { purchaseAmount } = req.query;
+  console.log(purchaseAmount);
   try {
     const now = new Date();
 
@@ -217,6 +219,7 @@ export const getCouponsForUser = async (req, res) => {
       isActive: true,
       validFrom: { $lte: now },
       validTill: { $gte: now },
+      minimumPurchase: { $lte: purchaseAmount },
     });
 
     const userUsage = await UserUsage.findOne({ userId: req.user.Id });

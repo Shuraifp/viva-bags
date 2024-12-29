@@ -6,7 +6,7 @@ export const generateSalesReport = async (req, res) => {
   const { filter, customDateRange } = req.body;
   try {
     let salesData;
-    const matchStage = {};
+    const matchStage = { status: 'Delivered' };
 
     switch (filter) {
       case 'daily':
@@ -65,18 +65,13 @@ export const generateSalesReport = async (req, res) => {
           ? order.totalAmount * (order.coupon.discountValue / 100)
           : order.coupon.discountValue
         : 0;
-        console.log(couponDiscount)
       return acc + couponDiscount;
     }, 0);
     
-    const productDiscount = salesData[0].productDetails
-      ? salesData.reduce((acc, productDetail) => {
-        return acc + productDetail.productDetails.reduce((productAcc, product) => {
-          return productAcc + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0);
-        }, 0);
-      }, 0)
-      : 0;
-    
+    const productDiscount = salesData[0]?.products? salesData.reduce((acc, order) => {
+      return order.products.reduce((acc, item) => acc + item.discount,0)
+    },0) : 0;
+
     const totalDiscountValue = totalDiscount + productDiscount;
     
 
@@ -99,7 +94,7 @@ export const downloadReport = async (req, res) => {
   const { filter, customDateRange } = req.body; 
   try { 
     let salesData;
-    const matchStage = {};
+    const matchStage = { status: 'Delivered' };
 
     switch (filter) {
       case 'daily':
@@ -158,26 +153,23 @@ export const downloadReport = async (req, res) => {
           ? order.totalAmount * (order.coupon.discountValue / 100)
           : order.coupon.discountValue
         : 0;
-        console.log(couponDiscount)
       return acc + couponDiscount;
     }, 0);
     
-    const productDiscount = salesData[0].productDetails
-      ? salesData.reduce((acc, productDetail) => {
-        return acc + productDetail.productDetails.reduce((productAcc, product) => {
-          return productAcc + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0);
-        }, 0);
-      }, 0)
-      : 0;
+    const productDiscount = salesData[0]?.products? salesData.reduce((acc, order) => {
+      return order.products.reduce((acc, item) => acc + item.discount,0)
+    },0) : 0;
+
     
     const totalDiscountValue = (totalDiscount + productDiscount).toFixed(2);
+    const ordersAmount = salesData.reduce((total,ord) => total + ord.totalAmount, 0)
 
-    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData ,totalDiscountValue,couponDiscount); 
+    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData ,totalDiscountValue,couponDiscount,ordersAmount); 
         res.setHeader('Content-Type', 'application/pdf'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.pdf"'); 
         res.send(pdfBuffer); 
       } else if (format === 'excel') { 
-        const excelBuffer = await generateExcelReport(salesData,totalDiscountValue,couponDiscount); 
+        const excelBuffer = await generateExcelReport(salesData,totalDiscountValue,couponDiscount,ordersAmount); 
         res.setHeader('Content-Type', 'application/vnd.ms-excel'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.xlsx"'); 
         res.send(excelBuffer); 

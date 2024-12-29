@@ -49,9 +49,13 @@ export const deleteOrRestoreCoupon = async (id) => {
 
 //                           User
 
-export const getCouponsForUser = async () => {
+export const getCouponsForUser = async (purchaseAmount) => {
   try {
-    const response = await userApi.get("/user/coupons");
+    const response = await userApi.get("/user/coupons", {
+      params: {
+        purchaseAmount,
+      },
+    });
     return response;
   } catch (error) {
     throw error;
