@@ -27,15 +27,6 @@ const Navbar = () => {
       }
     };
 
-    // const getCartCount = async () => {
-    //   try {
-    //     const response = await getCountOfCartItems();
-    //     setCartCount(response.data)
-    //     localStorage.setItem('cartCount',response.data)
-    //   } catch (error) {
-    //     console.error('Error fetching cart count:', error);
-    //   }
-    // };
     fetchCategories();
   },[])
 

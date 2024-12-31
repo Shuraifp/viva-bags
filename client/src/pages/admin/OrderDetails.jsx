@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getSingleOrder, updateProductStatus } from "../../api/order";
+import { getSingleOrder, updateProductStatus, updateReturnStatus } from "../../api/order";
 import toast from "react-hot-toast";
 
 const OrderDetails = () => {
   const [order, setOrder] = useState(null);
+  const [isCustomerNotesOpen, setIsCustomerNotesOpen] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -27,16 +28,26 @@ const OrderDetails = () => {
           toast.success(response.data.message)
         }
       } catch (error) {
-        if (error.response) {
-          if (error.response.status === 400) {
+        if (error.response){
             toast.error(error.response.data.message); 
-          } else {
-            toast.error('An error occurred. Please try again later.');
-          }
-        } else if (error.request) {
-          toast.error('Network error. Please check your connection.');
         } else {
-          toast.error('An unexpected error occurred.');
+            toast.error(error.message);
+        }
+    }
+  }
+
+  const handleUpdateReturnStatus = async (id, status) => {
+    try {
+      const response = await updateReturnStatus(order._id, id, status)
+        if(response.status === 200) {
+          setOrder(response.data.order)
+          toast.success(response.data.message)
+        }
+      } catch (error) {
+          if (error.response){
+            toast.error(error.response.data.message); 
+        } else {
+            toast.error(error.message);
         }
     }
   }
@@ -63,6 +74,7 @@ const OrderDetails = () => {
               <th className="p-2 border border-gray-200 text-center">Price</th>
               <th className="p-2 border border-gray-200 text-center">Total</th>
               <th className="p-2 border border-gray-200 text-center">Status</th>
+              {(order?.isReturnRequested || order?.products.some(product => product.isReturnRequested)) && <th className="p-2 border border-gray-200 text-center">Return</th>}
             </tr>
           </thead>
           <tbody>
@@ -94,8 +106,33 @@ const OrderDetails = () => {
                     <option value="Shipped" className="text-yellow-600">Shipped</option>
                     <option value="Delivered" className="text-green-600">Delivered</option>
                     <option value="Cancelled" className="text-red-600">Cancelled</option>
+                    <option value="Returned" className="text-red-600">Returned</option>
                   </select>
               </td>
+              {(order?.isReturnRequested || order?.products.some(product => product.isReturnRequested)) && <td className="text-center">
+                  <select
+                    value={product.returnStatus || 'None'}
+                    onChange={(e) => handleUpdateReturnStatus(product.productId._id, e.target.value)}
+                    className={`appearance-none  ${product.returnStatus === "Approved" ? "text-yellow-500" : product.returnStatus === "Completed" ? "text-green-500" : product.returnStatus === "Rejected" ? "text-red-500" : 'text-gray-500'} border border-gray-200 text-center focus:ring-yellow-500 focus:border-yellow-500 block w-full ${!product.isReturnRequested ? "py-10 bg-gray-200" : "py-2 h-[70px] bg-gray-200 hover:bg-gray-300"} m-0`}
+                  >
+                    <option value="None" className="text-gray-500">None</option>
+                    <option disabled={product.returnStatus !== "Pending"} value="Pending" className="text-gray-900">Pending</option>
+                    <option disabled={product.returnStatus === "Completed"} value="Approved" className="text-yellow-600">Approved</option>
+                    <option disabled={product.returnStatus === "Completed"} value="Rejected" className="text-green-600">Rejected</option>
+                    <option disabled={product.returnStatus === "Rejected" || product.returnStatus === "Pending"} value="Completed" className="text-red-600">Completed</option>
+                  </select>
+                  { product.isReturnRequested && 
+                  <div
+                  onClick={() => setIsCustomerNotesOpen(!isCustomerNotesOpen)}
+                  className="text-center cursor-pointer relative"
+                  >
+                    <p className="text-gray-500 bg-gray-300 py-1 hover:bg-gray-400 hover:text-white mt-1 text-sm">Customer Notes</p>
+                    { isCustomerNotesOpen &&
+                    <div
+                    className="absolute top-8 left-0 right-0 bg-gray-200 p-2 border border-gray-300 text-sm"
+                    ><p className="text-left">{order.returnReason ? order.returnReason : product.returnReason}</p></div>}
+                  </div>}
+              </td>}
               </tr>
             ))}
           </tbody>
@@ -135,10 +172,10 @@ const OrderDetails = () => {
                   <span>Subtotal:</span>
                   <span>{order?.products.reduce((total, product) => total + product.price * product.quantity, 0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Discount:</span>
+                {order?.coupon.discountValue !== 0 && <div className="flex justify-between">
+                  <span>Coupon Discount:</span>
                   <span className="text-green-600 font-medium">{order?.coupon.discountType === "percentage" ? `-${order?.coupon.discountValue}%` : `-₹${order?.coupon.discountValue}`}</span>
-                </div>
+                </div>}
                 <div className="flex justify-between">
                   <span>Delivery Fee:</span>
                   <span>{order?.shippingCost}</span>

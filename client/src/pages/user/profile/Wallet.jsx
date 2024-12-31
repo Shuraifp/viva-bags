@@ -48,11 +48,11 @@ const WalletPage = () => {
                     {transaction.type}
                   </td>
                   <td className="py-2 px-4 border">{transaction.description}</td>
-                  <td className="py-2 px-4 border">{transaction.orderId ? transaction.orderId : 'N/A'}</td>
+                  <td className="py-2 px-4 border">{transaction.orderId ? transaction.orderId.orderNumber : 'N/A'}</td>
                   <td className={`py-2 px-4 border ${transaction.type === 'Credit' ? 'text-green-500' : 'text-red-500'}`}>
-                    {transaction.type === 'Credit' ? '+' : '-'}₹{transaction.amount}
+                    {transaction.type === 'Credit' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                   </td>
-                  <td className="py-2 px-4 border">{transaction.balanceAfter}</td>
+                  <td className="py-2 px-4 border">{transaction.balanceAfter.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

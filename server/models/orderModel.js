@@ -33,6 +33,19 @@ const orderSchema = new mongoose.Schema({
             enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
             default: 'Pending'
         },
+        isReturnRequested: {
+            type: Boolean,
+            default: false
+        },
+        returnReason: {
+            type: String,
+            default: null
+        },
+        returnStatus: {
+            type: String,
+            enum: ['Pending', 'Approved', 'Rejected', 'Completed'],
+            default: null
+        }
     }
     ],
     address: {
@@ -74,7 +87,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
+        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
         default: 'Pending'
     },
     paymentMethod: {
@@ -102,6 +115,19 @@ const orderSchema = new mongoose.Schema({
         enum: ['Pending', 'Completed', 'Failed'],
         default: 'Pending'
     },
+    isReturnRequested: {
+        type: Boolean,
+        default: false
+    },
+    returnReason: {
+        type: String,
+        default: null
+    },
+    returnStatus: {
+        type: String,
+        enum: ['Pending', 'Approved', 'Rejected', 'Responded', 'Completed'],
+        default: null
+    }
 
 }, { timestamps: true });
 

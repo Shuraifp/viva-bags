@@ -17,16 +17,22 @@ export const generateSalesReport = async (req, res) => {
         break;
 
       case 'weekly':
-        const startOfWeek = new Date();
-        const dayOfWeek = startOfWeek.getDay(); 
-        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
-        startOfWeek.setDate(startOfWeek.getDate() - diff); 
-      
-        matchStage.createdAt = {
-          $gte: startOfWeek, 
-          $lte: new Date(),
-        };
-        break;
+       const now = new Date();
+       const currentDay = now.getDay(); 
+       const daysToMonday = currentDay === 0 ? 6 : currentDay - 1; 
+            
+       const startOfWeek = new Date(now);
+       startOfWeek.setDate(now.getDate() - daysToMonday);
+       startOfWeek.setHours(0, 0, 0, 0); 
+            
+       const endOfWeek = new Date();
+       endOfWeek.setHours(23, 59, 59, 999);
+            
+       matchStage.createdAt = {
+         $gte: startOfWeek,
+         $lte: endOfWeek,
+       };
+       break;
 
       case 'monthly':
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); 
@@ -109,17 +115,25 @@ export const downloadReport = async (req, res) => {
           $lte: new Date(new Date().setHours(23, 59, 59, 999)),
         };
         break;
-        case 'weekly':
-          const startOfWeek = new Date();
-          const dayOfWeek = startOfWeek.getDay(); 
-          const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
-          startOfWeek.setDate(startOfWeek.getDate() - diff); 
         
+        case 'weekly':
+          const now = new Date();
+          const currentDay = now.getDay(); 
+          const daysToMonday = currentDay === 0 ? 6 : currentDay - 1; 
+               
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - daysToMonday);
+          startOfWeek.setHours(0, 0, 0, 0); 
+               
+          const endOfWeek = new Date();
+          endOfWeek.setHours(23, 59, 59, 999);
+               
           matchStage.createdAt = {
-            $gte: startOfWeek, 
-            $lte: new Date(),
+            $gte: startOfWeek,
+            $lte: endOfWeek,
           };
           break;
+
       case 'monthly':
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); 
         matchStage.createdAt = {

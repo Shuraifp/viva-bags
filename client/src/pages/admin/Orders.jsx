@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { getAllOrders } from "../../api/order";
+import { getAllOrders, updateOrderStatus } from "../../api/order";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { updateOrderStatus } from "../../api/order";
+import { FaSearch } from "react-icons/fa";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [statusUpdate, setStatusUpdate] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState('');
+  const [searchPressed, setSearchPressed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 5;
@@ -15,7 +17,7 @@ const OrderManagement = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await getAllOrders(currentPage, itemsPerPage, filter);
+        const response = await getAllOrders(currentPage, itemsPerPage, filter, search);
         setOrders(response.data.orders);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -24,7 +26,7 @@ const OrderManagement = () => {
     }
 
     fetchOrders();
-  }, [currentPage, filter, statusUpdate]);
+  }, [currentPage, filter, statusUpdate, searchPressed]);
   
 
   const changeStatus = async (orderId, newStatus) => {
@@ -44,7 +46,7 @@ const OrderManagement = () => {
   const handlePageClick = (page) => {
     setCurrentPage(page);
   };
-
+console.log(orders)
   return (
     <div className="p-6 bg-gray-100 h-screen relative">
       <h2 className="text-xl font-semibold mb-4">Order Management</h2>
@@ -65,6 +67,20 @@ const OrderManagement = () => {
             <option value="Cancelled">Cancelled</option>
           </select>
         </div>
+        <div className="flex items-center">
+          <button
+            onClick={() => setSearchPressed(!searchPressed)}
+            className="px-3 py-3  text-nowrap text-white bg-gray-600 hover:bg-gray-700">
+            <FaSearch />
+          </button>
+          <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by offer code"
+              className="border border-gray-300 p-2 ml-1"
+            />
+        </div>
       </div>
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead>
@@ -83,7 +99,7 @@ const OrderManagement = () => {
             <tr
               key={index}
               className={`border-b ${
-                item.status === "Cancelled" ? "bg-orange-100" : "bg-white"
+                item.status === "Cancelled" || item.status === "Returned" ? "bg-orange-100" : "bg-white"
               }`}
             >
               <td className="py-2 px-4">{index + 1}</td>
@@ -97,10 +113,11 @@ const OrderManagement = () => {
                 onChange={(e) => changeStatus(item._id, e.target.value)}
                 className="border border-gray-300 p-2 rounded-sm"
                 >
-                  <option value="Pending" disabled={["Delivered", "Cancelled"].includes(item.status)}>Pending</option>
-                  <option value="Shipped" disabled={["Delivered", "Cancelled"].includes(item.status)}>Shipped</option>
-                  <option value="Delivered" disabled={["Cancelled"].includes(item.status)}>Delivered</option>
-                  <option value="Cancelled" disabled={item.status==="Returned"}>Cancelled</option>
+                  <option value="Pending" disabled={["Delivered", "Cancelled", "Returned"].includes(item.status)}>Pending</option>
+                  <option value="Shipped" disabled={["Delivered", "Cancelled", "Returned"].includes(item.status)}>Shipped</option>
+                  <option value="Delivered" disabled={["Cancelled", "Returned","Pending"].includes(item.status)}>Delivered</option>
+                  <option value="Cancelled" disabled={item.status==="Returned" || item.products.some((product) => product.status === "Delivered")}>Cancelled</option>
+                  <option value="Returned" disabled={item.status!=="Delivered"}>Returned</option>
                 </select>
               </td>
               <td className="py-2 px-4 space-x-2">

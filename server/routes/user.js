@@ -7,7 +7,7 @@ import { getProductByIdForUser,getFilteredProducts, getSortedProducts } from "..
 import { addToCart, fetchCart, updateCart, deleteCartItem, getCartCount, clearCart } from "../controllers/cart.js";
 import { authenticateJWT, isUser } from "../middlewares/verifyToken.js";
 import { addAddress, getAllAddresses, editAddress, deleteAddress, toggleDefault } from "../controllers/address.js";
-import { createOrder, getAllOrdersForUser, getOrderById, cancelOrder, cancelOrderItem } from "../controllers/order.js"
+import { createOrder, getAllOrdersForUser, getOrderById, cancelOrder, cancelOrderItem, requestItemReturn, requestOrderReturn } from "../controllers/order.js"
 import { editProfile, fetchProfile, changePassword } from "../controllers/users.js";
 import { getCouponsForUser, applyCoupon, removeAppliedCoupon } from "../controllers/coupon.js";
 import { makePayment } from "../controllers/payment.js";
@@ -69,6 +69,8 @@ router.get('/orders', isUser, getAllOrdersForUser)
 router.get('/orders/:id', isUser, getOrderById)
 router.patch('/orders/cancel/:id', isUser, cancelOrder)
 router.patch('/orders/cancel-item/', isUser, cancelOrderItem)
+router.patch('/orders/return-item', isUser, requestItemReturn)
+router.patch('/orders/return-order', isUser, requestOrderReturn)
 
 
 // Coupons

@@ -34,12 +34,14 @@ export const getSingleOrder = async (id) => {
 }
 
 
+//      Cancel
+
 export const cancelOrder = async (id) => {
   try{
     const response = await api.patch(`${API_URL}/user/orders/cancel/${id}`)
     return response
   } catch (err){
-    throw err.response
+    throw err
   }
 }
 
@@ -51,6 +53,30 @@ export const cancelItem = async (orderId, productId) => {
     throw err
   }
 }
+
+
+
+//              Return
+
+export const returnOrder = async (orderId, reason) => {
+  try{
+    const response = await api.patch(`${API_URL}/user/orders/return-order`,{orderId,reason})
+    return response
+  } catch (err){
+    throw err
+  }
+}
+
+
+export const requestReturnItem = async (orderId, productId, reason) => {
+  try{
+    const response = await api.patch(`${API_URL}/user/orders/return-item`,{orderId,productId,reason})
+    return response
+  } catch (err){
+    throw err
+  }
+}
+
 
 
 
@@ -67,9 +93,9 @@ export const updateOrderStatus = async (id, status) => {
 }
 
 
-export const getAllOrders = async (currentPage,limitPerPage,filter) => {
+export const getAllOrders = async (currentPage,limitPerPage,filter,search) => {
   try{
-    const response = await adminApi.get(`${API_URL}/admin/orders`,{params:{currentPage,limitPerPage,filter}})
+    const response = await adminApi.get(`${API_URL}/admin/orders`,{params:{currentPage,limitPerPage,filter,search}})
     return response
   } catch (err){
     return err.message
@@ -92,5 +118,25 @@ export const countOrders = async () => {
   } catch (err){
     console.log(err)
     return err.message
+  }
+}
+
+
+export const getReturnRequestedOrders = async () => {
+  try{
+    const response = await adminApi.get(`${API_URL}/admin/orders/return-requested`)
+    return response
+  } catch (err){
+    throw err
+  }
+}
+
+
+export const updateReturnStatus = async (orderId, productId, returnStatus) => {
+  try{
+    const response = await adminApi.patch(`${API_URL}/admin/orders/return/${orderId}`,{productId,returnStatus})
+    return response
+  } catch (err){
+    throw err
   }
 }

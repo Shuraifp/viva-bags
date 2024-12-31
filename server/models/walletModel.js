@@ -24,10 +24,10 @@ const walletSchema = new mongoose.Schema({
             },
             description: {
                 type: String,
-                enum: ['Order', 'Refund', 'Withdrawal', 'Deposit'],
+                required: true
             },
             orderId: {
-                type: mongoose.Schema.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: 'Order' 
             },
             balanceAfter: {

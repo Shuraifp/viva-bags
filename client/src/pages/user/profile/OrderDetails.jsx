@@ -10,7 +10,8 @@ const OrderDetails = () => {
     1: "Pending",
     2: "Shipped",
     3: "Delivered",
-    4: "Cancelled"
+    4: "Cancelled",
+    5: "Returned"
   }
 
   const { logout } = useContext(AuthContext);
@@ -61,7 +62,7 @@ const OrderDetails = () => {
 
         <h2 className="text-lg font-semibold mb-4">Progress</h2>
         <div className="flex items-center justify-between space-x-4">
-          {order?.status !== "Cancelled" && ["Order Placed", "Processing", "Shipping", "Delivered"].map((step, index) => (
+          {order?.status !== "Cancelled" && order?.status !== "Returned" && ["Order Placed", "Processing", "Shipping", "Delivered"].map((step, index) => (
             <div
               key={index}
               className={`flex-1 text-center py-2 border ${
@@ -74,6 +75,11 @@ const OrderDetails = () => {
           {order?.status === "Cancelled" && (
             <div className="flex-1 text-center py-2 border bg-red-50 border-red-500 rounded-sm">
               <span className="block text-sm font-medium text-red-500">Cancelled</span>
+            </div>
+          )}
+          {order?.status === "Returned" && (
+            <div className="flex-1 text-center py-2 border bg-red-50 border-red-500 rounded-sm">
+              <span className="block text-sm font-medium text-red-500">Returned</span>
             </div>
           )}
         </div>
@@ -91,12 +97,13 @@ const OrderDetails = () => {
               <th className="p-2 border border-gray-200 text-center">Quantity</th>
               <th className="p-2 border border-gray-200 text-center">Price</th>
               <th className="p-2 border border-gray-200 text-center">Amount</th>
+              <th className="p-2 border border-gray-200 text-center">Status</th>
             </tr>
           </thead>
           <tbody>
             {order?.products.map((product, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="p-2 border border-gray-200 flex gap-2">
+              <tr key={index} className={`${product.status === 'Cancelled' || product.status === 'Returned' ? 'bg-red-100' : 'hover:bg-gray-50'}`}>
+                <td className={`p-2 border border-gray-200 flex gap-2`}>
                  <img
                    src={`${import.meta.env.VITE_API_URL}${product.productId.images[0].url}`}
                    alt={product.productId.name}
@@ -111,7 +118,8 @@ const OrderDetails = () => {
                 </td>
                 <td className="p-2 border border-gray-200 text-center">{product.quantity}</td>
                 <td className="p-2 border border-gray-200 text-center">{product.price.toFixed(2)}</td>
-                <td className="p-2 border border-gray-200 text-center">{(product.price * product.quantity)}</td>
+                <td className="p-2 border border-gray-200 text-center">{(product.price * product.quantity).toFixed(2)}</td>
+                <td className={`p-2 border border-gray-200 text-center`}>{product.status}</td>
               </tr>
             ))}
           </tbody>
@@ -126,7 +134,7 @@ const OrderDetails = () => {
           <ul>
             <li className="flex justify-between py-1">
               <span>Subtotal:</span>
-              <span>{order?.products.reduce((total, product) => total + product.price * product.quantity, 0)}</span>
+              <span>{order?.products.filter(pro => pro.status !== "Cancelled" && pro.status !== 'Returned').reduce((total, product) => total + product.price * product.quantity, 0)}</span>
             </li>
             {order?.coupon.discountValue !== 0 && <li className={`flex justify-between py-1`}>
               <span>Discount (Coupon):</span>

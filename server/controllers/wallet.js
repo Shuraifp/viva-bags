@@ -3,7 +3,8 @@ import Wallet from "../models/walletModel.js";
 
 export const getWallet = async (req, res) => {
   try {
-    const wallet = await Wallet.findOne({ user: req.user.Id });
+    const wallet = await Wallet.findOne({ user: req.user.Id }).populate("transactions.orderId", "orderNumber");
+    
     if(!wallet) {
       const newWallet = new Wallet({ user: req.user.Id , balance: 0 });
       await newWallet.save();

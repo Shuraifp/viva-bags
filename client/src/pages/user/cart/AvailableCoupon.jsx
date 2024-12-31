@@ -21,7 +21,7 @@ const AvailableCoupons = ({ selectedCoupon, setSelectedCoupon,purchaseAmount }) 
                 ? b.discountValue - purchaseAmount * (a.discountValue / 100)
                 : purchaseAmount * (b.discountValue / 100) - a.discountValue
             )
-            .slice(0, 2);
+            .slice(0, 3);
         }
 
         setCoupons(fetchedCoupons);

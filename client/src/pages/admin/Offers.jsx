@@ -129,10 +129,6 @@ const OfferManagement = () => {
     }
   }
 
-  const handleApply = async (id) => {
-    setIsApplyModalOpen(true);
-  }
-
   const handlePageClick = (page) => {
     setCurrentPage(page);
   };
