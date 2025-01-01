@@ -4,7 +4,6 @@ import { getCategories } from '../api/category';
 import { AuthContext } from '../context/AuthProvider';
 import { FaHeart, FaShoppingCart, FaBars } from 'react-icons/fa';
 import { Link,useNavigate } from 'react-router-dom';
-import { getCountOfCartItems } from '../api/cart';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -15,6 +14,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
   let user = JSON.parse(localStorage.getItem('user')) || null
 
   useEffect(() => {
@@ -30,10 +30,19 @@ const Navbar = () => {
     fetchCategories();
   },[])
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
+  useEffect(() => {
+      handleSearch(); 
+  }, [searchCategory]);
+
+  const handleSearch = () => {
+    if (searchQuery.trim() && searchCategory) {
+      navigate(`/shop?search=${searchQuery.trim()}&category=${searchCategory}`);
+    } else if (searchQuery.trim() && !searchCategory) {
       navigate(`/shop?search=${searchQuery.trim()}`);
+    } else if (searchCategory && !searchQuery.trim()) {
+      navigate(`/shop?category=${searchCategory}`);
+    } else {
+      navigate('/shop');
     }
   };
 
@@ -151,15 +160,22 @@ const Navbar = () => {
 
             {isOpen && (
               <div onClick={toggleDropdown} className="absolute left-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden z-10">
+                <div
+                    onClick={() => setSearchCategory('') }
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    
+                  >
+                    All Categories
+                  </div>
                 {categories?.map((category) => (
-                  <Link
+                  <div
                     key={category._id}
-                    to={`/shop/${category.name}`}
+                    onClick={() => setSearchCategory(category._id)}
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                     
                   >
                     {category.name}
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}

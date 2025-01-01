@@ -174,7 +174,7 @@ export const getFilteredProducts = async (req, res) => {
 
 export const getSortedProducts = async (req, res) => {
   try {
-    const { option, currentPage, limitPerPage,searchQuery } = req.query;
+    const { option, currentPage, limitPerPage,searchQuery ,category} = req.query;
     if (!option) {
       return res.status(400).json({ message: "Sort option is required" });
   }
@@ -214,8 +214,8 @@ export const getSortedProducts = async (req, res) => {
     
     const listedCategories = await Category.find({ isDeleted: false }).select('_id');
     const listedCategoryIds = listedCategories.map(category => category._id);
-
-    filters.category = { $in: listedCategoryIds };
+    const filteredCategory = listedCategories.find(cat => cat._id.toString() === category);
+    filters.category = { $in: category ? [filteredCategory._id] : listedCategoryIds };
 
     const skip = (currentPage - 1) * limitPerPage;
 

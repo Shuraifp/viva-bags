@@ -20,17 +20,16 @@ const Shop = () => {
   const [ totalPages, setTotalPages] = useState(1);
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get('search') || '';
- console.log(searchQuery)
- 
+  const searchCategory = searchParams.get('category') || '';
   const limitPerPage = 9;
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage,sort,searchQuery]);
+  }, [currentPage,sort,searchQuery,searchCategory]);
 
   const fetchProducts = async () => {
     try {
-      const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery);
+      const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery,searchCategory);
       console.log(response)
       setProducts(response.data.productsData);
       setFilteredProducts(response.data.productsData);
@@ -110,10 +109,10 @@ const Shop = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {category?
-            filteredProducts?.map((product) => (
-              product.category.name === category ? (<ProductCard key={product._id} product={product} /> ): null
-            )) :
+            {
+            // filteredProducts?.map((product) => (
+            //   product.category.name === category ? (<ProductCard key={product._id} product={product} /> ): null
+            // )) :
             filteredProducts?.map((product) => (
             <ProductCard key={product._id} product={product} />
             ))}

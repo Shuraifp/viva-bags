@@ -45,10 +45,8 @@ export const updateProduct = async (id, data) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(response)
     return response;
   } catch (error) {
-    console.log(error)
     throw error
   };
 }
@@ -86,9 +84,9 @@ export const getproductsFromSameCat = async (category) => {
 }
 
 
-export const getSortedProducts = async (currentPage,limitPerPage,option,searchQuery) => {
+export const getSortedProducts = async (currentPage,limitPerPage,option,searchQuery,category) => {
   try{
-    const response = await apiNonSecure.get(`/user/products`,{params:{currentPage,limitPerPage,option,searchQuery}})
+    const response = await apiNonSecure.get(`/user/products`,{params:{currentPage,limitPerPage,option,searchQuery,category}})
     return response
   } catch (error) {
     console.log(error)
