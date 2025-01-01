@@ -60,19 +60,10 @@ export const generateSalesReport = async (req, res) => {
 
     salesData = await Order.aggregate([
       { $match: matchStage },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'products.productId',
-          foreignField: '_id',
-          as: 'productDetails',
-        }
-      } 
     ]);
-    console.log(salesData)
     let couponDiscount = 0;
     const totalDiscount = salesData.reduce((acc, order) => {
-      couponDiscount += order.coupon
+      couponDiscount += order.coupon.discountValue > 0
         ? order.coupon.discountType === 'percentage'
           ? order.totalAmount * (order.coupon.discountValue / 100)
           : order.coupon.discountValue
@@ -80,8 +71,8 @@ export const generateSalesReport = async (req, res) => {
       return acc + couponDiscount;
     }, 0);
     
-    const productDiscount = salesData[0]?.products? salesData.reduce((acc, order) => {
-      return order.products.reduce((acc, item) => acc + item.discount,0)
+    const productDiscount = salesData.length > 0 ? salesData.reduce((acc, order) => {
+      return acc + order.products.filter(item => item.status === 'Delivered').reduce((acc, item) => acc + item.discount,0)
     },0) : 0;
 
     const totalDiscountValue = totalDiscount + productDiscount;
@@ -90,7 +81,7 @@ export const generateSalesReport = async (req, res) => {
     res.status(200).json({
       reportData: salesData,
       salesCount: salesData.length,
-      orderAmount: salesData.reduce((acc, order) => acc + order.totalAmount, 0),
+      orderAmount: salesData.reduce((acc, order) => acc + order.totalAmount, 0) + totalDiscountValue,
       totalDiscount: totalDiscountValue.toFixed(2),
       couponsDeduction: couponDiscount.toFixed(2),
     });
@@ -180,13 +171,16 @@ export const downloadReport = async (req, res) => {
       return acc + couponDiscount;
     }, 0);
     
-    const productDiscount = salesData[0]?.products? salesData.reduce((acc, order) => {
-      return order.products.reduce((acc, item) => acc + item.discount,0)
+    const productDiscount = salesData.length > 0 ? salesData.reduce((acc, order) => {
+      return acc + order.products.filter(item => item.status === 'Delivered').reduce((acc, item) => acc + item.discount,0)
     },0) : 0;
 
+    const totalDiscountValue = parseInt((totalDiscount + productDiscount).toFixed(2));
+    const total = salesData.reduce((acc, order) => acc + order.totalAmount, 0);
+    console.log(total, totalDiscountValue, total+totalDiscountValue)
+    const overallOrderAmount = (total + totalDiscountValue).toFixed(2);
+    const newAmount = salesData.reduce((acc, order) => acc + order.totalAmount, 0);
     
-    const totalDiscountValue = (totalDiscount + productDiscount).toFixed(2);
-    const ordersAmount = salesData.reduce((total,ord) => total + ord.totalAmount, 0)
     const reportType = filter === 'daily' ? "Daily Sales Report" 
     : filter === 'weekly' ? "Weekly Sales Report" 
     : filter === 'monthly' ? "Monthly Sales Report" 
@@ -194,12 +188,12 @@ export const downloadReport = async (req, res) => {
     : `Custom Sales Report from ${customDateRange.start} to ${customDateRange.end}`;
 
 
-    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData ,totalDiscountValue,couponDiscount,ordersAmount,reportType); 
+    if (format === 'pdf') { const pdfBuffer = await generatePdfReport(salesData,overallOrderAmount ,totalDiscountValue,couponDiscount,reportType); 
         res.setHeader('Content-Type', 'application/pdf'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.pdf"'); 
         res.send(pdfBuffer); 
       } else if (format === 'excel') { 
-        const excelBuffer = await generateExcelReport(salesData,totalDiscountValue,couponDiscount,ordersAmount,reportType); 
+        const excelBuffer = await generateExcelReport(salesData, overallOrderAmount,totalDiscountValue,couponDiscount,reportType); 
         res.setHeader('Content-Type', 'application/vnd.ms-excel'); 
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.xlsx"'); 
         res.send(excelBuffer); 
@@ -208,6 +202,6 @@ export const downloadReport = async (req, res) => {
       } 
     } catch (error) { 
       console.log(error)
-      res.status(500).json({ message: 'Error downloading report', error }); 
+      res.status(500).json({ message: error.message }); 
     } 
   };

@@ -73,6 +73,7 @@ export const createOrder = async (req, res) => {
     if(paymentMethod === 'Wallet') {
       const wallet = await Wallet.findOne({ user: userId });
       const newBalance = wallet.balance - totalAmount;
+      wallet.balance = newBalance;
       wallet.transactions.push({
         type: "Debit",
         amount: newOrder.totalAmount,

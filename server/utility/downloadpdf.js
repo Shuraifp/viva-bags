@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 
 
-export const generatePdfReport = async (salesData, totalDiscountValue, couponDiscount,ordersAmount, reportType) => {
+export const generatePdfReport = async (salesData,overallOrderAmount, totalDiscountValue, couponDiscount, reportType) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 30 });
     const buffers = [];
@@ -19,9 +19,10 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
     doc.fontSize(12)
       .fillColor('black')
       .text(`Overall Sales Count: ${salesData.length}`)
-      .text(`Overall Order Amount: ₹${salesData.reduce((acc, order) => acc + order.totalAmount, 0)}`)
+      .text(`Overall Order Amount: ₹${overallOrderAmount}`)
       .text(`Overall Discount: ₹${totalDiscountValue}`)
       .text(`Coupons Deduction: ₹${couponDiscount.toFixed(2)}`)
+      .text(`Net Sales Amount: ₹${(overallOrderAmount - totalDiscountValue).toFixed(2)}`)
       .moveDown(2);
 
     const startX = 30;
@@ -53,10 +54,13 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
         .fillColor('black')
         .text(order.orderNumber, startX + 5, startY + 5)
         .text(order.createdAt.toISOString().split('T')[0], startX + 80, startY + 5)
-        .text(order.productDetails.length, startX + 150, startY + 5)
-        .text(`₹${order.productDetails.reduce((total, product) => total + product.regularPrice, 0)}`, startX + 250, startY + 5)
+        .text(order.products.filter((product) => product.status === 'Delivered').reduce((count, product) => count + product.quantity, 0), startX + 150, startY + 5)
+        .text(`₹${order.products.filter((product) => product.status === 'Delivered').reduce((total, product) => total + product.price + product.discount, 0) + order.shippingCost}`, startX + 250, startY + 5)
         .text(
-          `₹${order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0) + (order.coupon ? order.coupon.discountType === 'percentage' ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0)}`,
+          `₹${order.products.filter((product) => product.status === 'Delivered').reduce((total, product) => total + (product.discount * product.quantity), 0)
+            + (order.coupon ? order.coupon.discountType === 'percentage'? 
+              order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0)
+          }`,
           startX + 350, startY + 5
         )
         .text(`₹${order.totalAmount}`, startX + 450, startY + 5);
@@ -69,7 +73,7 @@ export const generatePdfReport = async (salesData, totalDiscountValue, couponDis
 };
 
 
-export const generateExcelReport = async (salesData, totalDiscountValue, couponDiscount, ordersAmount, reportType) => {
+export const generateExcelReport = async (salesData, overallOrderAmount, totalDiscountValue, couponDiscount, reportType) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Sales Report');
 
@@ -113,10 +117,11 @@ export const generateExcelReport = async (salesData, totalDiscountValue, couponD
     const row = worksheet.addRow({
       orderId: order.orderNumber,
       orderDate: order.createdAt.toISOString().split('T')[0],
-      productCount: order.productDetails.length,
-      orderAmount: order.productDetails.reduce((total, product) => total + product.regularPrice, 0),
-      discount: order.productDetails.reduce((total, product) => total + (product.discountedPrice ? product.regularPrice - product.discountedPrice : 0), 0) +
-        (order.coupon ? order.coupon.discountType === 'percentage' ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0),
+      productCount: order.products.filter((product) => product.status === 'Delivered').reduce((count, product) => count + product.quantity, 0),
+      orderAmount: order.products.filter((product) => product.status === 'Delivered').reduce((total, product) => total + product.price + product.discount, 0) + order.shippingCost,
+      discount: order.products.filter((product) => product.status === 'Delivered').reduce((total, product) => total + (product.discount * product.quantity), 0)
+      + (order.coupon ? order.coupon.discountType === 'percentage'? 
+        order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue : 0),
       netAmount: order.totalAmount,
     });
 
