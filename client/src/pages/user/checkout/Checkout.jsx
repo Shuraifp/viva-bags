@@ -9,6 +9,7 @@ import SavedAddress from './SelectAddress.jsx'
 import { createOrder } from "../../../api/order.js";
 import toast from "react-hot-toast";
 import { createRazorpayOrder } from "../../../api/payment.js";
+import { checkBalance } from "../../../api/wallet.js";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -40,13 +41,33 @@ const CheckoutPage = () => {
   };
   const handlePlaceOrder = async () => {
     if (paymentMethod === 'Razorpay') {
-      handlePayment();
+      handleRazorpayPayment();
+    } else if (paymentMethod === 'Wallet') {
+      handleWalletPayment();
     } else {
       placeOrder();
     }
   };
 
-  const handlePayment = async () => {
+  const handleWalletPayment = async () => {
+    try {
+      const response = await checkBalance(total);
+      if(response.status === 200){
+        placeOrder();
+      }
+    } catch (err) {
+      if(err.response){
+        if(err.response){
+          toast.error(err.response.data.message);
+        } else {
+          console.log(err.message);
+          toast.error('An error occurred. Please try again.');
+        }
+      }
+    }
+  };
+
+  const handleRazorpayPayment = async () => {
     if (!selectedAddress) {
       toast.error("Please select an address.");
       return;
@@ -355,11 +376,11 @@ const CheckoutPage = () => {
                 Razorpay
               </label>
               <label className="block ml-6 my-2">
-                <input type="radio" name="paymetMethod" value="COD" checked={paymentMethod === "COD"} onChange={handlePaymentMethodChange} className="mr-3" />
+                <input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === "COD"} onChange={handlePaymentMethodChange} className="mr-3" />
                 Cash on Delivery (COD)
               </label>
               <label className="block ml-6 my-2">
-                <input type="radio" name="paymntMethod" value="Wallet" checked={paymentMethod === "Wallet"} onChange={handlePaymentMethodChange} className="mr-3" />
+                <input type="radio" name="paymentMethod" value="Wallet" checked={paymentMethod === "Wallet"} onChange={handlePaymentMethodChange} className="mr-3" />
                 Wallet
               </label>
               <hr className="my-4" />

@@ -43,12 +43,13 @@ export const createOrder = async (req, res) => {
           discountValue: !isNaN(Number(coupon.discountValue)) ? Number(coupon.discountValue) : 0, 
         }
       : null;
+
       let paymentStatus = 'Pending'; 
-      if (paymentMethod === 'COD') {
-        paymentStatus = 'Pending'; 
-      } else if (paymentMethod === 'Razorpay') {
-        paymentStatus = 'Completed'; 
-      } 
+    if (paymentMethod === 'COD') {
+      paymentStatus = 'Pending'; 
+    } else if (paymentMethod === 'Razorpay' || paymentMethod === 'Wallet') {
+      paymentStatus = 'Completed'; 
+    } 
 
       const order = {
           orderNumber: newOrderNumber,
@@ -66,7 +67,23 @@ export const createOrder = async (req, res) => {
           paymentStatus,
           shippingCost: Number(shippingCost),
       };
+
     const newOrder = await Order.create(order);
+
+    if(paymentMethod === 'Wallet') {
+      const wallet = await Wallet.findOne({ user: userId });
+      const newBalance = wallet.balance - totalAmount;
+      wallet.transactions.push({
+        type: "Debit",
+        amount: newOrder.totalAmount,
+        description: `Order payment for ${newOrder.orderNumber}`,
+        orderId: newOrder._id,
+        balanceAfter: newBalance,
+      });
+      await wallet.save();
+    }
+
+
       res.status(201).json({message:'order placed'});
   } catch (error) {
     console.log(error)
@@ -214,34 +231,32 @@ export const cancelOrderItem = async (req, res) => {
 
     if (order.paymentStatus === "Completed") {
       let refundAmount = 0;
+
+      const currentCostOfProducts = uncancelledProducts.reduce((acc, item) => {
+        const price = Number(item.price) || 0; 
+        const quantity = Number(item.quantity) || 0; 
+        return acc + price * quantity;
+      }, 0);
+
       let isEligibleForCoupon = false;
       if (order.coupon.discountValue > 0) {
         const coupon = await Coupon.findOne({ code: order.coupon.code });
         if (coupon) {
-          isEligibleForCoupon = uncancelledProducts.reduce((acc, item) => {
-          return acc + item.price * item.quantity;
-          }, 0) >= coupon.minimumPurchase;
+          isEligibleForCoupon = currentCostOfProducts >= coupon.minimumPurchase;
           }
         }
+
           if(isEligibleForCoupon){
             refundAmount = product.price * product.quantity;
-            order.totalAmount = remainingProducts.reduce((acc, item) => {
-              const price = Number(item.price) || 0; 
-              const quantity = Number(item.quantity) || 0; 
-              return acc + price * quantity;
-            }, 0) + order.shippingCost + order.coupon.discountType === "Percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue;
+            order.totalAmount = currentCostOfProducts + order.shippingCost - (order.coupon.discountType === "percentage" ? currentCostOfProducts * (order.coupon.discountValue / 100) : order.coupon.discountValue);
           } else {
-            refundAmount = product.price * product.quantity - (order.coupon.discountType === "Percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue);
+            refundAmount = product.price * product.quantity - (order.coupon.discountType === "percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue);
             order.coupon.code = null;
             order.coupon.discountType = null;
             order.coupon.discountValue = 0;
             order.markModified("coupon");
 
-            order.totalAmount = uncancelledProducts.reduce((acc, item) => {
-              const price = Number(item.price) || 0; 
-              const quantity = Number(item.quantity) || 0; 
-              return acc + price * quantity;
-            }, 0) + order.shippingCost;
+            order.totalAmount = currentCostOfProducts + order.shippingCost;
           }
       
       let wallet = await Wallet.findOne({ user: order.user });
@@ -253,7 +268,7 @@ export const cancelOrderItem = async (req, res) => {
       wallet.transactions.push({
         type: "Credit",
         amount: refundAmount,
-        description: `Refund for Cancelled item -${product.productId.name}`,
+        description: `Refund for Cancelled item - ${product.productId.name}`,
         orderId: order._id,
         balanceAfter: wallet.balance,
       });
@@ -565,35 +580,30 @@ export const updateReturnStatus = async (req, res) => {
       const remainingProducts = order.products.filter(
         (item) => item.status !== "Cancelled" && item.status !== "Returned" && item.productId._id.toString() !== productId
       )
+
+      const costOfRemainingProducts = remainingProducts.reduce((acc, item) => {
+        return acc + item.price * item.quantity;
+      }, 0);
+
       let isEligibleForCoupon = false;
       if (order.coupon.discountValue > 0) {
         const coupon = await Coupon.findOne({ code: order.coupon.code });
         if (coupon) {
-          isEligibleForCoupon = remainingProducts.reduce((acc, item) => {
-          return acc + item.price * item.quantity;
-          }, 0) >= coupon.minimumPurchase;
+          isEligibleForCoupon = costOfRemainingProducts >= coupon.minimumPurchase;
           }
         }
         if(isEligibleForCoupon){
           refundAmount = product.price * product.quantity;
-          order.totalAmount = remainingProducts.reduce((acc, item) => {
-            const price = Number(item.price) || 0; 
-            const quantity = Number(item.quantity) || 0; 
-            return acc + price * quantity;
-          }, 0) + order.shippingCost + order.coupon.discountType === "Percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue;
+          order.totalAmount = costOfRemainingProducts + order.shippingCost - (order.coupon.discountType === "percentage" ? costOfRemainingProducts * (order.coupon.discountValue / 100) : order.coupon.discountValue);
         } else {
-          refundAmount = product.price * product.quantity - (order.coupon.discountType === "Percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue);
+          refundAmount = product.price * product.quantity - (order.coupon.discountType === "percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue);
           
           order.coupon.code = null;
           order.coupon.discountType = null;
           order.coupon.discountValue = 0;
           order.markModified("coupon");
           
-          order.totalAmount = remainingProducts.reduce((acc, item) => {
-            const price = Number(item.price) || 0; 
-            const quantity = Number(item.quantity) || 0; 
-            return acc + price * quantity;
-          }, 0) + order.shippingCost;
+          order.totalAmount = costOfRemainingProducts + order.shippingCost;
         }
       
       

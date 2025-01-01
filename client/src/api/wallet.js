@@ -9,3 +9,12 @@ export const fetchWallet = async () => {
     throw error;
   }
 };
+
+export const checkBalance = async (amount) => {
+  try {
+    const response = await api.post("/user/wallet/check", { amount });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
