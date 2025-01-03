@@ -6,7 +6,7 @@ import Shop from './pages/user/Shop'
 import ProductPage from './pages/user/ProductDetailsPage'
 import UserManagement from './pages/admin/Customers'
 import AdminDashboard from './pages/admin/Dashboard'
-import OverView from './pages/admin/OverView'
+import OverView from './pages/admin/overview/OverView'
 import Categories from './pages/admin/Categories'
 import Products from './pages/admin/product/ProductsTable'
 import OrderManagement from './pages/admin/Orders'
@@ -37,7 +37,6 @@ const App = () => {
     <Routes>
         <Route path="/" element={<Home />} />
         <Route path='/shop' element={<Shop />} />
-        <Route path='/shop/:category' element={<Shop />} />
         <Route path="/product/:productId" element={<ProductPage />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />

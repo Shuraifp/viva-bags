@@ -21,15 +21,6 @@ export const editUserStatus = async (userId) => {
   };
 }
 
-export const countUsers = async () => {
-  try {
-    const response = await api.get('/admin/users/count');
-    return response.data;
-  } catch (error) {
-    console.log(error)
-    return error.response.data;
-  };
-}
 
 export const fetchUserProfileData = async () => {
   try {

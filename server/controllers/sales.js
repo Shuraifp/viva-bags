@@ -205,3 +205,179 @@ export const downloadReport = async (req, res) => {
       res.status(500).json({ message: error.message }); 
     } 
   };
+
+
+
+  //                     Dashboard
+
+  export const getSalesData = async (req, res) => {
+    const filter = req.query.timeframe || 'Yearly'; 
+    const { startDate, endDate } = req.query;
+    const currentYear = new Date().getFullYear();
+    const pipeline = [];
+
+    try {
+        if (filter === 'Yearly') {
+
+            pipeline.push(
+                {
+                    $match: {
+                        "products.status": { $nin: ['Cancelled', 'Returned'] }, 
+                    },
+                },
+                {
+                    $project: {
+                        year: { $year: "$createdAt" },
+                        totalPrice: {
+                            $sum: {
+                                $map: {
+                                    input: "$products",
+                                    as: "product",
+                                    in: {
+                                        $multiply: [
+                                            "$$product.quantity",
+                                            "$$product.price",
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$year", 
+                        totalPrice: { $sum: "$totalPrice" },
+                    },
+                },
+                { $sort: { _id: 1 } } 
+            );
+        } else if (filter === 'Monthly') {
+            pipeline.push(
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: new Date(currentYear, 0, 1),
+                            $lt: new Date(currentYear + 1, 0, 1),
+                        },
+                        "products.status": { $nin: ['Cancelled', 'Returned'] },
+                    },
+                },
+                {
+                    $project: {
+                        month: { $month: "$createdAt" }, 
+                        totalPrice: {
+                            $sum: {
+                                $map: {
+                                    input: "$products",
+                                    as: "product",
+                                    in: {
+                                        $multiply: [
+                                            "$$product.quantity",
+                                            "$$product.price",
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$month",
+                        totalPrice: { $sum: "$totalPrice" },
+                    },
+                },
+                { $sort: { _id: 1 } } 
+            );
+        } else if (filter === 'Weekly') {
+            pipeline.push(
+                {
+                    $match: {
+                        "products.status": { $nin: ['Cancelled', 'Returned'] },
+                    },
+                },
+                {
+                    $project: {
+                        week: { $isoWeek: "$createdAt" },
+                        totalPrice: {
+                            $sum: {
+                                $map: {
+                                    input: "$products",
+                                    as: "product",
+                                    in: {
+                                        $multiply: [
+                                            "$$product.quantity",
+                                            "$$product.price",
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$week",
+                        totalPrice: { $sum: "$totalPrice" },
+                    },
+                },
+                { $sort: { _id: 1 } } 
+            );
+        } else {
+            return res.status(400).send('Invalid filter type');
+        }
+
+        const orders = await Order.aggregate(pipeline);
+
+        const labels = [];
+        const totalPrices = [];
+
+        if (filter === 'Yearly') {
+            const years = [currentYear - 2, currentYear - 1, currentYear];
+            const salesData = years.map((year) => {
+                const order = orders.find((order) => order._id === year);
+                return order ? order.totalPrice : 0; 
+            });
+
+            labels.push(...years);
+            totalPrices.push(...salesData);
+        } else if (filter === 'Monthly') {
+            const months = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+            ];
+            const monthlyData = new Array(12).fill(0);
+
+            orders.forEach((order) => {
+                monthlyData[order._id - 1] = order.totalPrice;
+            });
+
+            labels.push(...months);
+            totalPrices.push(...monthlyData);
+        } else if (filter === 'Weekly') {
+            const date = new Date();
+            const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay();
+            const nearestThursday = new Date(date);
+            nearestThursday.setDate(date.getDate() + (4 - dayOfWeek));
+            const yearStart = new Date(nearestThursday.getFullYear(), 0, 1);
+            const daysDifference = Math.floor((nearestThursday - yearStart) / (24 * 60 * 60 * 1000));
+            const weekNumber = Math.floor((daysDifference + 10) / 7);
+
+            const weeks = [weekNumber === 1 ? 52 : weekNumber - 1, weekNumber,  weekNumber === 52 ? 1 : weekNumber + 1];
+
+            const weeklyData = weeks.map((week) => {
+                const order = orders.find((order) => order._id === week);
+                return order ? order.totalPrice : 0;
+            });
+            
+            labels.push(...weeks);
+            totalPrices.push(...weeklyData);
+        }
+
+        res.json({ labels, totalPrices });
+    } catch (error) {
+        console.error('Error fetching sales data:', error);
+        res.status(500).send('Error fetching sales data.');
+    }
+};

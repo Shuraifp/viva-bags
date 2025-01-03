@@ -42,7 +42,7 @@ const Navbar = () => {
     } else if (searchCategory && !searchQuery.trim()) {
       navigate(`/shop?category=${searchCategory}`);
     } else {
-      navigate('/shop');
+      // navigate('/shop');
     }
   };
 
@@ -70,7 +70,7 @@ const Navbar = () => {
           <input 
             type="text" 
             placeholder="Search for products" 
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value || '')}
             className="border-none outline-none px-2 py-1 w-full text-gray-700"
           />
           <button
@@ -161,7 +161,10 @@ const Navbar = () => {
             {isOpen && (
               <div onClick={toggleDropdown} className="absolute left-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden z-10">
                 <div
-                    onClick={() => setSearchCategory('') }
+                    onClick={() => {
+                      setSearchCategory('');
+                      navigate('/shop');
+                    }}
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                     
                   >

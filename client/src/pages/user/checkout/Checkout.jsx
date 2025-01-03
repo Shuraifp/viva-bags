@@ -45,6 +45,10 @@ const CheckoutPage = () => {
     } else if (paymentMethod === 'Wallet') {
       handleWalletPayment();
     } else {
+      if (total < 1000) {
+        toast.error('Minimum order amount for COD is ₹1000. Please select a different payment method.');
+        return;
+      }
       placeOrder();
     }
   };

@@ -14,7 +14,6 @@ const Shop = () => {
   const location = useLocation();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const {category} = useParams();
   const [sort, setSort] = useState("default");;
   const [currentPage, setCurrentPage] = useState(1);
   const [ totalPages, setTotalPages] = useState(1);
@@ -25,12 +24,12 @@ const Shop = () => {
 
   useEffect(() => {
     fetchProducts();
+    window.scrollTo(0, 0);
   }, [currentPage,sort,searchQuery,searchCategory]);
 
   const fetchProducts = async () => {
     try {
       const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery,searchCategory);
-      console.log(response)
       setProducts(response.data.productsData);
       setFilteredProducts(response.data.productsData);
       setTotalPages(response.data.totalPages);

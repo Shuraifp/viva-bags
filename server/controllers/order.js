@@ -458,7 +458,7 @@ export const getOrdersByUser = async (req, res) => {
 
 export const countOrders = async (req, res) => {
   try {
-    const count = await Order.countDocuments();
+    const count = await Order.countDocuments({status: { $ne: "Cancelled" }});
     res.json({ count });
   } catch (error) {
     res.status(500).json({ message: "Failed to count orders" });

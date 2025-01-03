@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 
-const FeaturedProducts = ({ products }) => {
+const FeaturedProducts = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/products/featured`);
+      if(response.status === 200){
+        setProducts(response.data.products);
+        console.log(response)
+      }
+    } catch(err){
+      console.log(err)
+    }
+    
+    }
+
+  fetchFeaturedProducts();
+}, []);
+
   return (
     <section className="pb-12">
-     {products.length && <h2 className="text-3xl mt-28 font-bold mb-4 ml-6 text-center md:flex md:items-center md:justify-start">
+     {products.length && <h2 className="text-3xl mt-28 font-bold mb-8 ml-6 text-center md:flex md:items-center md:justify-start">
       FEATURED PRODUCTS
       <span className="hidden md:inline-block ml-2 mr-6 flex-grow border-t border-dashed border-gray-400"></span>
     </h2>}

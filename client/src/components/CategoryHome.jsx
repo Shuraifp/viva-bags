@@ -18,14 +18,14 @@ const CategoryGrid = () => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <h2 className="text-3xl mt-28 font-bold mb-4 ml-2 text-center md:flex md:items-center md:justify-start">
+      <h2 className="text-3xl mt-28 font-bold mb-8 ml-2 text-center md:flex md:items-center md:justify-start">
       CATEGORIES
       <span className="hidden md:inline-block ml-2 mr-6 flex-grow border-t border-dashed border-gray-400"></span>
     </h2>
       <div className="flex justify-center md:block">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category) => (
-          <Link to={`/shop/${category.name}`}><div
+          <Link to={`/shop?category=${category._id}`}><div
             key={category.id}
             className="bg-white flex w-60 md:w-full overflow-hidden transfor transitio duration-300 hover:scale-105 hover:bg-yellow-500 hover:text-white"
           >

@@ -104,3 +104,13 @@ export const deleteOrRestoreBrand = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+
+export const countBrands = async (req, res) => {
+  try {
+    const count = await Brand.countDocuments({ isDeleted: false });
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

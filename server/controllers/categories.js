@@ -107,6 +107,16 @@ export const deleteOrRestoreCategory = async (req, res) => {
 };
 
 
+export const countCategories = async (req, res) => {
+  try {
+    const count = await Category.countDocuments({ isDeleted: false });
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
 //                         User
 
 export const categoriesOverview = async (req, res) => {
@@ -119,7 +129,8 @@ export const categoriesOverview = async (req, res) => {
         return {
           name: category.name,
           image: product ? product.images[0].url : null,
-          count
+          count,
+          _id: category._id,
         };
       })
     )

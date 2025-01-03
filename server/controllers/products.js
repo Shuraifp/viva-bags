@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import {__dirname} from "../index.js";
 import mongoose from "mongoose";
+import Order from "../models/orderModel.js";
 
 
 const storage = multer.diskStorage({
@@ -124,6 +125,53 @@ export const toggleStatus = async (req, res) => {
   }
 }
 
+
+export const countProducts = async (req, res) => {
+  try {
+    const count = await Product.countDocuments({ islisted: true });
+    res.json({ count });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: error.message });
+  }
+}
+
+
+export const countSoldProducts = async (req, res) => {
+  try {
+    const countOfSoldProducts = await Order.aggregate([
+      {
+        $match: {
+          status: "Delivered",
+        },
+      },
+      {
+        $unwind: "$products",
+      },
+      {
+        $match: {
+          "products.status": "Delivered",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalSold: { $sum: "$products.quantity" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalSold: 1, 
+        },
+      },
+    ]);
+    res.json({ count: countOfSoldProducts[0].totalSold});
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: error.message });
+  }
+}
 
 //                         user side
 
@@ -278,3 +326,12 @@ export const getSortedProducts = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 }
+
+export const getFeaturedProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ featured: true }).populate('category').select('-__v -createdAt -updatedAt -islisted');
+    res.status(200).json({message: "Products fetched successfully", products});
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching products", error });
+  }
+};

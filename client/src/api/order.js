@@ -111,16 +111,6 @@ export const updateProductStatus = async (id, orderId, status) => {
   }
 }
 
-export const countOrders = async () => {
-  try{
-    const response = await adminApi.get(`${API_URL}/admin/orders/count`)
-    return response.data
-  } catch (err){
-    console.log(err)
-    return err.message
-  }
-}
-
 
 export const getReturnRequestedOrders = async () => {
   try{
