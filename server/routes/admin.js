@@ -9,7 +9,7 @@ import { createBrand, getAllBrands, updateBrand, deleteOrRestoreBrand, countBran
 import { countOrders, getAllOrders, updateOrderStatus, updateProductStatus, getPendingReturns, updateReturnStatus } from "../controllers/order.js";
 import { addCoupon, getCoupons, updateCoupon, deleteOrRestoreCoupon } from "../controllers/coupon.js";
 import { addOffer, getOffers, updateOffer, deleteOrRestoreOffer, getCategoriesAndProductsList, applyOffer, removeOffer } from "../controllers/offers.js";
-import { generateSalesReport,downloadReport, getSalesData } from "../controllers/sales.js";
+import { generateSalesReport,downloadReport, getSalesData, getTopProductsandCategories } from "../controllers/sales.js";
 
 
 // Auth
@@ -92,6 +92,7 @@ router.post('/offers/remove' , isAdmin, removeOffer)
 router.post('/sales/report', isAdmin, generateSalesReport)
 router.post('/sales/download/:format', isAdmin, downloadReport)
 router.get('/chart-data', isAdmin, getSalesData)
+router.get('/topSellings', isAdmin, getTopProductsandCategories)
 
 
 export default router;

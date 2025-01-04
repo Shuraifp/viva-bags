@@ -62,3 +62,13 @@ export const fetchChartData = async (timeframe, startDate, endDate) => {
     throw error;
   }
 }
+
+
+export const fetchTopSellingProductsandCategories = async () => {
+  try {
+    const response = await api.get('/admin/topSellings');
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}

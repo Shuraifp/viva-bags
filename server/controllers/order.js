@@ -500,6 +500,13 @@ export const updateProductStatus = async (req, res) => {
     }
     
     product.status = status;
+    const correspondingProduct = await Product.findById(productId);
+    if(status === "Delivered"){
+      correspondingProduct.popularity += product.quantity;
+    } else if(status === "Returned") {
+      correspondingProduct.popularity -= product.quantity;
+    }
+    await correspondingProduct.save();
     await order.save();
 
     const allProductsSameStatus = order.products.every(item => item.status === product.status);
@@ -533,6 +540,7 @@ export const updateProductStatus = async (req, res) => {
 
     res.status(200).json({ message: "Product status updated successfully", order });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Failed to update product status", error });
   }
 }; 
@@ -603,13 +611,18 @@ export const updateOrderStatus = async (req, res) => {
     if (!order) return res.status(404).json({ message: "Order not found" });
     order.status = status;
     if(status === "Returned") return
-    order.products.forEach((item) => {
+    order.products.forEach( async (item) => {
       if(item.status !== "Cancelled" && item.status !== "Returned"){
         if (status === "Cancelled" && item.status === "Delivered" ) return 
         if( item.status === "Delivered" && status === "Shipped" ) return
         if (item.status === "Shipped" && status === "Pending") return
         item.status = status;
+        if(status === "Delivered"){
+          const correspondingProduct = await Product.findById(item.productId);
+          correspondingProduct.popularity += item.quantity;
+          await correspondingProduct.save();
         }
+      }
     })
     order.markModified("products");
     if(order.status === "Delivered" && order.paymentMethod === "COD") order.paymentStatus = "Completed";

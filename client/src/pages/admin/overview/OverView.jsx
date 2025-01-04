@@ -5,6 +5,7 @@ import { countOrders } from "../../../api/overview";
 import { fetchChartData } from "../../../api/overview";
 import Chart from "./Chart";
 import toast from "react-hot-toast";
+import TopProductsandCategories from "./TopProductsandCategories";
 
 const DashboardContent = () => {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -35,7 +36,7 @@ const DashboardContent = () => {
   }, []);
 
   return (
-    <div className="overflow-y-auto no-scrollbar h-full">
+    <div className="overflow-y-auto no-scrollbar h-full pb-16">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 pl-3">
       
       <div className="bg-white/30 backdrop-blur-lg p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out">
@@ -74,6 +75,8 @@ const DashboardContent = () => {
     
     
       <Chart />
+
+      <TopProductsandCategories />
   
     </div>
   );

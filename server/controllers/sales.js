@@ -1,4 +1,5 @@
 import Order from '../models/orderModel.js'
+import Product from '../models/productModel.js';
 import { generatePdfReport, generateExcelReport } from '../utility/downloadpdf.js';
 
 
@@ -364,7 +365,7 @@ export const downloadReport = async (req, res) => {
             const daysDifference = Math.floor((nearestThursday - yearStart) / (24 * 60 * 60 * 1000));
             const weekNumber = Math.floor((daysDifference + 10) / 7);
 
-            const weeks = [weekNumber === 1 ? 52 : weekNumber - 1, weekNumber,  weekNumber === 52 ? 1 : weekNumber + 1];
+            const weeks = [weekNumber === 1 ? 50 : weekNumber === 2 ? 51 : weekNumber === 3 ? 52 : weekNumber - 3, weekNumber === 1 ? 51 : weekNumber === 2 ? 52 : weekNumber - 2, weekNumber === 1 ? 52 : weekNumber - 1, weekNumber,  weekNumber === 52 ? 1 : weekNumber + 1];
 
             const weeklyData = weeks.map((week) => {
                 const order = orders.find((order) => order._id === week);
@@ -381,3 +382,79 @@ export const downloadReport = async (req, res) => {
         res.status(500).send('Error fetching sales data.');
     }
 };
+
+
+export const getTopProductsandCategories = async (req, res) => {
+  try {
+    const topSellingProducts = await Product.find({}, { name: 1, popularity: 1,images:1 }).sort({ popularity: -1 }).limit(5);
+    const topSellingCategories = await Product.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$popularity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "_id",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: "$category",
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$category.name",
+          total: 1,
+        },
+      },
+      {
+        $sort: { total: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+    const topSellingBrands = await Product.aggregate([
+      {
+        $group: {
+          _id: "$brand",
+          total: { $sum: "$popularity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "_id",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      {
+        $unwind: "$brand",
+      },
+      {
+        $project: {
+          _id: 0,
+          brand: "$brand.name",
+          total: 1,
+        },
+      },
+      {
+        $sort: { total: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+     
+    res.json({ topSellingProducts, topSellingCategories, topSellingBrands });
+  } catch (error) {
+    console.error('Error fetching sales data:', error);
+    res.status(500).send('Error fetching sales data.');
+  }
+}
