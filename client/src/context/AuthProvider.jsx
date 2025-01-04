@@ -7,16 +7,17 @@ export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user"); 
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(storedUser);
+      setUser(JSON.parse(storedUser));
     }
-
-    const storedAdmin = localStorage.getItem("admin"); 
+  
+    const storedAdmin = localStorage.getItem("admin");
     if (storedAdmin) {
-      setAdmin(storedAdmin);
+      setAdmin(JSON.parse(storedAdmin));
     }
-  }, [user,admin]);
+  }, []);
+  
 
   const logout = () => {
     localStorage.removeItem("userRefreshToken");

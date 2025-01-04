@@ -22,7 +22,7 @@ export const adminLogin = async (req, res) => {
     const accessToken = jwt.sign({Id : user.id, role: user.role}, process.env.SECRET_KEY,{expiresIn : '1d'})
     const refreshToken = jwt.sign({Id : user.id, role: user.role}, process.env.SECRET_KEY,{expiresIn : '7d'})
 
-    return res.status(200).json({ message: "Admin logged in successfully", accessToken, refreshToken, user });
+    return res.status(200).json({ message: "Admin logged in successfully", accessToken, refreshToken, admin :user });
   }catch(error){
     return res.status(500).json({message: error.message})
     console.log(error);
