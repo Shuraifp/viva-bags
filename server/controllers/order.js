@@ -2,6 +2,7 @@ import Wallet from "../models/walletModel.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import Coupon from "../models/couponModel.js";
+import PDFDocument from 'pdfkit';
 
 export const createOrder = async (req, res) => {
   const userId = req.user.Id;
@@ -45,11 +46,9 @@ export const createOrder = async (req, res) => {
       : null;
 
       let paymentStatus = 'Pending'; 
-    if (paymentMethod === 'COD') {
-      paymentStatus = 'Pending'; 
-    } else if (paymentMethod === 'Razorpay' || paymentMethod === 'Wallet') {
-      paymentStatus = 'Completed'; 
-    } 
+      if (paymentMethod === 'Wallet') {
+        paymentStatus = 'Completed'; 
+      } 
 
       const order = {
           orderNumber: newOrderNumber,
@@ -84,8 +83,7 @@ export const createOrder = async (req, res) => {
       await wallet.save();
     }
 
-
-      res.status(201).json({message:'order placed'});
+      res.status(201).json({message:'order placed', orderId:newOrder._id});
   } catch (error) {
     console.log(error)
       res.status(500).json({ message: "Error creating order", error });
@@ -94,16 +92,32 @@ export const createOrder = async (req, res) => {
 
 export const getAllOrdersForUser = async (req, res) => {
   const userId = req.user.Id;
-  const { currentPage, limitPerPage } = req.query;
+  const { currentPage, limitPerPage, activeTab } = req.query;
+  const filters = { user: userId };
+  if (activeTab === 'All Orders') {
+    delete filters.status;
+  } else if (activeTab === 'In-Progress') {
+    filters.status = { $in: ['Pending', 'Shipped'] };
+  } else if (activeTab === 'Completed') {
+    filters.status = 'Delivered';
+  } else if (activeTab === 'Cancelled') {
+    filters.status = 'Cancelled';
+  } else if (activeTab === 'Returned') {
+    filters.status = 'Returned';
+  } else if (activeTab === 'Failed to Process') {
+    filters.paymentStatus = 'Failed';
+  }
+  console.log(filters)
   try {
-    const orders = await Order.find({ user: userId }).skip((currentPage - 1) * limitPerPage).limit(limitPerPage).populate("user").populate("address").populate({
+    const orders = await Order.find(filters).skip((currentPage - 1) * limitPerPage).limit(limitPerPage).populate("user").populate("address").populate({
       path: "products.productId",
       populate: {
         path: "category",
         select: "name",
       },
     }).sort({ createdAt: -1 })
-    const totalPages = Math.ceil((await Order.find({ user: userId }).countDocuments()) / limitPerPage);
+    
+    const totalPages = Math.ceil((await Order.find(filters).countDocuments()) / limitPerPage);
     res.status(200).json({totalPages,orders});
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -128,6 +142,19 @@ export const getOrderById = async (req, res) => {
   }
 };
 
+
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { id : orderId ,paymentStatus } = req.body;
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    order.paymentStatus = paymentStatus;
+    await order.save();
+    res.status(200).json({ message: "Payment status updated", order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -640,6 +667,7 @@ export const updateReturnStatus = async (req, res) => {
       order.isReturnRequested = true;
       order.returnStatus = "Completed";
       order.status = "Returned";
+      order.paymentStatus = "Refunded";
     }
 
     order.markModified("products");

@@ -4,6 +4,8 @@ import { getAllOrdersForUser, cancelOrder,cancelItem, requestReturnItem , return
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from '../../../components/Pagination'
 import toast from "react-hot-toast";
+import { createRazorpayOrder } from '../../../api/payment.js'
+import { updatePaymentStatus } from "../../../api/order";
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -28,11 +30,11 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage]);
+  }, [currentPage, activeTab]);
 
   const fetchOrders = async () => {
     try {
-      const response = await getAllOrdersForUser(currentPage,limitPerPage);
+      const response = await getAllOrdersForUser(currentPage,limitPerPage,activeTab);
       setOrders([...response.data.orders]);
       setFilteredOrders(response.data.orders)
       setTotalPages(response.data.totalPages)
@@ -46,14 +48,40 @@ const MyOrders = () => {
     }
   };
 
-  const filterOrders = (tab) => {
-    setActiveTab(tab);
-    if (tab === "All Orders") {
-      setFilteredOrders(orders);
-    } else if (tab === "In-Progress Items") {
-      setFilteredOrders(orders.filter(order => order.status === "Pending" || order.status === "Shipped"));
-    } else {
-      setFilteredOrders(orders.filter(order => order.status === tab.split(' ')[0]));
+  const handleRazorpayPayment = async (orderId, total,selectedAddress) => {
+    
+    try {
+      const response = await createRazorpayOrder(total);
+      const { id, amount } = response.data;
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: amount.toString(), 
+        currency: 'INR',
+        order_id: id,
+        handler: function (response) {
+          updatePaymentStatus(orderId,'Completed');
+          toast.success("Payment Successful.");
+        },
+        prefill: {
+          name: selectedAddress?.firstName + ' ' + selectedAddress?.lastName,
+          email: selectedAddress?.email,
+          contact: selectedAddress?.mobile,
+        },
+        theme: {
+          color: '#F7B800', 
+        },
+        modal: {
+          ondismiss: async () => {
+            toast.error("Payment Failed.");
+          },
+        },
+      };
+  
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Error initiating Razorpay payment:'+ err);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -142,8 +170,7 @@ const MyOrders = () => {
     setSelectedOrderId({});
     setReason("");
   };
-console.log(filteredOrders)
-console.log(orders)
+
   return (
     <div className="p-6 md:p-10 bg-gray-100">
 
@@ -199,13 +226,15 @@ console.log(orders)
       <div className="flex flex-wrap items-center gap-4 mb-8">
         {[
           "All Orders",
-          `In-Progress Items`,
-          "Delivered Items",
-          "Cancelled Items",
+          `In-Progress`,
+          "Completed",
+          "Cancelled",
+          "Returned",
+          'Failed to Process'
         ].map((tab) => (
           <button
             key={tab}
-            onClick={() => filterOrders(tab)}
+            onClick={() => setActiveTab(tab)}
             className={`text-sm md:text-base px-4 py-2 ${activeTab === tab ? "bg-yellow-600 text-white" : "bg-yellow-500 hover:bg-yellow-600"} focus:outline-none border`}
           >
             {tab}
@@ -285,16 +314,16 @@ console.log(orders)
                     handleCancelItem(order._id, item.productId._id)
                   }
                 }}
-                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
+                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested || order.paymentStatus === 'Failed' ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
               >
-                {order.status === "Delivered" ? item.isReturnRequested  ?  item.returnStatus === "Pending" ? "Requested for Return" : item.returnStatus === "Approved" ? "Return Approved" : item.returnStatus === "Completed" ? "Return Completed" : "Return Rejected" :  "Return Item" : "Cancel Item"}
+                {order.paymentStatus === 'Failed' ? '' : order.status === "Delivered" ? item.isReturnRequested  ?  item.returnStatus === "Pending" ? "Requested for Return" : item.returnStatus === "Approved" ? "Return Approved" : item.returnStatus === "Completed" ? "Return Completed" : "Return Rejected" :  "Return Item" : "Cancel Item"}
               </button> : <p className="text-sm md:text-base md:mr-12 text-red-500">{item.status}</p> : ""}
             </div>
           ))}
 
           {/* Actions */}
           <div className="flex flex-wrap gap-4">
-            { orderActionsByStatus[order.status].map((action, actionIndex) => (
+            { order.paymentStatus !== 'Failed' ? orderActionsByStatus[order.status].map((action, actionIndex) => (
               <button
                 key={actionIndex}
                 disabled={order.isReturnRequested && action === "Return Order"}
@@ -313,7 +342,14 @@ console.log(orders)
                       : "" 
                 : action}
               </button>
-            ))}
+            ))
+            : <button
+            onClick={() => handleRazorpayPayment(order._id, order.totalAmount,order.address)}
+            className={`text-sm md:text-base px-4 py-2 border border-blue-500 hover:border-blue-600 text-blue-500 focus:outline-none`}
+            >
+              <p>Retry Payment</p>
+            </button>
+              }
           </div>
         </div>
       ))}

@@ -10,6 +10,7 @@ import { createOrder } from "../../../api/order.js";
 import toast from "react-hot-toast";
 import { createRazorpayOrder } from "../../../api/payment.js";
 import { checkBalance } from "../../../api/wallet.js";
+import { updatePaymentStatus } from "../../../api/order.js";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
   const [selectedAddress, setSelectedAddress] = useState('');
   const coupon = JSON.parse(localStorage.getItem("coupon")) || null;
-  console.log(selectedAddress)
+  
   useEffect(() => {
     const fetchCartItems = async () => {
       try{
@@ -39,12 +40,13 @@ const CheckoutPage = () => {
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
+
   const handlePlaceOrder = async () => {
     if (paymentMethod === 'Razorpay') {
-      handleRazorpayPayment();
+        placeOrder();
     } else if (paymentMethod === 'Wallet') {
       handleWalletPayment();
-    } else {
+    } else if (paymentMethod === 'COD') {
       if (total < 1000) {
         toast.error('Minimum order amount for COD is ₹1000. Please select a different payment method.');
         return;
@@ -71,27 +73,18 @@ const CheckoutPage = () => {
     }
   };
 
-  const handleRazorpayPayment = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select an address.");
-      return;
-    }
-    if(!cartItems){
-      toast.error('products are missing')
-      return;
-    }
+  const handleRazorpayPayment = async (orderId) => {
+    
     try {
       const response = await createRazorpayOrder(total);
       const { id, amount } = response.data;
       const options = {
-        key: "rzp_test_RV3WvAL2SuYG54",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: amount.toString(), 
         currency: 'INR',
         order_id: id,
         handler: function (response) {
-          console.log('Payment successful:', response);
-          
-          placeOrder();
+          updatePaymentStatus(orderId,'Completed');
         },
         prefill: {
           name: selectedAddress?.firstName + ' ' + selectedAddress?.lastName,
@@ -100,6 +93,13 @@ const CheckoutPage = () => {
         },
         theme: {
           color: '#F7B800', 
+        },
+        modal: {
+          ondismiss: async () => {
+            toast.error("Payment Failed.");
+            updatePaymentStatus(orderId,'Failed');
+            navigate('/profile/orders');
+          },
         },
       };
   
@@ -113,6 +113,14 @@ const CheckoutPage = () => {
   
 
   const placeOrder = async () => {
+    if (!selectedAddress) {
+      toast.error("Please select an address.");
+      return;
+    }
+    if(!cartItems){
+      toast.error('products are missing')
+      return;
+    }
     
     try {
       const orderData = {
@@ -144,7 +152,9 @@ const CheckoutPage = () => {
       localStorage.removeItem("coupon");
       const response = await createOrder(orderData);
       if(response.status===201){
-        console.log(response.data.message)
+        if(paymentMethod === 'Razorpay'){
+          handleRazorpayPayment(response.data.orderId);
+        } 
         clearCart();
         setCartItems([]);
         dispatch(setCartCount(0));

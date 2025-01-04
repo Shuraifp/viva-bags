@@ -35,18 +35,19 @@ const OrderManagement = () => {
       if(response.status === 200){
         setStatusUpdate(!statusUpdate);
         toast.success(response.data.message);
-      } else {
-        console.log(response)
-        toast.error(response.response.data.message);
       }
     } catch (error) {
-      console.error("Error changing order status:", error);
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     }
   }
   const handlePageClick = (page) => {
     setCurrentPage(page);
   };
-console.log(orders)
+
   return (
     <div className="p-6 bg-gray-100 h-screen relative">
       <h2 className="text-xl font-semibold mb-4">Order Management</h2>
