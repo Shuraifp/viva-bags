@@ -27,9 +27,7 @@ const SalesReport = () => {
   const handleDownloadReport = async (format) => {
     try {
       const response = await downloadSalesReport(format,filter, customDateRange);
-      console.log(response)
       const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'application/vnd.ms-excel' });
-      console.log(blob)
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = `Sales_Report.${format === 'pdf' ? 'pdf' : 'xlsx'}`;

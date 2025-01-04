@@ -85,6 +85,7 @@ const CheckoutPage = () => {
         order_id: id,
         handler: function (response) {
           updatePaymentStatus(orderId,'Completed');
+          navigate('/success')
         },
         prefill: {
           name: selectedAddress?.firstName + ' ' + selectedAddress?.lastName,
@@ -158,7 +159,6 @@ const CheckoutPage = () => {
         clearCart();
         setCartItems([]);
         dispatch(setCartCount(0));
-        navigate('/success')
       }
       
     } catch (err) {

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import { getAllOrdersForUser, cancelOrder,cancelItem, requestReturnItem , returnOrder} from "../../../api/order";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Pagination from '../../../components/Pagination'
 import toast from "react-hot-toast";
 import { createRazorpayOrder } from '../../../api/payment.js'
-import { updatePaymentStatus } from "../../../api/order";
+import { updatePaymentStatus, downloadInvoice } from "../../../api/order";
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ const MyOrders = () => {
         order_id: id,
         handler: function (response) {
           updatePaymentStatus(orderId,'Completed');
-          toast.success("Payment Successful.");
+          navigate('/success')
         },
         prefill: {
           name: selectedAddress?.firstName + ' ' + selectedAddress?.lastName,
@@ -171,6 +171,21 @@ const MyOrders = () => {
     setReason("");
   };
 
+  const getInvoice = async (orderId) => {
+    try {
+      const response = await downloadInvoice(orderId);
+      console.log(response.data)
+      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(pdfBlob);
+      link.download = `Invoice_${orderId}.pdf`;
+      link.click();
+      toast.success("Invoice downloaded successfully!");
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
+  };
+
   return (
     <div className="p-6 md:p-10 bg-gray-100">
 
@@ -269,12 +284,13 @@ const MyOrders = () => {
             </div>
             <div>
               <p className="text-gray-700 text-sm">Total Price: {order.totalAmount}</p>
-              <Link
-                // to={}
+            { order?.status !== "Cancelled" && order?.status !== "Returned" && order?.paymentStatus === "Completed" && 
+              <p
+                onClick={() => getInvoice(order._id)}
                 className="text-blue-500 hover:underline text-sm"
               >
                 Download Invoice
-              </Link>
+              </p>}
             </div>
           </div>
 

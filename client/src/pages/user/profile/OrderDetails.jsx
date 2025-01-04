@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import { useParams ,Link} from "react-router-dom";
-import { getSingleOrder } from "../../../api/order";
+import { getSingleOrder, downloadInvoice } from "../../../api/order";
 
 const OrderDetails = () => {
   const { orderId :id } = useParams();
@@ -31,6 +31,21 @@ const OrderDetails = () => {
     fetchOrder();
   }, [id]);
 
+  const getInvoice = async (orderId) => {
+    try {
+      const response = await downloadInvoice(orderId);
+      console.log(response.data)
+      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(pdfBlob);
+      link.download = `Invoice_${orderId}.pdf`;
+      link.click();
+      toast.success("Invoice downloaded successfully!");
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 bg-gray-100">
       {/* Progress Section */}
@@ -50,14 +65,15 @@ const OrderDetails = () => {
               })}
             </p>
           </div>
+          { order?.status !== "Cancelled" && order?.status !== "Returned" && order?.paymentStatus === "Completed" && 
           <div className="flex items-start ">
-            <Link
-              // to={`/profile/orders/${order?._id}`}
-              className="text-blue-500 hover:underline text-sm"
-            >
-              Download Invoice
-            </Link>
-          </div>
+          <p
+                onClick={() => getInvoice(order._id)}
+                className="text-blue-500 hover:underline text-sm"
+              >
+                Download Invoice
+              </p>
+          </div>}
         </div>
 
         <h2 className="text-lg font-semibold mb-4">Progress</h2>

@@ -34,6 +34,15 @@ export const getSingleOrder = async (id) => {
 }
 
 
+export const downloadInvoice = async (id) => {
+  try{
+    const response = await api.get(`/user/orders/invoice/${id}`, { responseType: 'arraybuffer' });
+    return response;
+  } catch (err){
+    throw err
+  }
+}
+
 //      Cancel
 
 export const cancelOrder = async (id) => {
