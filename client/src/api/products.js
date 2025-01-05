@@ -77,9 +77,9 @@ export const toggleProductStatus = async (id) => {
 export const getproductsFromSameCat = async (category) => {
   try{
     const response = await apiNonSecure.get(`/user/${category}/products`)
-    return response.data
+    return response
   } catch (error) {
-    return error.response.data
+    throw error
   }
 }
 

@@ -1,8 +1,11 @@
 import React, { createContext, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setCartCount, setWishlistCount } from "../redux/cartwishlistSlice";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
 
@@ -23,6 +26,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userRefreshToken");
     localStorage.removeItem("userAccessToken");
     localStorage.removeItem("user");
+    dispatch(setCartCount(0));
+    dispatch(setWishlistCount(0));
     setUser(null);
   };
   

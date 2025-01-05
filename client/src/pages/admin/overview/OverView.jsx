@@ -65,7 +65,7 @@ const DashboardContent = () => {
         <div className="flex items-center space-x-4">
           <FaRupeeSign className="text-4xl text-green-500" />
           <div>
-            <h2 className="text-xl font-semibold text-gray-600">Revenue</h2>
+            <h2 className="text-xl font-semibold text-gray-600">Total Revenue</h2>
             <p className="text-3xl font-bold text-gray-600">{totalRevenue[2]?.toFixed(2)}</p>
           </div>
         </div>

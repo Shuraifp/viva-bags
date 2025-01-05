@@ -27,7 +27,6 @@ export const addToCart = async (req, res) => {
         });
       }
       cart.items[productIndex].quantity += quantity;
-      await cart.save();
     } else {
       if (quantity > 10) {
         return res.status(400).json({
@@ -39,10 +38,15 @@ export const addToCart = async (req, res) => {
         { $push: { items: { product: productId, quantity } } },
         { new: true }
       );
-      cart = updated;
+      if (updated) {
+        cart = updated;
+      } else {
+          cart.items.push({ product: productId, quantity });
+      }
     }
-
-    const totalQuantity = cart.items.reduce((total, item) => total + item.quantity, 0);
+    
+    await cart.save();
+    const totalQuantity = cart.items.length > 0 ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0;
     res.status(200).json({ message: 'Product added to cart', quantity: totalQuantity});
   } catch (error) {
     console.error(error);
@@ -64,7 +68,7 @@ export const fetchCart = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      cart = new Cart({ user, items: [] });
     }
 
     const { items } = cart;

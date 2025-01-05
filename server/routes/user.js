@@ -13,6 +13,7 @@ import { getCouponsForUser, applyCoupon, removeAppliedCoupon } from "../controll
 import { makePayment } from "../controllers/payment.js";
 import { addToWishlist, getWishlist, deleteWishlistItem } from "../controllers/wishlist.js";
 import { getWallet, checkBalance } from "../controllers/wallet.js";
+import { addReview, fetchReviews } from "../controllers/review.js";
 
 
 // Auth
@@ -95,5 +96,10 @@ router.delete('/wishlist/remove/:id', isUser, deleteWishlistItem);
 // Wallet
 router.get('/wallet', isUser, getWallet);
 router.post('/wallet/check', isUser, checkBalance);
+
+
+// Review
+router.post('/reviews/add', isUser, addReview);
+router.get('/reviews/:id', isUser, fetchReviews);
 
 export default router;

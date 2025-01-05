@@ -19,7 +19,7 @@ const UserProfile = () => {
     const fetchUserData = async () => {
       try {
         const response = await fetchUserProfileData();
-        console.log(response)
+        console.log(response.data.user);
         if (response.status === 200) {
           setUser(response.data.user);
           console.log(response.data.message);
@@ -140,9 +140,9 @@ const UserProfile = () => {
           <>
             <div className="mt-4">
               <h3 className="text-xl font-semibold">General Information</h3>
-              <p>Full Name: {user?.firstName} {user?.lastName}</p>
-              <p>Email: {user?.email}</p>
-              <p>Phone: {user?.mobile}</p>
+              {user?.firstName && <p>Full Name: {user?.firstName} {user?.lastName}</p>}
+              { user?.email && <p>Email: {user?.email}</p>}
+              { user?.mobile && <p>Phone: {user?.mobile}</p>}
             </div>
 
             {/* Security Section */}

@@ -12,7 +12,6 @@ const FeaturedProducts = () => {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/products/featured`);
       if(response.status === 200){
         setProducts(response.data.products);
-        console.log(response)
       }
     } catch(err){
       console.log(err)

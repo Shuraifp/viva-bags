@@ -179,7 +179,6 @@ export const countSoldProducts = async (req, res) => {
 export const getProductByIdForUser = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      console.log('invalid id')
       return res.status(404).json({ message: 'Product not found' });
     }
 
