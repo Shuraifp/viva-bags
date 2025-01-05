@@ -3,7 +3,7 @@ const router = Router();
 import { register, login, sendOtp, verifyOtp, verifyFirebaseToken, loginUserWithGoogle } from "../controllers/auth.js";
 import { getAllCategories, categoriesOverview } from "../controllers/categories.js";
 import { getAllBrands } from "../controllers/brands.js";
-import { getProductByIdForUser,getFilteredProducts, getSortedProducts, getFeaturedProducts } from "../controllers/products.js";
+import { getProductByIdForUser,getFilteredProducts, getSortedProducts, getFeaturedProducts, getFilterCounts } from "../controllers/products.js";
 import { addToCart, fetchCart, updateCart, deleteCartItem, getCartCount, clearCart } from "../controllers/cart.js";
 import { authenticateJWT, isUser } from "../middlewares/verifyToken.js";
 import { addAddress, getAllAddresses, editAddress, deleteAddress, toggleDefault } from "../controllers/address.js";
@@ -33,10 +33,11 @@ router.patch('/change-password', isUser, changePassword);
 
 
 // Product
-router.get('/:category/products', getFilteredProducts)
-router.get('/products', getSortedProducts)
+router.get('/products/sorted', getSortedProducts)
 router.get('/products/featured', getFeaturedProducts)
+router.get('/products/count', getFilterCounts)
 router.get('/products/:id', getProductByIdForUser);
+router.get('/categories/:category/products', getFilteredProducts)
 
 
 // Categories

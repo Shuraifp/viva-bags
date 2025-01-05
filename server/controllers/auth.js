@@ -4,7 +4,8 @@ import Admin from "../models/adminModel.js";
 import User from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import admin from "../firebase.js";
-
+import Wishlist from "../models/wishlistModel.js";
+import Cart from "../models/cartModel.js";
 
     //                    Admin
 
@@ -81,12 +82,16 @@ export const login = async (req, res) => {
     }
     const accessToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '1d'})
     const refreshToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '7d'})
+    const wishlist = await Wishlist.findOne({ userId: user._id });
+    const cart = await Cart.findOne({ user: user._id });
     return res.status(200).json({ message: "User logged in successfully", accessToken, refreshToken,
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
         profileImage: user.profileImage.path,
+        wishlistCount: wishlist ? wishlist.products.length : 0,
+        cartCount: cart ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0
       }
     });
   }catch(error){
@@ -195,6 +200,8 @@ export const loginUserWithGoogle = async (req, res) => {
     return res.status(401).json({ message: "User is blocked" });
   }
   await user.save();
+  const wishlist = await Wishlist.findOne({ userId: user._id });
+  const cart = await Cart.findOne({ user: user._id });
   const accessToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '1d'})
   const refreshToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '7d'})
   return res.status(200).json({
@@ -206,6 +213,8 @@ export const loginUserWithGoogle = async (req, res) => {
       username: user.username,
       email: user.email,
       profileImage: user.profileImage.path,
+      wishlistCount: wishlist ? wishlist.products.length : 0,
+      cartCount: cart ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0
     }});
   } catch (error) {
     return res.status(500).json({ message: "Error with logging in, try again" });

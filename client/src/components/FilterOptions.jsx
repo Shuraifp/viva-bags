@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getFiltercount } from '../api/products';
 
-const FilterOptions = ({ onFilterChange }) => {
+
+const FilterOptions = ({ setFilters }) => {
+  const [countData, setCountData] = useState({});
   
-  const [filters, setFilters] = useState({
-    price: [],
-    color: [],
-    size: [],
-  });
-
+  useEffect(() => {
+    const fetchFilterCount = async () => {
+      try {
+        const response = await getFiltercount();
+        setCountData(response.data);
+      } catch (error) {
+        console.error('Error fetching filter count:', error);
+      }
+    };
+    fetchFilterCount();
+  }, []);
   const handleCheckboxChange = (filterType, value) => {
     setFilters((prevFilters) => {
       const updatedFilter = prevFilters[filterType].includes(value)
@@ -15,13 +23,13 @@ const FilterOptions = ({ onFilterChange }) => {
         : [...prevFilters[filterType], value];
 
       const updatedFilters = { ...prevFilters, [filterType]: updatedFilter };
-      onFilterChange(updatedFilters); 
       return updatedFilters;
     });
   };
+  
   return (
     <aside className="md:col-span-1 text-gray-500">
-      {/* Filter by Price */}
+      
       <h3 className="text-xl font-bold mb-2">FILTER BY PRICE</h3>
       <div className="mb-6 bg-white p-3">
         <ul className="space-y-2">
@@ -35,7 +43,7 @@ const FilterOptions = ({ onFilterChange }) => {
                 />
                 All Price
               </div>
-              (50)
+              ({countData?.priceCounts?.all})
             </label>
           </li>
           <li>
@@ -48,7 +56,7 @@ const FilterOptions = ({ onFilterChange }) => {
                 />
                 10000 - 40000
               </div>
-              (50)
+              ({countData?.priceCounts?.[`10000-40000`]})
             </label>
           </li>
           <li>
@@ -57,19 +65,17 @@ const FilterOptions = ({ onFilterChange }) => {
                 <input
                   type="checkbox"
                   className="mr-2 accent-yellow-500"
-                  // checked={selectedPrice.includes('1000-10000')}
                   onChange={() => handleCheckboxChange('price', '1000-10000')}
                 />
                 1000 - 10000
               </div>
-              (50)
+              ({countData?.priceCounts?.[`1000-10000`]})
             </label>
           </li>
-          
         </ul>
       </div>
 
-      {/* Filter by Color */}
+  
       <h3 className="text-xl font-bold mb-2">FILTER BY COLOR</h3>
       <div className="mb-6 p-3 bg-white">
         <ul className="space-y-2">
@@ -79,47 +85,30 @@ const FilterOptions = ({ onFilterChange }) => {
                 <input
                   type="checkbox"
                   className="mr-2 accent-yellow-500"
-                  // checked={selectedColor.includes('all')}
                   onChange={() => handleCheckboxChange('color', 'all')}
                 />
                 All Color
               </div>
-              (550)
+              ({countData?.priceCounts?.all})
             </label>
           </li>
-          <li>
+         { countData?.colorCounts.map((item) => <li>
             <label className="flex justify-between">
               <div>
                 <input
                   type="checkbox"
                   className="mr-2 accent-yellow-500"
-                  // checked={selectedColor.includes('black')}
-                  onChange={() => handleCheckboxChange('color', 'black')}
+                  onChange={() => handleCheckboxChange('color', item.color)}
                 />
-                Black
+                {item.color}
               </div>
-              (334)
+              ({item.count})
             </label>
-          </li>
-          <li>
-            <label className="flex justify-between">
-              <div>
-                <input
-                  type="checkbox"
-                  className="mr-2 accent-yellow-500"
-                  // checked={selectedColor.includes('black')}
-                  onChange={() => handleCheckboxChange('color', 'gray')}
-                />
-                Gray
-              </div>
-              (124)
-            </label>
-          </li>
-          
+          </li>)}      
         </ul>
       </div>
 
-      {/* Filter by Size */}
+      
       <h3 className="text-xl font-bold mb-2">FILTER BY SIZE</h3>
       <div className="mb-6 p-3 bg-white">
         <ul className="space-y-2">
@@ -129,71 +118,30 @@ const FilterOptions = ({ onFilterChange }) => {
                 <input
                   type="checkbox"
                   className="mr-2 accent-yellow-500"
-                  // checked={selectedSize.includes('all')}
                   onChange={() => handleCheckboxChange('size', 'all')}
                 />
                 All Size
               </div>
-              (550)
+              ({countData?.priceCounts?.all})
             </label>
           </li>
-          <li>
+          { countData?.sizeCounts.map((item) => <li>
             <label className="flex justify-between">
               <div>
                 <input
                   type="checkbox"
                   className="mr-2 accent-yellow-500"
-                  // checked={selectedSize.includes('S')}
-                  onChange={() => handleCheckboxChange('size', 'S')}
+                  onChange={() => handleCheckboxChange('size', item.size)}
                 />
-                Small (S)
+                {item.size === 'S' ? 'Small' 
+                : item.size === 'M' ? 'Medium' 
+                : item.size === 'L' ? 'Large' 
+                : item.size === 'XL' ? 'Extra Large' 
+                : ''} ({item.size})
               </div>
-              (120)
+              ({item.count})
             </label>
-          </li>
-          <li>
-            <label className="flex justify-between">
-              <div>
-                <input
-                  type="checkbox"
-                  className="mr-2 accent-yellow-500"
-                  // checked={selectedSize.includes('S')}
-                  onChange={() => handleCheckboxChange('size', 'M')}
-                />
-                Medium (M)
-              </div>
-              (100)
-            </label>
-          </li>
-          <li>
-            <label className="flex justify-between">
-              <div>
-                <input
-                  type="checkbox"
-                  className="mr-2 accent-yellow-500"
-                  // checked={selectedSize.includes('S')}
-                  onChange={() => handleCheckboxChange('size', 'L')}
-                />
-                Large (L)
-              </div>
-              (120)
-            </label>
-          </li>
-          <li>
-            <label className="flex justify-between">
-              <div>
-                <input
-                  type="checkbox"
-                  className="mr-2 accent-yellow-500"
-                  // checked={selectedSize.includes('S')}
-                  onChange={() => handleCheckboxChange('size', 'XL')}
-                />
-                Extra Large (XL)
-              </div>
-              (110)
-            </label>
-          </li>
-          
+          </li>)}
         </ul>
       </div>
     </aside>

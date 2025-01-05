@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../context/AuthProvider';
 import { setWishlistCount, setCartCount } from '../../redux/cartwishlistSlice';
 import { useDispatch } from 'react-redux';
 import Navbar from '../../components/Navbar';
@@ -9,6 +10,7 @@ import { updateCart } from '../../api/cart';
 import toast from 'react-hot-toast';
 
 const Wishlist = ({}) => {
+  const { user } = useContext(AuthContext)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [wishlistItems, setWishlistItems] = useState([ ])
@@ -72,7 +74,7 @@ const Wishlist = ({}) => {
     }
   }
 
-  return (
+  return user ? (
     <div className='min-h-screen bg-gray-100'>
       <Navbar />
 
@@ -120,7 +122,16 @@ const Wishlist = ({}) => {
     </div>
     <Footer />
     </div>
-  );
+  ) : (
+    <div>
+      <Navbar />
+      <div className={`w-full h-full my-28 flex flex-col items-center justify-center`}>
+        <p className="p-1 text-center text-2xl text-slate-600">You are not Loged in!</p>
+        <p className="p-1 text-center text-lg text-slate-400">Make it fast and Add some items to it now.</p>
+        <button onClick={() => navigate("/signin")} className="mt-4 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-nowrap text-lg">Go to Login</button>
+      </div>
+    </div>
+)
 };
 
 export default Wishlist;

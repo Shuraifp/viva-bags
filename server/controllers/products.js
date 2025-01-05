@@ -221,17 +221,29 @@ export const getFilteredProducts = async (req, res) => {
 
 export const getSortedProducts = async (req, res) => {
   try {
-    const { option, currentPage, limitPerPage,searchQuery ,category} = req.query;
+    const { option, currentPage, limitPerPage,searchQuery ,category, filterOptions} = req.query;
     if (!option) {
       return res.status(400).json({ message: "Sort option is required" });
   }
 
     const filters = {islisted: true};
     if (searchQuery) {
-      filters.$or = [
-        { name: { $regex: searchQuery, $options: "i"} },   
-      ];
+      filters.name = { $regex: searchQuery, $options: 'i' };
     }
+    if(filterOptions){
+      if(filterOptions.price && !filterOptions.price.includes("all")){
+        filterOptions.price.includes("1000-10000") ? 
+        filterOptions.price.includes('10000-40000') ? filters.finalPrice = { $gte: 1000, $lte: 40000 } : filters.finalPrice = { $gte: 1000, $lte: 10000 }
+        : filters.finalPrice = { $gte: 10000, $lte: 40000 }
+      }
+      if(filterOptions.color && !filterOptions.color.includes("all")){
+        filters["color.name"] = { $in: filterOptions.color }
+      }
+      if(filterOptions.size && !filterOptions.size.includes("all")){
+        filters.size = { $in: filterOptions.size }
+      }
+    }
+  
     let sortOption = {};
     switch (option) {
       case "popularity":
@@ -332,5 +344,48 @@ export const getFeaturedProducts = async (req, res) => {
     res.status(200).json({message: "Products fetched successfully", products});
   } catch (error) {
     res.status(500).json({ message: "Error fetching products", error });
+  }
+};
+
+
+
+export const getFilterCounts = async (req, res) => {
+  try {
+    const priceCounts = await Promise.all([
+      Product.countDocuments({ islisted: true }),
+      Product.countDocuments({ islisted: true, discountedPrice: { $gte: 1000, $lte: 10000 } }),
+      Product.countDocuments({ islisted: true, discountedPrice: { $gte: 10000, $lte: 40000 } }),
+    ]);
+
+    const colorCounts = await Product.aggregate([
+      { $match: { islisted: true } },
+      { $group: { _id: "$color.name", count: { $sum: 1 } } },
+    ]);
+
+    const sizeCounts = await Product.aggregate([
+      { $match: { islisted: true } },
+      { $unwind: "$size" },
+      { $group: { _id: "$size", count: { $sum: 1 } } },
+    ]);
+console.log('2')
+    const response = {
+      priceCounts: {
+        all: priceCounts[0],
+        "1000-10000": priceCounts[1],
+        "10000-40000": priceCounts[2],
+      },
+      colorCounts: colorCounts.map((color) => ({
+        color: color._id,
+        count: color.count,
+      })),
+      sizeCounts: sizeCounts.map((size) => ({
+        size: size._id,
+        count: size.count,
+      })),
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching filter counts:", error);
+    res.status(500).json({ message: "Error fetching filter counts", error });
   }
 };

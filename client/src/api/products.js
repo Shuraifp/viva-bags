@@ -76,7 +76,7 @@ export const toggleProductStatus = async (id) => {
 
 export const getproductsFromSameCat = async (category) => {
   try{
-    const response = await apiNonSecure.get(`/user/${category}/products`)
+    const response = await apiNonSecure.get(`/user/categories/${category}/products`)
     return response
   } catch (error) {
     throw error
@@ -84,12 +84,21 @@ export const getproductsFromSameCat = async (category) => {
 }
 
 
-export const getSortedProducts = async (currentPage,limitPerPage,option,searchQuery,category) => {
+export const getSortedProducts = async (currentPage,limitPerPage,option,searchQuery,category,filterOptions) => {
   try{
-    const response = await apiNonSecure.get(`/user/products`,{params:{currentPage,limitPerPage,option,searchQuery,category}})
+    const response = await apiNonSecure.get(`/user/products/sorted`,{params:{currentPage,limitPerPage,option,searchQuery,category,filterOptions}})
     return response
   } catch (error) {
-    console.log(error)
-    return error.message  
+    throw error 
+  }
+}
+
+
+export const getFiltercount = async () => {
+  try{
+    const response = await apiNonSecure.get(`/user/products/count`)
+    return response
+  } catch (error) {
+    throw error 
   }
 }

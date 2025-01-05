@@ -21,49 +21,34 @@ const Shop = () => {
   const searchQuery = searchParams.get('search') || '';
   const searchCategory = searchParams.get('category') || '';
   const limitPerPage = 9;
+  const [filters, setFilters] = useState({
+    price: [],
+    color: [],
+    size: [],
+  });
 
   useEffect(() => {
     fetchProducts();
-    window.scrollTo(0, 0);
+  }, [currentPage,sort,searchQuery,searchCategory,filters]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage,sort,searchQuery,searchCategory]);
 
   const fetchProducts = async () => {
     try {
-      const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery,searchCategory);
+      const response = await getSortedProducts(currentPage,limitPerPage,sort,searchQuery,searchCategory,filters);
       setProducts(response.data.productsData);
       setFilteredProducts(response.data.productsData);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.log(error)
-      toast.error('Error fetching products:', error);
+      if(error.response){
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     }
   }
-
-  const handleFilterChange = (filters) => {
-    const { price, color, size } = filters;
-  
-    const filtered = products.filter((product) => {
-      const priceCategory =
-        product.discountedPrice < 1000
-          ? 'under-1000'
-          : product.discountedPrice <= 10000
-          ? '1000-10000'
-          : product.discountedPrice <= 40000
-          ? '10000-40000'
-          : 'above-40000';
-  
-      const matchesPrice =
-        price.length === 0 || price.includes(priceCategory) || price.includes('all');
-      const matchesColor =
-        color.length === 0 || color.includes(product.color.name.toLowerCase()) || color.includes('all');
-      const matchesSize =
-        size.length === 0 || size.includes(product.size) || size.includes('all');
-
-      return matchesPrice && matchesColor && matchesSize;
-    });
-  
-    setFilteredProducts(filtered);
-  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -83,7 +68,7 @@ const Shop = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 m-8">
         
-        <FilterOptions onFilterChange={handleFilterChange} />
+        <FilterOptions setFilters={setFilters} />
 
       
         <main className="md:col-span-3">

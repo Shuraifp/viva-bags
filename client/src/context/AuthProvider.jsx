@@ -35,6 +35,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("userAccessToken", accessToken);
     localStorage.setItem("userRefreshToken", refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
+    dispatch(setCartCount(user.cartCount));
+    dispatch(setWishlistCount(user.wishlistCount));
     setUser(user);
   }
   const addAdminCredentials = (accessToken, refreshToken, admin) => {
