@@ -24,7 +24,7 @@ import Checkout from './pages/user/checkout/Checkout'
 import SuccessPage from './pages/user/Success'
 import OrderDetails from './pages/user/profile/OrderDetails'
 import Brands from './pages/admin/Brands'
-import ForgotPassword from './pages/user/profile/ForgotPassword'
+import ForgotPassword from './pages/user/Auth/ForgotPassword'
 import PageNotFound from './pages/404PageNotFound'
 import AdminOrderDetails from './pages/admin/OrderDetails'
 import Coupons from './pages/admin/Coupons'
@@ -41,6 +41,7 @@ const App = () => {
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ForgotPassword />} />
         <Route path="/profile" element={<ProfilePage />}>
           <Route index element={<Account />} />
           <Route path="profileInfo" element={<Account />} />

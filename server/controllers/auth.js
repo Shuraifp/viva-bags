@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import admin from "../firebase.js";
 import Wishlist from "../models/wishlistModel.js";
 import Cart from "../models/cartModel.js";
+import crypto from "crypto";
 
     //                    Admin
 
@@ -53,12 +54,16 @@ export const register = async (req, res) => {
     const user = await User.findOne({ email });
     const accessToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '1d'})
     const refreshToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '7d'})
+    const wishlist = await Wishlist.findOne({ userId: user._id });
+    const cart = await Cart.findOne({ user: user._id });
     return res.status(201).json({ message: "User registered successfully" , accessToken, refreshToken,
       user: {
       id: user.id,
       username: user.username,
       email: user.email,
       profileImage: user.profileImage.path,
+      wishlistCount: wishlist ? wishlist.products.length : 0,
+      cartCount: cart ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0
     }});
   }catch (error) {
     console.log(error);
@@ -125,13 +130,13 @@ export const sendOtp = (req, res) => {
   };
   console.log(otpStore)
 
-  // transporter.sendMail(mailOptions, (error, info) => {
-  //   if (error) {
-  //     return res.status(500).json({ success: false, message: 'Error sending OTP', error:error.message });
-  //   } else {
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ success: false, message: 'Error sending OTP', error:error.message });
+    } else {
       return res.status(200).json({ success: true, message: 'OTP sent successfully' });
-  //   }
-  // });
+    }
+  });
 };
 
 export const verifyOtp = (req, res, next) => {
@@ -221,3 +226,70 @@ export const loginUserWithGoogle = async (req, res) => {
   }
 };
 
+
+export const sendResetPasswordEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour 
+  await user.save();
+  
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Your Password Reset Link',
+    text: `Click here to reset your password: ${resetLink}`,
+  };
+
+  await transporter.sendMail(mailOptions);
+
+  return res.status(200).json({ success: true, message: 'Link sent successfully' });
+  } catch (error) {
+    console.error("Error sending reset password email:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
+export const resetPassword = async (req, res) => {
+  console.log(req.body)
+  try {
+    const { resetToken, newPassword } = req.body;
+  const user = await User.findOne({
+    resetPasswordToken: resetToken,
+    resetPasswordExpires: { $gt: Date.now() }, 
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired token." });
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successful." });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

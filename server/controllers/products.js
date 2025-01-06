@@ -367,7 +367,7 @@ export const getFilterCounts = async (req, res) => {
       { $unwind: "$size" },
       { $group: { _id: "$size", count: { $sum: 1 } } },
     ]);
-console.log('2')
+
     const response = {
       priceCounts: {
         all: priceCounts[0],

@@ -22,6 +22,9 @@ export const editUserStatus = async (userId) => {
 }
 
 
+
+//                User
+
 export const fetchUserProfileData = async () => {
   try {
     const response = await userApi.get(`/user/profile`);
@@ -48,5 +51,24 @@ export const changePassword = async (data) => {
   } catch (error) {
     console.log(error)
     return error.response;
+  };
+}
+
+
+export const sendResetPasswordEmail = async (data) => {
+  try {
+    const response = await userApi.post(`/user/auth/send-resetEmail`, data);
+    return response;
+  } catch (error) {
+    throw error;
+  };
+}
+
+export const resetPassword = async (data) => {
+  try {
+    const response = await userApi.post(`/user/auth/reset-password`, data);
+    return response;
+  } catch (error) {
+    throw error;
   };
 }

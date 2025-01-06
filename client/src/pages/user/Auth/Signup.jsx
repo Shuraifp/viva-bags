@@ -246,7 +246,7 @@ const Signup = () => {
                   htmlFor="otp"
                   className="block text-gray-700 text-sm font-medium mb-1"
                 >
-                  Enter OTP
+                  Enter OTP <span className="text-blue-400 font-normal ml-1">check your email for the OTP</span>
                 </label>
                 <input
                   type="text"

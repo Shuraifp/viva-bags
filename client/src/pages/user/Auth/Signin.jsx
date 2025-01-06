@@ -85,7 +85,7 @@ const Signin = () => {
         <Toaster />
         <div className="flex-1 pr-8">
           <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">
-            <span className="font-light">Login to</span> 
+            <span className="font-light">Login to </span> 
             <span className="text-yellow-500">VIVA</span>
             <span className="text-black ml-1">BAGS</span>
           </h2>
