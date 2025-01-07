@@ -131,22 +131,17 @@ const CartPage = () => {
   const calculateTotalwithoutCoupon = () => {
     return subtotal + shipping;
   };
-  
   const coupon = JSON.parse(localStorage.getItem("coupon"));
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
   const shipping = 10;
   const total = coupon ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
+  console.log(subtotal)
+  
 
 
-  // const handleOutsideClick = (e) => {
-    //   console.log("clicked outside 1");
-    //   if (!e.currentTarget.contains(e.target)) {
-  //     setSelectedCoupon(null);
-  //     console.log("clicked outside");
-  //   }
-  // };
+  
 
-  return user ? (
+  return (
     <div className="min-h-screen bg-gray-100"
     // onClick={handleOutsideClick}
     >
@@ -161,8 +156,8 @@ const CartPage = () => {
           <Link to="/cart" className="hover:underline"> Cart</Link>
         </nav>
       </div>
-
-      { cartItems.length > 0 && <div className="p-4 min-h-[calc(100vh-64px)] md:p-8 md:pt-4 bg-gray-100">
+     
+      { user && cartItems.length > 0 && <div className="p-4 min-h-[calc(100vh-64px)] md:p-8 md:pt-4 bg-gray-100">
      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
 
       <div className="col-span-2">
@@ -185,7 +180,7 @@ const CartPage = () => {
                     <span>{item.product.name}</span>
                   </td>
                   <td className="p-4 text-center">{item.product.category.name}</td>
-                  <td className="p-4 text-center text-green-500">{item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice} <span className="text-sm text-gray-400 line-through">{item.product.discountedPrice ? item.product.regularPrice : ""}</span></td>
+                  <td className="p-4 text-center text-green-500">{item.product.discountedPrice < item.product.regularPrice ? item.product.discountedPrice : item.product.regularPrice} <span className="text-sm text-gray-400 line-through">{item.product.discountedPrice < item.product.regularPrice ? item.product.regularPrice : ""}</span></td>
                   <td className="p-4 text-center">
                     <div className="flex items-center bg-slate-100 w-fit">
                       <button
@@ -267,23 +262,25 @@ const CartPage = () => {
     </div>  
 
     </div>}
-    { !isLoading &&
-            <div className={`${cartItems.length === 0  ? 'flex' : 'hidden'} w-full h-full my-28 flex flex-col items-center justify-center`}>
+    { !cartItems.length && user &&
+            <div className={`min-h-[calc(100vh-400px)] w-full my-24 flex flex-col items-center justify-center`}>
               <p className="p-1 text-center text-2xl text-slate-600">Your cart is empty!</p>
               <p className="p-1 text-center text-lg text-slate-400">Add some items to it now.</p>
               <button onClick={() => navigate("/shop")} className="mt-4 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-nowrap text-lg">Go to Shop</button>
             </div>
         }
-      <Footer />
-    </div>
-  ) : (
-        <div>
-          <Navbar />
+      
+    
+  
+        { !user && <div>
           <div className={`w-full h-full my-28 flex flex-col items-center justify-center`}>
             <p className="p-1 text-center text-2xl text-slate-600">You are not Loged in!</p>
             <p className="p-1 text-center text-lg text-slate-400">Make it fast and Add some items to it now.</p>
             <button onClick={() => navigate("/signin")} className="mt-4 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-nowrap text-lg">Go to Login</button>
           </div>
+        </div>}
+
+        <Footer />
         </div>
   )
 };

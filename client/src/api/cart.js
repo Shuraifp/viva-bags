@@ -57,7 +57,9 @@ export const getCountOfCartItems = async () => {
 
 export const clearCart = async () => {
   try {
-    const response = await api.delete(`${API_URL}/user/cart/clear`);
+    console.log("Clearing cart...");
+    const response = await api.delete(`/user/cart/clear`);
+    console.log(response);
     return response;
   } catch (error) {
     return error.response.data;

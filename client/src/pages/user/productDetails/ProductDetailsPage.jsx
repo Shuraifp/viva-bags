@@ -44,16 +44,10 @@ const ProductPage = () => {
       }
     };
     fetchProductById();
-  }, [  ]);
-  
-console.log(1)
-console.log(productImagesRef)
+  }, [ productId ]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-      // if (currentProduct?.images) {
-      //   setProductImages(currentProduct.images.map(img => `${import.meta.env.VITE_API_URL + img.url}`));
-      // }
+    window.scrollTo({top:0,behavior:'smooth'});
       if(currentProduct?.category){
         const fetchRelatedProducts = async () => {
         try {

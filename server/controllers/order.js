@@ -120,6 +120,7 @@ export const getAllOrdersForUser = async (req, res) => {
     const totalPages = Math.ceil((await Order.find(filters).countDocuments()) / limitPerPage);
     res.status(200).json({totalPages,orders});
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: error.message });
   }
 };
@@ -256,7 +257,7 @@ export const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
-    order.totalAmount = order.shippingCost;
+    // order.totalAmount = 0;
     order.products.forEach((item) => {
       item.status = "Cancelled";
     })

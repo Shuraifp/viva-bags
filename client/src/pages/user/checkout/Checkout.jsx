@@ -67,7 +67,7 @@ const CheckoutPage = () => {
           toast.error(err.response.data.message);
         } else {
           console.log(err.message);
-          toast.error('An error occurred. Please try again.');
+          toast.error('Please try again.');
         }
       }
     }
@@ -122,7 +122,7 @@ const CheckoutPage = () => {
       toast.error('products are missing')
       return;
     }
-    
+    if(!total || total === 0) return;
     try {
       const orderData = {
         products: cartItems.map((item) => ({
@@ -159,6 +159,8 @@ const CheckoutPage = () => {
         clearCart();
         setCartItems([]);
         dispatch(setCartCount(0));
+        total = 0;
+        navigate('/success');
       }
       
     } catch (err) {
@@ -183,9 +185,9 @@ const CheckoutPage = () => {
   };
   
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
-  const shipping = 10;
+  let shipping = 10;
   const discount = coupon? coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}` : 0;
-  const total = coupon?.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
+  let total = coupon?.code ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
 
   return (
     <div className="min-h-screen bg-gray-100">

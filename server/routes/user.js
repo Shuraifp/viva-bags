@@ -12,7 +12,7 @@ import { editProfile, fetchProfile, changePassword } from "../controllers/users.
 import { getCouponsForUser, applyCoupon, removeAppliedCoupon } from "../controllers/coupon.js";
 import { makePayment } from "../controllers/payment.js";
 import { addToWishlist, getWishlist, deleteWishlistItem } from "../controllers/wishlist.js";
-import { getWallet, checkBalance } from "../controllers/wallet.js";
+import { getWallet, checkBalance, addMoneyToWallet } from "../controllers/wallet.js";
 import { addReview, fetchReviews } from "../controllers/review.js";
 
 
@@ -99,6 +99,7 @@ router.delete('/wishlist/remove/:id', isUser, deleteWishlistItem);
 // Wallet
 router.get('/wallet', isUser, getWallet);
 router.post('/wallet/check', isUser, checkBalance);
+router.post('/wallet/add', isUser, addMoneyToWallet);
 
 
 // Review

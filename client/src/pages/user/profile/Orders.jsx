@@ -43,7 +43,11 @@ const MyOrders = () => {
       if(err.response){
         if(err.response.status === 401 && err.response.data.message === "User is blocked"){
           logout();
+        } else {
+          toast.error(err.response.data.message);
         }
+      } else {
+        toast.error(err.message);
       }
     }
   };

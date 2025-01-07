@@ -69,6 +69,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-3 bg-white px-4 py-2 border border-gray-300 w-6/12">
           <input 
             type="text" 
+            value={searchQuery}
             placeholder="Search for products" 
             onChange={(e) => setSearchQuery(e.target.value || '')}
             className="border-none outline-none px-2 py-1 w-full text-gray-700"
@@ -188,8 +189,8 @@ const Navbar = () => {
           <div className="hidden md:flex space-x-6">
             <Link to="/" className="text-white hover:text-yellow-500">Home</Link>
             <Link to="/shop" className="text-white hover:text-yellow-500">Shop</Link>
-            <a href="#" className="text-white hover:text-yellow-500">About</a>
-            <a href="#" className="text-white hover:text-yellow-500">Contact</a>
+            <Link to={"/about"} className="text-white hover:text-yellow-500">About</Link>
+            <Link to={"/contact"} className="text-white hover:text-yellow-500">Contact</Link>
           </div>
 
 

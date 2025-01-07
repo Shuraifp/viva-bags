@@ -31,7 +31,7 @@ export const createProduct =  async(req, res) => {
     category: req.body.category, 
     brand: req.body.brand,
     regularPrice: Number(req.body.regularPrice),
-    discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : 0,
+    discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : req.body.regularPrice,
     stock: Number(req.body.stock) || 1,   
     color: {
       name: color.name, 
@@ -68,7 +68,7 @@ export const updateProduct = async (req, res) => {
     category: req.body.category, 
     brand: req.body.brand,
     regularPrice: Number(req.body.regularPrice),
-    discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : 0,
+    discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : req.body.regularPrice,
     stock: Number(req.body.stock) || 1,   
     color: {
       name: color.name, 

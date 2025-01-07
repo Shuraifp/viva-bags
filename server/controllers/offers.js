@@ -217,7 +217,6 @@ export const getOffers = async (req, res) => {
       
       await offer.save();
       // const updatedOffer = await Offer.findById(offerId).populate('products', 'name regularPrice discountedPrice').populate('categories', 'name');
-      console.log('offer ok')
       const { offerType, offerValue, maximumDiscount } = offer;
       // const updatedProducts = new Set();
       
@@ -247,7 +246,6 @@ export const getOffers = async (req, res) => {
           }
         }
       }
-      console.log('product ok')
 
       if(categories.length >0){
         for (const categoryId of offer.categories) {

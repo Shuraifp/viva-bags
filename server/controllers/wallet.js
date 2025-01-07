@@ -37,3 +37,40 @@ export const checkBalance = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const addMoneyToWallet = async (req, res) => {
+  try {
+    const { amount} = req.body;
+
+    if ( !amount || amount <= 0 ) {
+      return res.status(400).json({ message: "Invalid input data" });
+    }
+
+    let wallet = await Wallet.findOne({ user: req.user.Id });
+
+    if (!wallet) {
+      wallet = await Wallet.create({ user: req.user.Id });
+    }
+
+    const newBalance = wallet.balance + amount;
+
+    const transaction = {
+      type: "Credit",
+      amount,
+      description: `Added ₹${amount} to wallet`,
+      balanceAfter: newBalance,
+    };
+
+    wallet.balance = newBalance;
+    wallet.transactions.push(transaction);
+    await wallet.save();
+
+    res.status(200).json({
+      message: "Money added successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

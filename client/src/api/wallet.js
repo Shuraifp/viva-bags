@@ -18,3 +18,12 @@ export const checkBalance = async (amount) => {
     throw error;
   }
 };
+
+export const addMoneyToWallet = async (data) => {
+  try {
+    const response = await api.post("/user/wallet/add", data);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

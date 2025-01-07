@@ -57,8 +57,9 @@ export const addToCart = async (req, res) => {
 
 
 export const fetchCart = async (req, res) => {
+  const user = req.user.Id;
   try {
-    const cart = await Cart.findOne({ user: req.user.Id }).populate({
+    let cart = await Cart.findOne({ user }).populate({
       path: 'items.product',
       select: 'name  discountedPrice  images regularPrice',
       populate: {
@@ -74,6 +75,7 @@ export const fetchCart = async (req, res) => {
     const { items } = cart;
     res.status(200).json(items);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Error fetching cart' });
   }
 };
@@ -83,12 +85,11 @@ export const fetchCart = async (req, res) => {
 export const updateCart = async (req, res) => {
   const { productId, quantity } = req.body; 
   const user = req.user.Id;
-console.log(productId)
   try {
     let cart = await Cart.findOne({ user });
 
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      cart = new Cart({ user, items: [] });
     }
 
     const currQunty = cart.items.find(item => item.product.toString() === productId.toString())?.quantity || 0
@@ -151,12 +152,13 @@ export const deleteCartItem = async (req, res) => {
 export const getCartCount = async (req, res) => {
   const user = req.user.Id;
   try{
-    const cart = await Cart.findOne({ user });
+    let cart = await Cart.findOne({ user });
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      cart = new Cart({ user, items: [] });
     }
     res.status(200).json(cart.items.length)
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Internal server error' });
   }
 }
@@ -166,7 +168,8 @@ export const getCartCount = async (req, res) => {
 export const clearCart = async (req, res) => {
   try {
     const userId = req.user.Id; 
-    const cart = await Cart.findOneAndUpdate({ user: userId }, {$set: {items: []}}, { new: true });
+    const cart = await Cart.findOneAndDelete({ user: userId });
+    console.log('cart cleared');
     res.status(200).json({ message: 'Cart cleared successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to clear cart', error: error.message });

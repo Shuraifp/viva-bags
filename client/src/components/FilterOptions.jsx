@@ -92,7 +92,7 @@ const FilterOptions = ({ setFilters }) => {
               ({countData?.priceCounts?.all})
             </label>
           </li>
-         { countData?.colorCounts.map((item) => <li>
+         { countData?.colorCounts?.map((item) => <li>
             <label className="flex justify-between">
               <div>
                 <input
@@ -125,7 +125,7 @@ const FilterOptions = ({ setFilters }) => {
               ({countData?.priceCounts?.all})
             </label>
           </li>
-          { countData?.sizeCounts.map((item) => <li>
+          { countData?.sizeCounts?.map((item) => <li>
             <label className="flex justify-between">
               <div>
                 <input
