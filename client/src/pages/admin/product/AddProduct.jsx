@@ -8,6 +8,7 @@ import "cropperjs/dist/cropper.css";
 import { getCategories } from "../../../api/category";
 import { getBrands } from "../../../api/brand";
 import { toast } from "react-hot-toast";
+import { v4 as uuidv4 } from 'uuid';
 
 const AddProductPage = () => {
   const { id } = useParams();
@@ -24,32 +25,11 @@ const AddProductPage = () => {
     images: [],
   });
   const [images, setImages] = useState([]);
+  const [imagesToRemove,setImagesToRemove] =useState([])
   const [errors , setErrors] = useState({})
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
 
-  useEffect(() => {
-    const convertToFile = async (img) => {
-      const response = await fetch(import.meta.env.VITE_API_URL + img.url); 
-      const blob = await response.blob(); 
-      return new File([blob], img.filename, { type: blob.type }); 
-    };
-  
-    const loadImages = async () => {
-      if (isEditing && product.images.length > 0) {
-        const updatedImages = await Promise.all(
-          product.images.map(async (img) => ({
-            file: await convertToFile(img), 
-            preview: import.meta.env.VITE_API_URL + img.url, 
-          }))
-        );
-        setImages(updatedImages); 
-      }
-    };
-  
-    loadImages(); 
-  }, [product, isEditing]);
-  
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -75,13 +55,17 @@ const AddProductPage = () => {
     if(isEditing){
       fetchProductDetails();
     }
-  }, []);
+  }, [isEditing]);
+
 
   const fetchProductDetails = async (id) => {
     try {
       const productData = await fetchProductById(id || isEditing);
       setProduct({...productData,category:productData.category._id});
-      
+      setImages(productData.images.map((img) => ({
+        url: img.url,
+        id: uuidv4(),
+      })));
     } catch (error) {
       toast.error("Error fetching product details:", error);
     }
@@ -102,7 +86,7 @@ const AddProductPage = () => {
       isValid = false;
     }
     
-    if (product.discountedPrice && Number(product.discountedPrice) >= Number(product.regularPrice)) {
+    if (Number(product.discountedPrice) >= Number(product.regularPrice)) {
       newErrors["discountedPrice"] = "Discounted Price must be less than regular price.";
       isValid = false;
     }
@@ -171,29 +155,41 @@ const AddProductPage = () => {
     formData.append("size", product.size);
 
     images.forEach((img, index) => {
-      formData.append(`images`, img.file);
+      if (img.file) {
+        formData.append("images", img.file);
+      }
+      else {
+        formData.append("existingImages", img.url);
+      }
+
     });
+    if (imagesToRemove.length > 0) {
+      formData.append('toRemove', JSON.stringify(imagesToRemove.map(img => img.url)));
+    }
 
     try {
       if (isEditing) {
         const response = await updateProduct(isEditing, formData);
         toast.success(response.data.message);
       } else {
+        console.log('formadata', formData)
         const response = await addProduct(formData);
         console.log(response)
         if (response.status === 201) {
           toast.success(response.data.message);
           setIsEditing(response.data.product._id);
           fetchProductDetails(response.data.product._id);
-        } else {
-          toast.error(response.message);
         }
       }
     } catch (error) {
-      // toast.error(error);
-      console.log(error)
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     }
   };
+
   {/*     add image and  image crop */}
   const inputRef = useRef(null);
   const cropperRef = useRef(null);
@@ -220,6 +216,7 @@ const AddProductPage = () => {
     const newImages = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
+      id: new uuidv4(),
     }));
     setImages((prevImages) => [...prevImages, ...newImages]);
     if(files.length) {
@@ -239,20 +236,29 @@ const AddProductPage = () => {
           const croppedImage = {
             file: blob,
             preview: URL.createObjectURL(blob),
+            id: selectedImage.id,
           };
+          console.log(croppedImage)
           setImages((prevImages) =>
             prevImages.map((img) =>
-              img.preview === selectedImage ? croppedImage : img
+              img.id === selectedImage.id ? croppedImage : img
             )
           );
+          setImagesToRemove((prev) => Array.isArray(prev) ? [...prev, selectedImage] : [selectedImage]);
           if(croppedImage) toast.success('image cropped successfully')
           setSelectedImage("");
         }
       });
     }
   };
-  const handleRemoveImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  
+  const handleRemoveImage = (id) => {
+    setImages((prev) => prev.filter((image, i) => {
+      if (image.id === id && !image.file) {
+        setImagesToRemove((prev) => Array.isArray(prev) ? [...prev, image] : [image]);
+      }
+      return  image.id !== id;
+    }));
   };
  
   return (
@@ -290,14 +296,14 @@ const AddProductPage = () => {
         {images?.map((img, index) => (
           <div key={index} className="relative">
             <img
-              src={img.preview}
+              src={img.preview || img.url}
               alt={`Product ${index + 1}`}
               className="w-16 h-16 rounded border cursor-pointer"
-              onClick={() => setSelectedImage(img.preview)}
+              onClick={() => setSelectedImage(img)}
             />
             <button
               className="absolute top-0 right-0 bg-red-500 text-white px-1"
-              onClick={() => handleRemoveImage(index)}
+              onClick={() => handleRemoveImage(img.id)}
             >
               ×
             </button>
@@ -309,7 +315,7 @@ const AddProductPage = () => {
         <div className="mt-4">
           <Cropper
             ref={cropperRef}
-            src={selectedImage}
+            src={selectedImage.preview || selectedImage.url} 
             style={{ width: "100%", height: "100%" }}
             aspectRatio={16 / 9}
           />

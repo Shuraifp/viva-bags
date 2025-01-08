@@ -36,7 +36,7 @@ const ProductPage = () => {
         } else if(response.status === 200) {
           setCurrentProduct(response.data);
           productImagesRef.current = response.data.images.map(
-            (img) => `${import.meta.env.VITE_API_URL + img.url}`
+            (img) => `${img?.filename !== '' ? import.meta.env.VITE_API_URL+img.url : img.url}`
           );
         }
       } catch (error) {

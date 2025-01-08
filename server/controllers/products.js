@@ -5,26 +5,62 @@ import path from "path";
 import {__dirname} from "../index.js";
 import mongoose from "mongoose";
 import Order from "../models/orderModel.js";
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 
+cloudinary.config({
+  cloud_name: 'dh7g6qjcj', 
+  api_key: '388977869245964',       
+  api_secret: '_zP2mZ1CaC6Z8MuOf7dq9JYSAro', 
+});
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, 'uploads');
-    console.log(uploadPath);
-    console.log(file);
-    cb(null, uploadPath); 
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-"); 
-  },
-})
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const uploadPath = path.join(__dirname, 'uploads');
+//     console.log(uploadPath);
+//     console.log(file);
+//     cb(null, uploadPath); 
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-"); 
+//   },
+// })
+
+const storage = multer.memoryStorage();
 
 export const upload = multer({ storage: storage });
+
+const uploadImageToCloudinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const uploadResult = cloudinary.uploader.upload_stream(
+      { folder: "vivaBags/products" }, 
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.secure_url); 
+        }
+      }
+    );
+    streamifier.createReadStream(file.buffer).pipe(uploadResult);
+  });
+};
 
 
 export const createProduct =  async(req, res) => {
   const color = JSON.parse(req.body.color);
-  
+  const images = req.files;
+
+  if (!images || images.length === 0) {
+    return res.status(400).json({ error: "No images uploaded" });
+  }
+
+  const imagePaths = [];
+  for (const file of images) {
+    const imageUrl = await uploadImageToCloudinary(file);
+    imagePaths.push(imageUrl); 
+  }
+
   const productData = {
     name: req.body.name,
     description: req.body.description,
@@ -38,10 +74,7 @@ export const createProduct =  async(req, res) => {
       hex: color.hex,
     },
     size: req.body.size ,
-    images: req.files.map((file) => ({
-      filename: file.filename,
-      url: `/uploads/${file.filename}`,
-    }))
+    images: imagePaths.map((imageUrl) => ({ url: imageUrl,filename : '' })),
   };
 
   try {
@@ -59,8 +92,43 @@ export const createProduct =  async(req, res) => {
   }
 };
 
+const deleteImageFromCloudinary = async (publicId) => {
+  try {
+    const response = await cloudinary.uploader.destroy(publicId);
+    console.log("Image deleted:", response);
+    return response;
+  } catch (error) {
+    console.error("Error deleting image from Cloudinary:", error);
+    throw error;
+  }
+};
+
 export const updateProduct = async (req, res) => {
   const color = JSON.parse(req.body.color);
+  const imagesToRemove = JSON.parse(req.body?.toRemove? req.body.toRemove : '[]');
+console.log(imagesToRemove)
+  const product = await Product.findById(req.params.id);
+  if(imagesToRemove && imagesToRemove.length > 0){
+    imagesToRemove.forEach(rmImg => {
+      product.images = product.images.filter(img => img.url !== rmImg)
+    })
+  }
+  product.markModified('images');
+  await product.save();
+  const newImages = req.files;
+  const imageUrls = [...product.images];
+
+  if (newImages && newImages.length > 0) {
+    // for (const oldImage of product.images) {
+    //   if (oldImage.filename) {
+    //     await deleteImageFromCloudinary(oldImage.filename); 
+    //   }
+    // }
+    for (const file of newImages) {
+      const imageUrl = await uploadImageToCloudinary(file);
+      imageUrls.push({ url: imageUrl, filename: '' });
+    }
+  }
 
   const productData = {
     name: req.body.name,
@@ -75,10 +143,7 @@ export const updateProduct = async (req, res) => {
       hex: color.hex,
     },
     size: req.body.size ,
-    images: req.files.map((file) => ({
-      filename: file.filename,
-      url: `/uploads/${file.filename}`,
-    }))
+    images : imageUrls.map((imageUrl) => ({ url: imageUrl.url,filename : '' }))
   };
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, productData, { new: true }).select('-__v -createdAt -updatedAt');

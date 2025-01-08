@@ -36,13 +36,7 @@ router.post('/products', isAdmin, upload.array('images'), (req, res) => {
 router.get('/products/count', isAdmin, countProducts);
 router.get('/products/:id', isAdmin, getProductById);
 router.patch('/products/toggleStatus/:id', isAdmin, toggleStatus);
-router.put('/products/update/:id', isAdmin, upload.array('images'), (req, res) => {
-  console.log(req.files);
-  if (req.files && req.files.length === 0) {
-    return res.status(400).json({ message: "No valid files uploaded" });
-  }
-  updateProduct(req,res)
-});
+router.put('/products/update/:id', isAdmin, upload.array('images'), updateProduct);
 
 
 // Categories

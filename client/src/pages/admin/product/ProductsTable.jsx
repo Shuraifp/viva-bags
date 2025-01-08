@@ -145,15 +145,13 @@ const ProductManagement = () => {
             >
               <td className="py-2 px-4">{index + 1}</td>
               <td className="py-2 px-4">
-                {prod.images[0] ? (
+              
                   <img
-                    src={`${import.meta.env.VITE_API_URL}${prod.images[0].url }`}
+                    src={`${ prod?.images[0]?.url }`}
                     alt={prod.name}
                     className="w-16 h-16 object-cover rounded"
                   />
-                ) : (
-                  "No Image"
-                )}
+                
               </td> 
               <td className="py-2 px-4">{prod.name}</td>
               <td className="py-2 px-4">{prod.category.name}</td>
