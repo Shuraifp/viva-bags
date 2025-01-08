@@ -127,25 +127,4 @@ export default AdminDashboard;
   //      console.log('overAllSummery',overAllSummery);
   //      setOverallOrderAmount(overAllSummery[0].totalRevanue.toFixed(2))
        
-  //             const chartLabels = dailyReport.map((entry) => entry._id); 
-  //             const chartRevenueData = dailyReport.map((entry) => entry.totalRevanue);
-  //             const chartCostData = dailyReport.map((entry) => entry.netSale);
-      
-  //             setLabels(chartLabels);
-  //             setRevenueData(chartRevenueData);
-  //             setCostData(chartCostData);
-      
-            
-  //             if (overAllSummery.length > 0) {
-  //               setTotalSalesCount(overAllSummery[0].orderCount);
-  //               setOverallDiscount(overAllSummery[0].totalDiscount);
-  //               setOverallOrderAmount(overAllSummery[0].totalRevanue);
-  //             }
-
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   };
-
-  //   fetchOrders();
-  // }, [timeframe]);
+  //             const chartLabel
