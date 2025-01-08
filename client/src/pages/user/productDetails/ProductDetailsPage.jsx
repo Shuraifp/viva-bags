@@ -230,7 +230,7 @@ const ProductPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {relatedProducts?.map((product) => (
                 <Link to={`/product/${product._id}`}><div key={product._id} className="border p-4 shadow-lg bg-white">
-                  <img src={product?.images?.[0]?.url ? import.meta.env.VITE_API_URL + product.images[0].url : '/placeholder.jpg'} alt={product.name} className="w-full h-48 object-cover mb-4 hover:scale-110 transition duration-300" />
+                  <img src={product?.images?.[0]?.url ? product.images[0].url : '/placeholder.jpg'} alt={product.name} className="w-full h-48 object-cover mb-4 hover:scale-110 transition duration-300" />
                   <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
                   <div className="flex items-center mb-2">
                     <span className="text-lg font-bold">{product.discountedPrice}</span>
