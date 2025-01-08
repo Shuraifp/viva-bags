@@ -31,7 +31,7 @@ const CategoryGrid = () => {
           >
             <div className="h- w-1/2 overflow-hidden hidden md:block">
               <img
-                src={import.meta.env.VITE_API_URL + category.image}
+                src={category.image}
                 alt={category.name}
                 className="object-cover w-full h-full"
               />

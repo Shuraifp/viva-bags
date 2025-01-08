@@ -49,7 +49,7 @@ const ProductCard = ({ product }) => {
       
       <div className="relative group mb-3 overflow-hidden">
       <img
-          src={`${product?.images[0]?.filename !== '' ? import.meta.env.VITE_API_URL+product.images[0].url : product.images[0].url}`}
+          src={`${product.images[0].url}`}
           alt={product.name}
           className="w-full h-56 object-cover transition-transform duration-700 transform group-hover:scale-125"
         />

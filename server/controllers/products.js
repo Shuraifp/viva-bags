@@ -106,7 +106,6 @@ const deleteImageFromCloudinary = async (publicId) => {
 export const updateProduct = async (req, res) => {
   const color = JSON.parse(req.body.color);
   const imagesToRemove = JSON.parse(req.body?.toRemove? req.body.toRemove : '[]');
-console.log(imagesToRemove)
   const product = await Product.findById(req.params.id);
   if(imagesToRemove && imagesToRemove.length > 0){
     imagesToRemove.forEach(rmImg => {
