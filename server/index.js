@@ -24,20 +24,15 @@ app.use(cors({
 app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
-// app.use('/uploads', (req, res, next) => {
-//   const filePath = path.join(__dirname, 'uploads', req.path);
-
-//   if (filePath.endsWith('.avif')) {
-//     res.setHeader('Content-Type', 'image/avif');
-//   }
-//   next();
-// });
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/user', userRoute);
 app.use('/admin', adminRoute);
+app.get('/', (req, res) => {
+  res.send('Hello, world!');
+});
 
 
 
