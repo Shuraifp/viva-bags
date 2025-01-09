@@ -42,7 +42,7 @@ export const registerUser = async (userData) => {
     const response = await api.post('/user/auth/register', userData);
     return response; 
   } catch (error) {
-    console.log(error.response?.data?.message);
+    throw error
   }
 };
 

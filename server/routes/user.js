@@ -1,6 +1,6 @@
 import { Router } from "express";
 const router = Router();
-import { register, login, sendOtp, verifyOtp, verifyFirebaseToken, loginUserWithGoogle, sendResetPasswordEmail,resetPassword } from "../controllers/auth.js";
+import { register, login, sendOtp, verifyOtp, loginUserWithGoogle, sendResetPasswordEmail,resetPassword } from "../controllers/auth.js";
 import { getAllCategories, categoriesOverview } from "../controllers/categories.js";
 import { getAllBrands } from "../controllers/brands.js";
 import { getProductByIdForUser,getFilteredProducts, getSortedProducts, getFeaturedProducts, getFilterCounts } from "../controllers/products.js";
@@ -22,7 +22,7 @@ router.post("/auth/login", login);
 router.post('/auth/send-otp', sendOtp);
 router.post('/auth/refresh-token');
 router.post('/auth/validate-token',authenticateJWT);
-router.post('/auth/login/firebase', verifyFirebaseToken, loginUserWithGoogle);// ..........firebase
+router.post('/auth/login/firebase', loginUserWithGoogle);// ..........firebase
 router.post('/auth/send-resetEmail', sendResetPasswordEmail);
 router.post('/auth/reset-password', resetPassword);
 

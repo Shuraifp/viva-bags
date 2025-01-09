@@ -115,21 +115,26 @@ const Signup = () => {
         }
       })
       .catch((error) => {
-        toast.error('An error occurred. Please try again.'+error);
+        if(error.response){
+          toast.error(error.response.data.message);
+        }
+        else{
+          toast.error(error.message);
+        }
       });
   };
 
   const handleGoogleAuth = async() => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
+      const userInfo = result.user;
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user/auth/login/firebase`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: token,
         },
+        body: JSON.stringify({ userInfo }),
       });
       const { accessToken , refreshToken, user} = await response.json();
       if(response.status === 200) {

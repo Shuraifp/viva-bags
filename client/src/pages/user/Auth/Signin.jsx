@@ -42,13 +42,11 @@ const Signin = () => {
           toast.error("You are blocked by admin. Please contact admin.");
           return;
         }
-        if (error.response?.status === 404) {
-              console.warn("User not found");
-              return error.response; 
+        else if (error.response) {
+          toast.error(error.response.data.message);
         }
-        if(error.response?.status === 401) {
-          console.warn("incorrect credentials");
-          return error.response;
+        else {
+          toast.error(error.message);
         }
       });
   };
@@ -56,15 +54,14 @@ const Signin = () => {
   const handleGoogleAuth = async() => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log(result);
-      const token = await result.user.getIdToken();
+      const userInfo = result.user;
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user/auth/login/firebase`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: token,
         },
+        body: JSON.stringify({ userInfo }),
       });
       
       const { accessToken , refreshToken, user} = await response.json();
@@ -74,7 +71,6 @@ const Signin = () => {
         navigate("/");
       }
     } catch (error) {
-      console.log(error)
       toast.error(error.message);
     }
   };

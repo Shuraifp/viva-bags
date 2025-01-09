@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/adminModel.js";
 import User from "../models/userModel.js";
 import nodemailer from "nodemailer";
-import admin from "../firebase.js";
 import Wishlist from "../models/wishlistModel.js";
 import Cart from "../models/cartModel.js";
 import crypto from "crypto";
@@ -166,35 +165,21 @@ export const verifyOtp = (req, res, next) => {
   }
 };
 
-export const verifyFirebaseToken = async (req, res, next) => {
-  const idToken = req.headers.authorization;
-
-  if (!idToken) {
-    return res.status(401).json("Unauthorized");
-  }
-
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken;
-    console.log('firebase verified')
-    next();
-  } catch (error) {
-    return res.status(401).send("Unauthorized");
-  }
-}
 
 export const loginUserWithGoogle = async (req, res) => {
-  const { uid, name, email, picture } = req.user;
+  console.log(req.body.userInfo)
+  const { uid, displayName, email, photoURL } = req.body.userInfo;
   try {
     let user = await User.findOne({ $or: [{ googleId: uid }, { email }] });
     if(!user) {
+      console.log('hi')
     user = new User({ 
       googleId: uid, 
-      username: name, 
+      username: displayName, 
       email,
       profileImage: {
-        filename: picture,
-        path: picture
+        filename: photoURL,
+        path: photoURL
       }
     });
   
