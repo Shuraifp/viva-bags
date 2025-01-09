@@ -45,6 +45,10 @@ const orderSchema = new mongoose.Schema({
             type: String,
             enum: ['Pending', 'Approved', 'Rejected', 'Completed'],
             default: null
+        },
+        cancelReason: {
+            type: String,
+            default: null
         }
     }
     ],
@@ -126,6 +130,10 @@ const orderSchema = new mongoose.Schema({
     returnStatus: {
         type: String,
         enum: ['Pending', 'Approved', 'Rejected', 'Responded', 'Completed'],
+        default: null
+    },
+    cancelReason: {
+        type: String,
         default: null
     }
 

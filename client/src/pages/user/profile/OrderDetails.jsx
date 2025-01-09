@@ -121,7 +121,7 @@ const OrderDetails = () => {
               <tr key={index} className={`${product.status === 'Cancelled' || product.status === 'Returned' ? 'bg-red-100' : 'hover:bg-gray-50'}`}>
                 <td className={`p-2 border border-gray-200 flex gap-2`}>
                  <img
-                   src={`${import.meta.env.VITE_API_URL}${product.productId.images[0].url}`}
+                   src={`${product.productId.images[0].url}`}
                    alt={product.productId.name}
                    className="w-20 h-20 object-cover rounded-md border border-yellow-200"
                  />

@@ -100,7 +100,7 @@ const MyOrders = () => {
   const handleOrderAction = async (orderId, action) => {
     try {
       if (action === "Cancel Order") {
-        const response = await cancelOrder(orderId);
+        const response = await cancelOrder(orderId, reason);
         if (response.status === 200) {
           toast.success(response.data.message);
           setFilteredOrders(filteredOrders.map(order => order._id === orderId ? { ...order, status: "Cancelled" } : order));
@@ -126,7 +126,7 @@ const MyOrders = () => {
 
   const handleCancelItem = async (orderId, productId) => {
     try {
-      const response = await cancelItem(orderId, productId);
+      const response = await cancelItem(orderId, productId, reason);
       if (response.status === 200) {
         toast.success(response.data.message);
         const updatedOrders = orders.map(order => order._id === orderId ? response.data.order : order);
@@ -165,10 +165,14 @@ const MyOrders = () => {
       toast.error("Reason must be between 5 and 100 characters");
       return;
     }
-    if(selectedOrderId.action){
-      handleOrderAction(selectedOrderId.orderId, "Return Items");
-    } else {
-      handleReturnItem(selectedOrderId.orderId, selectedOrderId.productId, reason);
+    if(selectedOrderId.action === "Cancel Order" || selectedOrderId.action === "Return Order") {
+      handleOrderAction(selectedOrderId.orderId, selectedOrderId.action);
+    } 
+    else if(selectedOrderId.action === "Return Items"){
+      handleReturnItem(selectedOrderId.orderId, selectedOrderId.productId);
+    }
+    else if(selectedOrderId.action === "Cancel Item"){
+      handleCancelItem(selectedOrderId.orderId, selectedOrderId.productId);
     }
     setIsModalOpen(false);
     setSelectedOrderId({});
@@ -313,7 +317,7 @@ const MyOrders = () => {
                 className="flex flex-wrap items-center gap-4  pb-4"
               >
                 <img
-                  src={`${import.meta.env.VITE_API_URL}${item?.productId?.images[0].url}`}
+                  src={`${item?.productId?.images[0].url}`}
                   alt={item.productId?.name}
                   className="w-20 h-20 object-cover rounded-md"
                 />
@@ -327,16 +331,14 @@ const MyOrders = () => {
               item.status !== "Cancelled" && item.status !== "Returned" ? 
               <button
                 onClick={() => {
-                  if (item.status === "Delivered") {
-                    setSelectedOrderId({orderId: order._id, productId: item.productId._id});
+                
+                    setSelectedOrderId({orderId: order._id, productId: item.productId._id, action: item.status === "Delivered" ? "Return Item" : "Cancel Item"});
                     setIsModalOpen(true);
-                  } else {
-                    handleCancelItem(order._id, item.productId._id)
-                  }
+                  
                 }}
-                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested || order.paymentStatus === 'Failed' ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
+                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested || order.paymentStatus === 'Failed' || order.products.filter(item => item.status === "Pending" || item.status === "Shipped").length <= 1 ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
               >
-                {order.paymentStatus === 'Failed' ? '' : order.status === "Delivered" ? item.isReturnRequested  ?  item.returnStatus === "Pending" ? "Requested for Return" : item.returnStatus === "Approved" ? "Return Approved" : item.returnStatus === "Completed" ? "Return Completed" : "Return Rejected" :  "Return Item" : "Cancel Item"}
+                {order.paymentStatus === 'Failed' ? '' : order.status === "Delivered" ? item.isReturnRequested  ?  item.returnStatus === "Pending" ? "Requested for Return" : item.returnStatus === "Approved" ? "Return Approved" : item.returnStatus === "Completed" ? "Return Completed" : "Return Rejected" :  "Return Item" : order.products.filter(item => item.status === "Pending" || item.status === "Shipped").length > 1 ? "Cancel Item" : ""}
               </button> : <p className="text-sm md:text-base md:mr-12 text-red-500">{item.status}</p> : ""}
             </div>
           ))}
@@ -347,7 +349,7 @@ const MyOrders = () => {
               <button
                 key={actionIndex}
                 disabled={order.isReturnRequested && action === "Return Order"}
-                onClick={action === "Return Order" ? () => {setSelectedOrderId({orderId: order._id,action}); setIsModalOpen(true);} : () => handleOrderAction(order._id, action)}
+                onClick={action === "Return Order" || action === "Cancel Order" ? () => {setSelectedOrderId({orderId: order._id,action}); setIsModalOpen(true);} : () => handleOrderAction(order._id, action)}
                 className={`text-sm md:text-base px-4 py-2 ${action === "Cancel Order" || action === "Return Order" || action === 'Refund' ? order.isReturnRequested ? order.returnStatus === "Responded" ? "" : "bg-white text-blue-500 border border-blue-500 cursor-default" : "bg-red-500 hover:bg-red-600 text-white" : "bg-yellow-500 hover:bg-yellow-600 text-white"}  focus:outline-none`}
               >
                 {order.isReturnRequested && (action === "Return Order" || action === "Refund") 

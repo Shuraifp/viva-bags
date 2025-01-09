@@ -45,18 +45,18 @@ export const downloadInvoice = async (id) => {
 
 //      Cancel
 
-export const cancelOrder = async (id) => {
+export const cancelOrder = async (id, reason) => {
   try{
-    const response = await api.patch(`/user/orders/cancel/${id}`)
+    const response = await api.patch(`/user/orders/cancel/${id}`,{reason})
     return response
   } catch (err){
     throw err
   }
 }
 
-export const cancelItem = async (orderId, productId) => {
+export const cancelItem = async (orderId, productId,reason) => {
   try{
-    const response = await api.patch(`/user/orders/cancel-item`,{orderId,productId})
+    const response = await api.patch(`/user/orders/cancel-item`,{orderId,productId,reason})
     return response
   } catch (err){
     throw err

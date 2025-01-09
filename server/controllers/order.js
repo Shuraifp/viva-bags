@@ -229,13 +229,15 @@ export const generateInvoice = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
   try {
-    const { id: orderId } = req.params;
+    const { id: orderId} = req.params;
+    const {reason} =req.body;
     
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: "Order not found" });
     if (order.status === "Cancelled"){
       return res.status(400).json({ message: "Order already cancelled" });
     }
+    if(!reason) return res.status(404).json({ message: "reason is required"})
 
     
     if (order.paymentStatus === "Completed") {
@@ -257,6 +259,7 @@ export const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
+    order.cancelReason = reason;
     // order.totalAmount = 0;
     order.products.forEach((item) => {
       item.status = "Cancelled";
@@ -286,7 +289,7 @@ export const cancelOrder = async (req, res) => {
 
 export const cancelOrderItem = async (req, res) => {
   try {
-    const { orderId, productId } = req.body;
+    const { orderId, productId, reason } = req.body;
 
 
     const order = await Order.findById(orderId).populate("products.productId");
@@ -306,6 +309,7 @@ export const cancelOrderItem = async (req, res) => {
 
     const product = order.products[productIndex];
     product.status = "Cancelled";
+    product.cancelReason = reason;
     
     await Product.findByIdAndUpdate(productId, {
       $inc: { stock: product.quantity },
