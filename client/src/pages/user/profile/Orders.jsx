@@ -168,7 +168,7 @@ const MyOrders = () => {
     if(selectedOrderId.action === "Cancel Order" || selectedOrderId.action === "Return Order") {
       handleOrderAction(selectedOrderId.orderId, selectedOrderId.action);
     } 
-    else if(selectedOrderId.action === "Return Items"){
+    else if(selectedOrderId.action === "Return Item"){
       handleReturnItem(selectedOrderId.orderId, selectedOrderId.productId);
     }
     else if(selectedOrderId.action === "Cancel Item"){
@@ -200,10 +200,10 @@ const MyOrders = () => {
       {/* modal  */}
       {isModalOpen && <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Return Item</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">{selectedOrderId.action}</h2>
                 <form onSubmit={handleReasonSubmit}>
                     <label htmlFor="reason" className="block text-sm font-medium text-gray-600">
-                        Reason for Return
+                        Reason for {selectedOrderId.action.split(' ')[0]}
                     </label>
                     <textarea
                         id="reason"
@@ -336,7 +336,7 @@ const MyOrders = () => {
                     setIsModalOpen(true);
                   
                 }}
-                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested || order.paymentStatus === 'Failed' || order.products.filter(item => item.status === "Pending" || item.status === "Shipped").length <= 1 ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
+                className={`h-fit md:mr-12 text-sm md:text-base px-4 py-2 ${item.isReturnRequested || order.paymentStatus === 'Failed' || (order.status !== "Delivered" && order.products.filter(item => item.status === "Pending" || item.status === "Shipped").length <= 1) ? "" : "border border-red-500 text-red-500 hover:text-white hover:bg-red-600 focus:outline-none"}`}
               >
                 {order.paymentStatus === 'Failed' ? '' : order.status === "Delivered" ? item.isReturnRequested  ?  item.returnStatus === "Pending" ? "Requested for Return" : item.returnStatus === "Approved" ? "Return Approved" : item.returnStatus === "Completed" ? "Return Completed" : "Return Rejected" :  "Return Item" : order.products.filter(item => item.status === "Pending" || item.status === "Shipped").length > 1 ? "Cancel Item" : ""}
               </button> : <p className="text-sm md:text-base md:mr-12 text-red-500">{item.status}</p> : ""}
