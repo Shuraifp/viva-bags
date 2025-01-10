@@ -176,7 +176,7 @@ const CartPage = () => {
               {cartItems.map((item) => (
                 <tr key={item._id} className="my-2 bg-white hover:bg-gray-200">
                   <td className="p-2 flex items-center space-x-4">
-                    <img  loading="lazy" src={import.meta.env.VITE_API_URL + item.product.images[0].url} alt={item.product.name} className="w-16 h-16 rounded-md" />
+                    <img  loading="lazy" src={item.product.images[0].url} alt={item.product.name} className="w-16 h-16 rounded-md" />
                     <span>{item.product.name}</span>
                   </td>
                   <td className="p-4 text-center">{item.product.category.name}</td>
