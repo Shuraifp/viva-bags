@@ -31,7 +31,7 @@ const TopSellingProductsandCategories = () => {
         <div className='flex flex-col mt-16'>
           <div className='flex w-full justify-center'>
             <div className='m-2 flex flex-col gap-0.5 justify-end'>
-              <img className='h-[320px]' src={import.meta.env.VITE_API_URL + products[0]?.images[0].url} alt="" />
+              <img className='h-[320px]' src={products[0]?.images[0].url} alt="" />
               <div className='text-xl bg-yellow-100 font-semibold text-dark-400 mt-1 px-2 py-1 text-center'>
                 <p> {products[0]?.name}</p>
                 <p className='text-green-500 text-md font-medium'>{products[0]?.popularity}{' '}<span className='text-gray-500 text-sm'>Items sold</span></p>
@@ -39,7 +39,7 @@ const TopSellingProductsandCategories = () => {
             </div>
             <div className='m-2 flex flex-col gap-0.5 justify-end'>
               <h2 className="text-3xl font-bold mb-4 text-gray-500 text-center font-serif">Top Runners</h2>
-              <img className='h-[280px]' src={import.meta.env.VITE_API_URL + products[1]?.images[0].url} alt="" />
+              <img className='h-[280px]' src={products[1]?.images[0].url} alt="" />
               <div className='text-lg font-semibold text-dark-400 bg-yellow-100 mt-1  px-2 py-1 text-center'>
                 <p> {products[1]?.name}</p>
                 <p className='text-green-500 text-md'>{products[1]?.popularity}{' '}<span className='text-gray-500 text-sm'>Items sold</span></p>
@@ -50,7 +50,7 @@ const TopSellingProductsandCategories = () => {
           <div className='flex justify-center'>
             <div className='flex'>
               <div className='m-2 h-fit'>
-                <img className='h-[260px]' src={import.meta.env.VITE_API_URL + products[2]?.images[0].url} alt="" />
+                <img className='h-[260px]' src={products[2]?.images[0].url} alt="" />
                 <div className='text-md font-semibold text-dark-400 bg-yellow-100 mt-1 px-2 py-1 text-center'>
                   <p> {products[2]?.name}</p>
                   <p className='text-green-500'>{products[2]?.popularity}{' '}<span className='text-gray-500 text-sm'>Items sold</span></p>
@@ -60,14 +60,14 @@ const TopSellingProductsandCategories = () => {
 
             <div className='flex'>
               <div className='m-2'>
-                <img className='h-[260px]' src={import.meta.env.VITE_API_URL + products[3]?.images[0].url} alt="" />
+                <img className='h-[260px]' src={products[3]?.images[0].url} alt="" />
                 <div className='text-md font-semibold text-dark-400 bg-yellow-100 mt-1 px-2 py-1 text-center'>
                   <p className='text-nowrap'> {products[3]?.name}</p>
                   <p className='text-green-500'>{products[3]?.popularity}{' '}<span className='text-gray-500 text-sm'>Items sold</span></p>
                 </div>
               </div>
               <div className='m-2 w-fit'>
-                <img className='h-[260px] border-2 border-gray-200' src={import.meta.env.VITE_API_URL + products[4]?.images[0].url} alt="" />
+                <img className='h-[260px] border-2 border-gray-200' src={products[4]?.images[0].url} alt="" />
                 <div className='text-md font-semibold text-dark-400 bg-yellow-100 mt-1 px-2 py-1 text-center'>
                   <p> {products[4]?.name}</p>
                   <p className='text-green-500'>{products[4]?.popularity}{' '}<span className='text-gray-500 text-sm'>Items sold</span></p>
