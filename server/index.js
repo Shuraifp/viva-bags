@@ -28,11 +28,8 @@ export const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
-app.use('/user', userRoute);
-app.use('/admin', adminRoute);
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
+app.use('/api/user', userRoute);
+app.use('/api/admin', adminRoute);
 
 
 
