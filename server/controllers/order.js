@@ -159,67 +159,98 @@ export const updatePaymentStatus = async (req, res) => {
 
 
 export const generateInvoice = async (req, res) => {
-    const { orderId } = req.params;
+  const { orderId } = req.params;
 
-    try {
-        const order = await Order.findById(orderId).populate('products.productId');
-        if (!order) {
-            return res.status(404).send({ message: 'Order not found' });
-        }
+  try {
+      const order = await Order.findById(orderId).populate('products.productId');
+      if (!order) {
+          return res.status(404).send({ message: 'Order not found' });
+      }
 
-        const doc = new PDFDocument({ margin: 50 });
-        const buffers = [];
+      const doc = new PDFDocument({ margin: 50 });
+      const buffers = [];
 
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {
-            const pdfData = Buffer.concat(buffers);
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=Invoice-${order.orderNumber}.pdf`);
-            res.send(pdfData);
-        });
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => {
+          const pdfData = Buffer.concat(buffers);
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Disposition', `attachment; filename=Invoice-${order.orderNumber}.pdf`);
+          res.send(pdfData);
+      });
 
-        doc.on('error', (err) => {
-            console.error('Error generating invoice:', err);
-            res.status(500).send({ message: 'Error generating invoice' });
-        });
+      doc.on('error', (err) => {
+          console.error('Error generating invoice:', err);
+          res.status(500).send({ message: 'Error generating invoice' });
+      });
 
-        doc.fontSize(20).text('VIVA BAGS', { align: 'center' })
-            .moveDown(0.5).fontSize(14)
-            .text(`Invoice #${order.orderNumber}`, { align: 'center' })
-            .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: 'center' })
-            .moveDown(1);
+      doc.fontSize(20).fillColor('#1F618D').text('VIVA BAGS', { align: 'center' })
+          .moveDown(0.5).fontSize(14).fillColor('#000000')
+          .text(`Invoice #${order.orderNumber}`, { align: 'center' })
+          .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: 'center' })
+          .moveDown(1);
 
-        doc.fontSize(12).text(`Customer: ${order.address.fullName}`)
-            .text(`Email: ${order.address.email || 'N/A'}`)
-            .text(`Mobile: ${order.address.mobile}`)
-            .text(`Address: ${order.address.address}, ${order.address.locality}, ${order.address.state}, ${order.address.country} - ${order.address.pincode}`)
-            .moveDown(1);
+      doc.fontSize(12).fillColor('#000000').text(`Customer: ${order.address.fullName}`)
+          .text(`Email: ${order.address.email || 'N/A'}`)
+          .text(`Mobile: ${order.address.mobile}`)
+          .text(`Address: ${order.address.address}, ${order.address.locality}, ${order.address.state}, ${order.address.country} - ${order.address.pincode}`)
+          .moveDown(1);
 
-        doc.text('Products:', { underline: true }).moveDown(0.5);
+      const tableTop = doc.y;
+      const tableLeft = 50;
+      const tableWidth = 500;
+      const rowHeight = 25;
 
-        order.products.forEach((product, index) => {
-            const { productId, quantity, price, discount } = product;
-            doc.text(`${index + 1}. ${productId.name} - Qty: ${quantity}, Price: ₹${price}, Discount: ₹${discount}`)
-                .moveDown(0.2);
-        });
+      const headers = [
+          { label: 'S.No', width: 40, color: '#1ABC9C' },
+          { label: 'Product Name', width: 130, color: '#1ABC9C' },
+          { label: 'Quantity', width: 80, color: '#1ABC9C' },
+          { label: 'Price', width: 80, color: '#1ABC9C' },
+          { label: 'Discount', width: 80, color: '#1ABC9C' },
+          { label: 'Total', width: 90, color: '#1ABC9C' }
+      ];
 
-        doc.moveDown(1);
-        
-        doc.text(`Subtotal: ₹${order.totalAmount}`);
-        if (order.coupon.discountValue > 0) {
-          doc.text(`Coupon Discount: ₹${order.coupon.discountType === "percentage" ? order.totalAmount * (order.coupon.discountValue / 100) : order.coupon.discountValue}`)
-        }
-        doc.text(`Shipping Cost: ₹${order.shippingCost}`);
-        doc.text(`Total: ₹${order.totalAmount + order.shippingCost}`);
-        doc.moveDown(2);
+      const drawRow = (columns, y) => {
+          let x = tableLeft;
+          columns.forEach((col, index) => {
+              doc.fillColor(index === 0 ? '#E8F6F3' : '#D5DBDB')
+                  .rect(x, y, headers[index].width, rowHeight).fill();
+              doc.fillColor('#000000').fontSize(10).text(col, x + 5, y + 8, { width: headers[index].width - 10, align: 'center' });
+              x += headers[index].width;
+          });
+      };
 
-        doc.fontSize(10).text('Thank you for shopping with us!', { align: 'center' });
+      drawRow(headers.map(header => header.label), tableTop);
 
-        doc.end();
-    } catch (error) {
-        console.error('Error generating invoice:', error);
-        res.status(500).send({ message: 'Error generating invoice' });
-    }
+      let y = tableTop + rowHeight;
+      order.products.forEach((product, index) => {
+          const { productId, quantity, price, discount } = product;
+          const total = quantity * (price - discount);
+          drawRow([index + 1, productId.name, quantity, `₹${price}`, `₹${discount}`, `₹${total}`], y);
+          y += rowHeight;
+      });
+
+      y += 20; 
+      doc.fontSize(12).fillColor('#000000').text(`Subtotal: ₹${order.totalAmount}`, tableLeft, y, { align: 'left' });
+      y += 20;
+      if (order.coupon.discountValue > 0) {
+          const couponDiscount = order.coupon.discountType === 'percentage'
+              ? (order.totalAmount * (order.coupon.discountValue / 100))
+              : order.coupon.discountValue;
+          doc.text(`Coupon Discount: ₹${couponDiscount}`, tableLeft, y, { align: 'left' });
+          y += 20;
+      }
+      doc.text(`Shipping Cost: ₹${order.shippingCost}`, tableLeft, y, { align: 'left' });
+      y += 20;
+      doc.text(`Total: ₹${order.totalAmount + order.shippingCost}`, tableLeft, y, { align: 'left' });
+      y += 40;
+
+      doc.fontSize(10).fillColor('#1F618D').text('Thank you for shopping with us!', { align: 'center' });
+
+      doc.end();
+  } catch (error) {
+      console.error('Error generating invoice:', error);
+      res.status(500).send({ message: 'Error generating invoice' });
+  }
 };
 
 
