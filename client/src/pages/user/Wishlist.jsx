@@ -91,7 +91,7 @@ const Wishlist = ({}) => {
       {wishlistItems.length >0 &&   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {wishlistItems.map(item => (
           <div key={item._id} className="max-w-sm bg-white shadow-lg rounded-sm overflow-hidden">
-            <Link to={`/product/${item._id}`}><img className="w-full h-48 object-cover" src={item.images && item.images.length > 0 ? import.meta.env.VITE_API_URL + item.images[0].url : 'default-image-url'} alt={item.name} /></Link>
+            <Link to={`/product/${item._id}`}><img className="w-full h-48 object-cover" src={item.images && item.images.length > 0 ? item.images[0].url : 'default-image-url'} alt={item.name} /></Link>
             <div className="p-4">
               <h3 className="text-xl font-semibold">{item.name}</h3>
               <p className="text-gray-600">{item.description}</p>

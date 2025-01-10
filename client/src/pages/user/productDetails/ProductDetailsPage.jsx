@@ -241,7 +241,7 @@ const ProductPage = () => {
                       {Array.from({ length: 5 }, (_, index) => (
                         <svg
                           key={index}
-                          className={`w-4 h-4 ${index < 4 ? 'text-yellow-500' : 'text-gray-300'}`}
+                          className={`w-4 h-4 ${index < product.rating ? 'text-yellow-500' : 'text-gray-300'}`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -249,7 +249,7 @@ const ProductPage = () => {
                         </svg>
                       ))}
                     </div>
-                    <span className="ml-2 text-gray-600">(99 Reviews)</span>
+                    <span className="ml-2 text-gray-600">({product.reviewCount})</span>
                   </div>
                 </div></Link>
               ))}
