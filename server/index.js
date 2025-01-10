@@ -17,7 +17,7 @@ mongoose.connect(process.env.DB_URI).then(() => {
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, 
+  origin: [process.env.FRONTEND_URL, "http://localhost:5000"],
   credentials: true,           
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH', 'OPTIONS'],
 }));
