@@ -39,7 +39,7 @@ const WalletPage = () => {
       setLoading(false);
     }
   };
-
+console.log(wallet)
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-semibold mb-4">My Wallet</h2>

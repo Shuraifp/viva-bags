@@ -2,7 +2,7 @@ import Cart from '../models/cartModel.js';
 import Product from '../models/productModel.js'
 
 export const addToCart = async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, selectedSize } = req.body;
   const user = req.user.Id;
   try {
     let cart = await Cart.findOne({ user });
@@ -10,14 +10,19 @@ export const addToCart = async (req, res) => {
     if (!cart) {
       cart = new Cart({ user, items: [] });
     }
-    const currQunty = cart.items.find(item => item.product.toString() === productId.toString())?.quantity || 0
+
+    const currQunty = cart.items.find(
+      item => item.product.toString() === productId.toString() && item.size === selectedSize
+    )?.quantity || 0;
 
     const product = await Product.findById(productId);
-    if (product.stock < currQunty + quantity) {
+    if (product.variants.find(variant => variant.size === selectedSize).stock < currQunty + quantity) {
       return res.status(400).json({ message: 'Not enough stock available' });
     }
 
-    const productIndex = cart.items.findIndex(item => item.product.toString() === productId.toString());
+    const productIndex = cart.items.findIndex(
+      item => item.product.toString() === productId.toString() && item.size === selectedSize
+    );
 
     if (productIndex > -1) {
       const currentQuantity = cart.items[productIndex].quantity;
@@ -34,14 +39,18 @@ export const addToCart = async (req, res) => {
         });
       }
       const updated = await Cart.findOneAndUpdate(
-        { user , "items.product": { $ne: productId } },
-        { $push: { items: { product: productId, quantity } } },
+        { 
+          user,
+          "items.product": productId,
+          "items.size": selectedSize
+        },
+        { $push: { items: { product: productId, quantity, size: selectedSize } } },
         { new: true }
       );
       if (updated) {
         cart = updated;
       } else {
-          cart.items.push({ product: productId, quantity });
+          cart.items.push({ product: productId, quantity, size: selectedSize });
       }
     }
     
@@ -83,7 +92,7 @@ export const fetchCart = async (req, res) => {
 
 
 export const updateCart = async (req, res) => {
-  const { productId, quantity } = req.body; 
+  const { productId, quantity, selectedSize } = req.body; 
   const user = req.user.Id;
   try {
     let cart = await Cart.findOne({ user });
@@ -92,14 +101,17 @@ export const updateCart = async (req, res) => {
       cart = new Cart({ user, items: [] });
     }
 
-    const currQunty = cart.items.find(item => item.product.toString() === productId.toString())?.quantity || 0
-
+    const currentItem = cart.items.find(
+      item => item.product.toString() === productId.toString() && item.size === selectedSize
+    );
+    const currQunty = currentItem?.quantity || 0;
     if (currQunty + quantity <= 0) {
       return res.status(400).json({ message: 'Cannot reduce quantity below 1' });
     }
 
     const product = await Product.findById(productId);
-    if (product.stock < quantity+currQunty) {
+    const selectedVariantStock = product.variants.find(variant => variant.size === selectedSize).stock;
+    if (selectedVariantStock < quantity+currQunty) {
       return res.status(400).json({ message: 'Not enough stock available' });
     }
 
@@ -109,9 +121,12 @@ export const updateCart = async (req, res) => {
       });
     }
     
-    const productIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    const productIndex = cart.items.findIndex(
+      item => item.product.toString() === productId.toString() && item.size === selectedSize
+    );
+
     if (productIndex === -1) {
-        cart.items.push({ product: productId, quantity });
+        cart.items.push({ product: productId, quantity,size: selectedSize });
     } else {
         cart.items[productIndex].quantity += quantity;
     }
@@ -134,7 +149,7 @@ export const deleteCartItem = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
-    const productIndex = cart.items.findIndex(item => item.product.toString() === id);
+    const productIndex = cart.items.findIndex(item => item._id.toString() === id);
     if (productIndex === -1) {
       return res.status(404).json({ message: 'Product not found in cart' });
     }

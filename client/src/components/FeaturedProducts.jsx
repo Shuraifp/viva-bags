@@ -33,12 +33,13 @@ const FeaturedProducts = () => {
           {products?.map((product) => (
             <Link to={`/product/${product._id}`}><div key={product._id} className="border p-4 shadow-lg bg-white">
               <img src={product.images[0].url ? product.images[0].url : '/placeholder.jpg'} alt={product.name} className="w-full h-48 object-cover mb-4 hover:scale-110 transition duration-300" />
-              <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-              <div className="flex items-center mb-2">
-                <span className="text-lg font-bold">{product.price}</span>
-                <span className="text-gray-500 line-through ml-2">{product.originalPrice}</span>
-              </div>
-              <div className="flex items-center">
+              <h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
+              <p className="text-xl text-center text-yellow-500 font-medium mt-2">
+                {product?.discountedPrice && product?.discountedPrice > 0 && product?.discountedPrice < product?.regularPrice ? product?.discountedPrice : product?.regularPrice}
+                <span className=" text-base font-normal text-gray-400 ml-3 line-through">{product?.discountedPrice && product?.discountedPrice > 0 && product?.discountedPrice < product?.regularPrice ? 
+                  product?.regularPrice : ''}</span>
+              </p>
+              <div className="flex mt-1 items-center justify-center">
                 <div className="flex items-center">
                   {Array.from({ length: 5 }, (_, index) => (
                     <svg
@@ -51,7 +52,7 @@ const FeaturedProducts = () => {
                     </svg>
                   ))}
                 </div>
-                <span className="ml-2 text-gray-600">({product.reviewCount} Reviews)</span>
+                <p className="text-sm ml-1 text-gray-500">({product?.reviewCount === 1 ? `${product?.reviewCount} Review` : `${product?.reviewCount} Reviews`})</p>
               </div>
             </div></Link>
           ))}

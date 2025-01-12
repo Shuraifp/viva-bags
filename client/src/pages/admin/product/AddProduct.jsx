@@ -19,9 +19,8 @@ const AddProductPage = () => {
     category: "",
     regularPrice: "",
     discountedPrice: "",
-    stock: "",
+    variants: [],
     color: { name: "", hex: "" },
-    size: "",
     images: [],
   });
   const [images, setImages] = useState([]);
@@ -57,7 +56,7 @@ const AddProductPage = () => {
     }
   }, [isEditing]);
 
-
+console.log(product)
   const fetchProductDetails = async (id) => {
     try {
       const productData = await fetchProductById(id || isEditing);
@@ -80,24 +79,14 @@ const AddProductPage = () => {
       newErrors["regularPrice"] = "Regular Price is required.";
       isValid = false;
     }
-    
-    if (product.discountedPrice && Number(product.discountedPrice) <= 0) {
-      newErrors["discountedPrice"] = "Discounted Price must be greater than 0.";
-      isValid = false;
-    }
-    
-    if (Number(product.discountedPrice) >= Number(product.regularPrice)) {
-      newErrors["discountedPrice"] = "Discounted Price must be less than regular price.";
-      isValid = false;
-    }
   
-    if (!product.stock || product.stock <= 0) {
-      newErrors['stock'] = "Stock is required and must be greater than 0.";
+    if (!product.variants.length) {
+      newErrors['variants'] = "At least one variant is required.";
       isValid = false;
     }
-  
-    if (!product.size) {
-      newErrors['size'] = "Size not selected.";
+
+    if(product.variants.some(variant => Number(variant.stock) < 0)){
+      newErrors['variants'] = "Stock cannot be negative.";
       isValid = false;
     }
 
@@ -150,9 +139,8 @@ const AddProductPage = () => {
     formData.append("brand", product.brand);
     formData.append("regularPrice", product.regularPrice);
     formData.append("discountedPrice", product.discountedPrice);
-    formData.append("stock", product.stock);
+    formData.append("variants", JSON.stringify(product.variants));
     formData.append("color", JSON.stringify(product.color));
-    formData.append("size", product.size);
 
     images.forEach((img, index) => {
       if (img.file) {

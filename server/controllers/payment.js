@@ -16,12 +16,13 @@ export const makePayment = async (req, res) => {
   };
   try {
       const order = await razorpayInstance.orders.create(options);
+      console.log(order)
       res.status(200).json({
           id: order.id,
           amount: order.amount,
       });
   } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Failed to create payment order" });
+      res.status(500).json({ message: error.message });
   }
 }

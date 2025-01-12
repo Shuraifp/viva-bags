@@ -1,11 +1,10 @@
-import React, { useState,useRef } from "react";
+import React from "react";
 
 const ColorForm = ({ handleInputChange, product, errors }) => {
 
   const handleChange = (field, value) => {
     const updatedColor = { ...product.color, [field]: value };
     handleInputChange("color", updatedColor);
-    console.log(updatedColor);
   };
 
   const removeColor = () => {
@@ -19,7 +18,7 @@ const ColorForm = ({ handleInputChange, product, errors }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 className="text-xl font-bold my-4">Choose Color</h3>
+      <h3 className="text-xl font-medium my-4">Choose Color</h3>
         <div className="10px">
           <input
             type="text"

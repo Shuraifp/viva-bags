@@ -108,7 +108,7 @@ const MyOrders = () => {
       } else if (action === "View Details") {
         navigate(`/profile/orders/${orderId}`);
       }
-       else if (action === "Return Items") {
+       else if (action === "Return Order") {
         const response = await returnOrder(orderId, reason);
         if (response.status === 200) {
           toast.success(response.data.message);
@@ -124,9 +124,9 @@ const MyOrders = () => {
     }
   };
 
-  const handleCancelItem = async (orderId, productId) => {
+  const handleCancelItem = async (orderId, itemId) => {
     try {
-      const response = await cancelItem(orderId, productId, reason);
+      const response = await cancelItem(orderId, itemId, reason);
       if (response.status === 200) {
         toast.success(response.data.message);
         const updatedOrders = orders.map(order => order._id === orderId ? response.data.order : order);
@@ -138,9 +138,9 @@ const MyOrders = () => {
     }
   };
 
-  const handleReturnItem = async (orderId, productId, reason) => {
+  const handleReturnItem = async (orderId, itemId) => {
     try {
-      const response = await requestReturnItem(orderId,productId, reason);
+      const response = await requestReturnItem(orderId,itemId, reason);
       if (response.status === 200) {
         toast.success(response.data.message);
         const updatedOrders = orders.map(order => order._id === orderId ? response.data.order : order);
@@ -324,6 +324,7 @@ const MyOrders = () => {
                 <div className="flex-1">
                   <p className="text-gray-800 font-medium">{item.productId?.name}</p>
                   <p className="text-gray-600 text-sm">{item.productId?.category.name}</p>
+                  <p className="text-gray-600 text-sm">Size: <span className="text-green-600 font-medium">{item.size}</span></p>
                   <p className="text-gray-600 text-sm">Quantity: {item.quantity}</p>
                 </div>
               </div>
@@ -332,7 +333,7 @@ const MyOrders = () => {
               <button
                 onClick={() => {
                 
-                    setSelectedOrderId({orderId: order._id, productId: item.productId._id, action: item.status === "Delivered" ? "Return Item" : "Cancel Item"});
+                    setSelectedOrderId({orderId: order._id, productId: item._id, action: item.status === "Delivered" ? "Return Item" : "Cancel Item"});
                     setIsModalOpen(true);
                   
                 }}

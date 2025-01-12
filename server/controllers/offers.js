@@ -312,7 +312,7 @@ export const getOffers = async (req, res) => {
           const product = await Product.findById(productId);
   
           if (product && product.discountedPrice) {
-            product.discountedPrice = null; 
+            product.discountedPrice = product.regularPrice; 
             await product.save();
           }
         }
@@ -328,7 +328,7 @@ export const getOffers = async (req, res) => {
   
           for (const product of productsInCategory) {
             if (product.discountedPrice) {
-              product.discountedPrice = null; 
+              product.discountedPrice = product.regularPrice; 
               await product.save();
             }
           }

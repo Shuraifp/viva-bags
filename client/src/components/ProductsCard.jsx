@@ -8,12 +8,11 @@ import { addToWishlist } from '../api/wishlist.js';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
-  const {cartCount, wishlistCount} = useSelector(state => state.cartWishlist)
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
     try {
-      const response = await addToCart(product._id, 1);
+      const response = await addToCart(product._id, 1, product.variants[0].size);
       if (response.status === 200) {
         toast.success('Product added to cart');
         dispatch(setCartCount(response.data.quantity));
@@ -67,12 +66,12 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
     
-      <Link to={`/product/${product._id}`}><h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
-      <div className="flex items-center justify-center mb-2 pb-4">
-        <span className="text-lg font-bold">{product?.discountedPrice < product?.regularPrice ? product?.discountedPrice : null}</span>
-        <span className={`${product?.discountedPrice < product?.regularPrice ? 'text-gray-500 line-through ml-2' : 'text-lg font-bold'} ml-2`}>{product?.regularPrice}</span>
-      </div></Link>
-      {/* <div className="flex items-center justify-center">
+      <Link to={`/product/${product._id}`} className='mb-2 pb-4'><h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
+      <div className="flex items-center justify-center text-yellow-600 mt-2">
+        <span className="text-xl font-medium">{product?.discountedPrice < product?.regularPrice ? product?.discountedPrice.toFixed() : null}</span>
+        <span className={`${product?.discountedPrice < product?.regularPrice ? 'text-gray-400 text-base line-through ml-2 ' : 'text-lg font-medium'} ml-2`}>{product?.regularPrice.toFixed()}</span>
+        </div>
+      <div className="flex items-center justify-center mb-6 mt-2">
         <div className="flex items-center">
           {Array.from({ length: 5 }, (_, index) => (
             <svg
@@ -85,8 +84,8 @@ const ProductCard = ({ product }) => {
             </svg>
           ))}
         </div>
-        <span className="ml-2 text-gray-600">({product.reviews})</span>
-      </div> */}
+      </div>
+      </Link>
     </div>
   );
 };

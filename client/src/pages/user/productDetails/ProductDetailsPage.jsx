@@ -35,6 +35,7 @@ const ProductPage = () => {
 
         } else if(response.status === 200) {
           setCurrentProduct(response.data);
+          setSelectedSize(response.data.variants[0].size);
           productImagesRef.current = response.data.images.map(
             (img) => `${img?.filename !== '' ? import.meta.env.VITE_API_URL+img.url : img.url}`
           );
@@ -65,10 +66,9 @@ const ProductPage = () => {
     }
   }, [ currentProduct]);
 
-  
   const handleAddToCart = async () => {
     try {
-      const response = await addToCart(currentProduct._id, quantity);
+      const response = await addToCart(currentProduct._id, quantity, selectedSize);
       if (response.status==200) {
         toast.success('Product added to cart successfully.');
         dispatch(setCartCount(cartCount + quantity));
@@ -142,25 +142,24 @@ const ProductPage = () => {
 
         </div>
         <p className="text-sm text-gray-500">({currentProduct?.reviewCount === 1 ? `${currentProduct?.reviewCount} Review` : `${currentProduct?.reviewCount} Reviews`})</p>
-        <p className="text-xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice && currentProduct?.discountedPrice > 0 ? currentProduct?.discountedPrice : currentProduct?.regularPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.discountedPrice && currentProduct?.discountedPrice > 0?  currentProduct?.regularPrice : ''}</span></p>
-        <p className="text-gray-600 mt-4">
+        <p className="text-xl text-yellow-500 font-bold mt-2">{currentProduct?.discountedPrice && currentProduct?.discountedPrice > 0 && currentProduct?.discountedPrice < currentProduct?.regularPrice ? currentProduct?.discountedPrice : currentProduct?.regularPrice}<span className="font-semibold text-xl text-gray-400 ml-3 line-through">{currentProduct?.discountedPrice && currentProduct?.discountedPrice > 0 && currentProduct?.discountedPrice < currentProduct?.regularPrice ? currentProduct?.regularPrice : ''}</span></p>
+        <p className="text-gray-600 my-2">
           {currentProduct?.description}
         </p>
 
-        {currentProduct && currentProduct.stock !== undefined ? (
-  currentProduct?.stock <= 25 ? (
-    <p className="text-red-600">Only {currentProduct.stock} items left</p>
-  ) : (
-    <p className="text-green-600 font-semibold">In stock <span className="text-md">{currentProduct.stock}</span></p>
-  )
-) : (
-  <p>Loading...</p> 
-)}
+            
+        {currentProduct?.variants.find((variant) => variant.size === selectedSize)?.stock <= 0 ? (
+          <p className="text-red-600">Out of stock for this size</p>
+        ) :currentProduct?.variants.filter((variant) => variant.size === selectedSize)[0]?.stock <= 25 ? (
+          <p className="text-red-600">Only {currentProduct?.variants.filter((variant) => variant.size === selectedSize)[0].stock} items left for this size</p>
+        ) : (
+          <p className="text-green-600">In stock <span className="text-md">{currentProduct?.variants.filter((variant) => variant.size === selectedSize)[0]?.stock}</span> items for this size</p>
+        )}
 
         <div className="mt-3">
           <h3 className="text-md font-medium">Available Sizes:</h3>
           <div className="flex space-x-4 mt-2">
-            {["S", "M", "L", "XL"].map((size) => (
+            {currentProduct?.variants.map((variant) => variant.size).map((size) => (
               <label key={size} className="flex items-center space-x-1.5 cursor-pointer" onClick={() => setSelectedSize(size)}>
                 <input type="radio" name="size" className="form-radio text-yellow-500" checked={size === selectedSize} />
                 <span>{size}</span>
@@ -170,18 +169,8 @@ const ProductPage = () => {
         </div>
 
         
-        <div className="mt-3">
-          <h3 className="text-md font-medium">Colors:</h3>
-          <div className="flex space-x-4 mt-2">
-            {[
-                ...new Set([currentProduct?.color.name].filter(Boolean))
-              ].map((color) => (
-              <label key={color} className="flex items-center space-x-1.5 cursor-pointer">
-                <input type="radio" name="color" className="form-radio" checked={color === currentProduct?.color.name} />
-                <span>{color}</span>
-              </label>
-            ))}
-          </div>
+        <div className="mt-6">
+          <p><span className="text-md font-medium">Color:</span> <div className="h-6 mt-2 w-6 rounded-full" style={{backgroundColor: currentProduct?.color.hex}}></div></p>
         </div>
 
         
@@ -197,19 +186,15 @@ const ProductPage = () => {
         </div>
 
         <div className="flex flex-wrap md:flex-nowrap space-x-2  h-stretch">
-        <button onClick={handleAddToCart} className=" w-5/12 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center justify-center space-x-2 hover:bg-yellow-600">
+        <button onClick={handleAddToCart} className=" w-5/12 border mt-6 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center justify-center space-x-2 hover:bg-yellow-600">
           <div className="flex items-center gap-2">
           <FaCartPlus className="text-white hidden md:block"/>
           <span className="text-nowrap">Add To Cart</span>
           </div>
         </button>
-        {/* <div className="flex w-7/12 space-x-2 mt-4"> */}
-        {/* <button className=" w-5/6 border border-gray-700 hover:text-white hover:border-yellow-500 text-lg bg-transparent text-black py-3 px-8 flex items-center justify-center hover:bg-yellow-600">
-          <span>Buy Now</span>
-        </button> */}
         <button 
         onClick={handleAddToWishlist}
-        className=" p-4 border mt-4 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
+        className=" p-4 border mt-6 border-gray-300 text-md bg-yellow-500 text-white py-3 px-16 flex items-center gap-2 justify-center space-x-2 hover:bg-yellow-600">
             <div className="flex items-center gap-2">
             <FaHeart className="text-white hidden md:block" />
             <span className="text-nowrap">Add To Wishlist</span>
@@ -231,12 +216,12 @@ const ProductPage = () => {
               {relatedProducts?.map((product) => (
                 <Link to={`/product/${product._id}`}><div key={product._id} className="border p-4 shadow-lg bg-white">
                   <img src={product?.images?.[0]?.url ? product.images[0].url : '/placeholder.jpg'} alt={product.name} className="w-full h-48 object-cover mb-4 hover:scale-110 transition duration-300" />
-                  <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-                  <div className="flex items-center mb-2">
+                  <h3 className="text-xl font-semibold mb-2 text-center">{product.name}</h3>
+                  <div className="flex items-center mb-2 justify-center">
                     <span className="text-lg font-bold">{product.discountedPrice}</span>
                     <span className="text-gray-500 line-through ml-2">{product.regularPrice}</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <div className="flex items-center">
                       {Array.from({ length: 5 }, (_, index) => (
                         <svg
@@ -249,7 +234,6 @@ const ProductPage = () => {
                         </svg>
                       ))}
                     </div>
-                    <span className="ml-2 text-gray-600">({product.reviewCount})</span>
                   </div>
                 </div></Link>
               ))}

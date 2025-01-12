@@ -19,21 +19,29 @@ export const createOrder = async (req, res) => {
         return res.status(404).json({ message: `Product ${product.productId} not found` });
       }
 
-      if (dbProduct.stock < product.quantity) {
+      const variantIndex = dbProduct.variants.findIndex(variant => variant.size === product.size);
+
+      if (variantIndex === -1) {
         return res.status(400).json({ 
-          message: `Insufficient stock for product ${dbProduct.name}` 
+          message: `Size ${product.size} is not available for product ${dbProduct.name}` 
         });
       }
 
+      const variant = dbProduct.variants[variantIndex];
     
+      if (variant.stock < product.quantity) {
+        return res.status(400).json({ 
+          message: `Insufficient stock for size ${product.size} of product ${dbProduct.name}` 
+        });
+      }
+
       productUpdates.push({
         updateOne: {
-          filter: { _id: product.productId },
-          update: { $inc: { stock: -product.quantity } },
+          filter: { _id: product.productId, "variants.size": product.size },
+          update: { $inc: { "variants.$.stock": -product.quantity } },
         },
       });
     }
-
     
     await Product.bulkWrite(productUpdates);
 
@@ -56,6 +64,7 @@ export const createOrder = async (req, res) => {
           products: products.map((product) => ({
             productId: product.productId,
             price: Number(product.price),
+            size: product.size,
             discount: Number(product.discount),
             quantity: Number(product.quantity),
         })),
@@ -76,7 +85,7 @@ export const createOrder = async (req, res) => {
       wallet.transactions.push({
         type: "Debit",
         amount: newOrder.totalAmount,
-        description: `Order payment for ${newOrder.orderNumber}`,
+        description: `Order payment`,
         orderId: newOrder._id,
         balanceAfter: newBalance,
       });
@@ -288,10 +297,9 @@ export const cancelOrder = async (req, res) => {
       });
       await wallet.save();
     }
-
+    const uncancelledProducts = order.products.filter((product) => product.status !== "Cancelled");
     order.status = "Cancelled";
     order.cancelReason = reason;
-    // order.totalAmount = 0;
     order.products.forEach((item) => {
       item.status = "Cancelled";
     })
@@ -302,13 +310,38 @@ export const cancelOrder = async (req, res) => {
     order.coupon.discountValue = 0;
     order.markModified("coupon");
 
-    const productUpdates = order.products.map((item) => ({
-      updateOne: {
-        filter: { _id: item.productId },
-        update: { $inc: { stock: item.quantity } },
-      },
-    }));
-    await Product.bulkWrite(productUpdates);
+    const productUpdates = [];
+    for (const item of uncancelledProducts) {
+      const dbProduct = await Product.findById(item.productId);
+
+      if (dbProduct) {
+        const variantIndex = dbProduct.variants.findIndex(
+          (variant) => variant.size === item.size
+        );
+
+        if (variantIndex !== -1) {
+          productUpdates.push({
+            updateOne: {
+              filter: {
+                _id: item.productId,
+                "variants.size": item.size,
+              },
+              update: {
+                $inc: { "variants.$.stock": item.quantity },
+              },
+            },
+          });
+        } else {
+          return res.status(400).json({
+            message: `Variant size ${item.size} not found for product ${dbProduct.name}`,
+          });
+        }
+      }
+    }
+
+    if (productUpdates.length > 0) {
+      await Product.bulkWrite(productUpdates);
+    }
 
     await order.save();
     res.status(200).json({ message: "Order cancelled successfully" });
@@ -320,7 +353,8 @@ export const cancelOrder = async (req, res) => {
 
 export const cancelOrderItem = async (req, res) => {
   try {
-    const { orderId, productId, reason } = req.body;
+    const { orderId, itemId, reason } = req.body;
+    console.log(reason)
 
 
     const order = await Order.findById(orderId).populate("products.productId");
@@ -332,19 +366,34 @@ export const cancelOrderItem = async (req, res) => {
     }
     
     const productIndex = order.products.findIndex(
-      (item) => item.productId._id.toString() === productId
+      (item) => item._id.toString() === itemId
     );
     if (productIndex === -1){
       return res.status(404).json({ message: "Product not found in the order" });
     }
 
     const product = order.products[productIndex];
+    const dbProduct = await Product.findById(product.productId);
+
+    if (!dbProduct) {
+      return res.status(404).json({ message: "Product not found in the database" });
+    }
+
+    const variantIndex = dbProduct.variants.findIndex(
+      (variant) => variant.size === product.size
+    );
+
+    if (variantIndex === -1) {
+      return res.status(400).json({
+        message: `Size ${product.size} is not available for product ${dbProduct.name}`,
+      });
+    }
+
+    dbProduct.variants[variantIndex].stock += product.quantity;
+    await dbProduct.save();
+    
     product.status = "Cancelled";
     product.cancelReason = reason;
-    
-    await Product.findByIdAndUpdate(productId, {
-      $inc: { stock: product.quantity },
-    });
     order.markModified("products");
 
     const allProductsSameStatus = order.products.every(item => item.status === product.status);
@@ -353,7 +402,10 @@ export const cancelOrderItem = async (req, res) => {
     }
     
 
-    const uncancelledProducts = order.products.filter(item => item.status !== "Cancelled" && item.status !== "Returned" && item.productId._id.toString() !== productId);
+    const uncancelledProducts = order.products.filter(item => item.status !== "Cancelled" 
+      && item.status !== "Returned" 
+      && item.productId._id.toString() !== product.productId);
+
     if (uncancelledProducts.length === 1) {
       order.status = uncancelledProducts[0].status;
     }
@@ -401,6 +453,7 @@ export const cancelOrderItem = async (req, res) => {
         orderId: order._id,
         balanceAfter: wallet.balance,
       });
+      console.log(wallet)
       await wallet.save();
     }
     
@@ -419,14 +472,14 @@ export const cancelOrderItem = async (req, res) => {
 
 export const requestItemReturn = async (req, res) => {
   try {
-      const { orderId, productId, reason } = req.body;
-
+      const { orderId, itemId, reason } = req.body;
+console.log(reason)
       const order = await Order.findById(orderId);
       if (!order) {
           return res.status(404).json({ message: "Order not found" });
       }
       const allProducts = order.products.filter(item => item.status !== "Cancelled");
-      const item = allProducts.find(product => product.productId.toString() === productId);
+      const item = allProducts.find(product => product._id.toString() === itemId);
       if (!item) {
           return res.status(404).json({ message: "Item not found in the order" });
       }
@@ -457,6 +510,7 @@ export const requestItemReturn = async (req, res) => {
 export const requestOrderReturn = async (req, res) => {
   try {
       const { orderId, reason } = req.body;
+      console.log(reason)
 
       const order = await Order.findById(orderId);
       if (!order) {
@@ -488,9 +542,6 @@ export const requestOrderReturn = async (req, res) => {
       res.status(400).json({ message: "Error requesting order return", error: error.message });
   }
 };
-
-
-
 
 
 
@@ -689,7 +740,7 @@ export const getPendingReturns = async (req, res) => {
 export const updateReturnStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { productId, returnStatus } = req.body;
+    const { itemId, returnStatus } = req.body;
 
     if (returnStatus === "None") {
       return res.status(400).json({ message: "Invalid return status" });
@@ -700,7 +751,7 @@ export const updateReturnStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    const product = order.products.find((item) => item.productId._id.toString() === productId);
+    const product = order.products.find((item) => item._id.toString() === itemId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -710,9 +761,24 @@ export const updateReturnStatus = async (req, res) => {
     }
 
     product.returnStatus = returnStatus;
-    await Product.findByIdAndUpdate(productId, {
-      $inc: { stock: product.quantity },
-    })
+    const dbProduct = await Product.findById(product.productId);
+    if (!dbProduct) {
+      return res.status(404).json({ message: "Product not found in the database" });
+    }
+
+    const variantIndex = dbProduct.variants.findIndex(
+      (variant) => variant.size === product.size
+    );
+
+    if (variantIndex !== -1) {
+      if (returnStatus === "Completed") {
+        dbProduct.variants[variantIndex].stock += product.quantity;
+        dbProduct.markModified("variants");
+        await dbProduct.save();
+      }
+    } else {
+      return res.status(400).json({ message: `Variant size ${product.size} not found for product` });
+    }
 
     if (returnStatus === "Completed") {
       product.status = 'Returned';
@@ -720,11 +786,11 @@ export const updateReturnStatus = async (req, res) => {
       let refundAmount = 0;
 
       const remainingProducts = order.products.filter(
-        (item) => item.status !== "Cancelled" && item.status !== "Returned" && item.productId._id.toString() !== productId
+        (item) => item.status !== "Cancelled" && item.status !== "Returned" && item._id.toString() !== itemId
       )
 
       const costOfRemainingProducts = remainingProducts.reduce((acc, item) => {
-        return acc + item.price * item.quantity;
+        return acc + (item.price * item.quantity);
       }, 0);
 
       let isEligibleForCoupon = false;
@@ -754,8 +820,7 @@ export const updateReturnStatus = async (req, res) => {
         wallet = new Wallet({ user: order.user, balance: 0, transactions: [] });
       }
 
-      const productDetails = await Product.findById(productId);
-      const productName = productDetails?.name || "Unknown Product";
+      const productName = dbProduct?.name || "Unknown Product";
 
       wallet.balance += refundAmount;
       wallet.transactions.push({

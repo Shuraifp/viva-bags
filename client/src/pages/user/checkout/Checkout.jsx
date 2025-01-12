@@ -103,12 +103,27 @@ const CheckoutPage = () => {
           },
         },
       };
-  
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+
+      if (typeof window.Razorpay !== 'undefined') {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        console.error('Razorpay SDK is not loaded.');
+        toast.error('Payment system is currently unavailable. Please try again later.');
+      }
+      
     } catch (err) {
-      console.error('Error initiating Razorpay payment:'+ err);
-      toast.error('An error occurred. Please try again.');
+      if(err.response){
+        if(err.response){
+          toast.error(err.response.data.message);
+        } else if(err.message) {
+          console.log(err.message);
+          toast.error('Please try again.');
+        } else {
+          console.log(err);
+          toast.error('Please try again.');
+        }
+      }
     }
   };
   
@@ -128,6 +143,7 @@ const CheckoutPage = () => {
         products: cartItems.map((item) => ({
           productId: item.product._id,
           price: item.product.discountedPrice ? item.product.discountedPrice : item.product.regularPrice,
+          size: item.size,
           discount: item.product.discountedPrice ? item.product.regularPrice - item.product.discountedPrice : 0,
           quantity: item.quantity
         })),
@@ -160,7 +176,9 @@ const CheckoutPage = () => {
         setCartItems([]);
         dispatch(setCartCount(0));
         total = 0;
-        navigate('/success');
+        if(paymentMethod !== 'Razorpay'){
+          navigate('/success');
+        }
       }
       
     } catch (err) {
@@ -181,7 +199,7 @@ const CheckoutPage = () => {
     }
   };
   const calculateTotalwithoutCoupon = () => {
-    return subtotal + shipping;
+    return (subtotal + shipping).toFixed(2);
   };
   
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
@@ -362,11 +380,11 @@ const CheckoutPage = () => {
             <div className="font-semibold text-stone-700">
               <div className="flex justify-between mb-2">
                 <span>Subtotal:</span>
-                <span>{subtotal}</span>
+                <span>{subtotal.toFixed(2)}</span>
               </div>
               { coupon && <div className="flex justify-between mb-2">
                 <span>Discount:</span>
-                <span className="text-green-500 font-medium">{discount}</span>
+                <span className="text-green-500 font-medium">{discount.toFixed(2)}</span>
               </div>}
               <div className="flex justify-between mb-2">
                 <span>Shipping:</span>

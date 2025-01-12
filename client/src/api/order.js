@@ -54,9 +54,9 @@ export const cancelOrder = async (id, reason) => {
   }
 }
 
-export const cancelItem = async (orderId, productId,reason) => {
+export const cancelItem = async (orderId, itemId,reason) => {
   try{
-    const response = await api.patch(`/user/orders/cancel-item`,{orderId,productId,reason})
+    const response = await api.patch(`/user/orders/cancel-item`,{orderId,itemId,reason})
     return response
   } catch (err){
     throw err
@@ -77,9 +77,9 @@ export const returnOrder = async (orderId, reason) => {
 }
 
 
-export const requestReturnItem = async (orderId, productId, reason) => {
+export const requestReturnItem = async (orderId, itemId, reason) => {
   try{
-    const response = await api.patch(`/user/orders/return-item`,{orderId,productId,reason})
+    const response = await api.patch(`/user/orders/return-item`,{orderId,itemId,reason})
     return response
   } catch (err){
     throw err
@@ -139,9 +139,9 @@ export const getReturnRequestedOrders = async () => {
 }
 
 
-export const updateReturnStatus = async (orderId, productId, returnStatus) => {
+export const updateReturnStatus = async (orderId, itemId, returnStatus) => {
   try{
-    const response = await adminApi.patch(`/admin/orders/return/${orderId}`,{productId,returnStatus})
+    const response = await adminApi.patch(`/admin/orders/return/${orderId}`,{itemId,returnStatus})
     return response
   } catch (err){
     throw err

@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 
 const OrderDetails = () => {
   const [order, setOrder] = useState(null);
-  const [isCustomerNotesOpen, setIsCustomerNotesOpen] = useState(false);
+  const [openNotes, setOpenNotes] = useState({});
+  const [cancelNotes, setCancelNotes] = useState({});
   const { id } = useParams();
 
   useEffect(() => {
@@ -19,7 +20,21 @@ const OrderDetails = () => {
     };
     fetchOrder();
   }, [id]);
-  console.log(order)
+  
+  const toggleCustomerNotes = (productId) => {
+    setOpenNotes((prevState) => ({
+      ...prevState,
+      [productId]: !prevState[productId], 
+    }));
+  };
+  
+  const toggleCancelNotes = (productId) => {
+    setCancelNotes((prevState) => ({
+      ...prevState,
+      [productId]: !prevState[productId], 
+    }));
+  };
+
   const updateStatus = async (id, status) => {
     try {
       const response = await updateProductStatus(id, order._id, status)
@@ -36,9 +51,9 @@ const OrderDetails = () => {
     }
   }
 
-  const handleUpdateReturnStatus = async (id, status) => {
+  const handleUpdateReturnStatus = async (itemId, status) => {
     try {
-      const response = await updateReturnStatus(order._id, id, status)
+      const response = await updateReturnStatus(order._id, itemId, status)
         if(response.status === 200) {
           setOrder(response.data.order)
           toast.success(response.data.message)
@@ -100,7 +115,7 @@ const OrderDetails = () => {
                   <select
                     value={product.status}
                     onChange={(e) => updateStatus(product.productId._id, e.target.value)}
-                    className={`appearance-none bg-gray-200 hover:bg-gray-300 ${product.status === "Shipped" ? "text-yellow-500" : product.status === "Delivered" ? "text-green-500" : product.status === "Cancelled" ? "text-red-500" : 'text-gray-500'} border border-gray-200 text-center py-10 focus:ring-yellow-500 focus:border-yellow-500 block w-full m-0`}
+                    className={`appearance-none bg-gray-200 hover:bg-gray-300 ${product.status === "Shipped" ? "text-yellow-500" : product.status === "Delivered" ? "text-green-500" : product.status === "Cancelled" ? "text-red-500" : 'text-gray-500'} border border-gray-200 text-center focus:ring-yellow-500 focus:border-yellow-500 ${!product.cancelReason && !order?.cancelReason ? "py-10 bg-gray-200" : "py-2 h-[70px] bg-gray-200 hover:bg-gray-300"} block w-full m-0`}
                   >
                     <option value="Pending" className="text-gray-900">Pending</option>
                     <option value="Shipped" className="text-yellow-600">Shipped</option>
@@ -108,11 +123,22 @@ const OrderDetails = () => {
                     <option value="Cancelled" className="text-red-600">Cancelled</option>
                     <option value="Returned" className="text-red-600">Returned</option>
                   </select>
+                  { ( product.cancelReason || order?.cancelReason)  && 
+                  <div
+                  onClick={() => toggleCancelNotes(product._id)}
+                  className="text-center cursor-pointer relative"
+                  >
+                    <p className="text-gray-500 bg-gray-300 py-1 hover:bg-gray-400 hover:text-white mt-1 text-sm">Customer Notes</p>
+                    { cancelNotes[product._id] &&
+                    <div
+                    className="absolute top-8 left-0 right-0 bg-white p-2 border border-gray-300 text-sm"
+                    ><p className="text-left">{product.cancelReason ? product.cancelReason : order?.cancelReason ? order?.cancelReason : "No Notes" }</p></div>}
+                  </div>}
               </td>
               {(order?.isReturnRequested || order?.products.some(product => product.isReturnRequested)) && <td className="text-center">
                   <select
                     value={product.returnStatus || 'None'}
-                    onChange={(e) => handleUpdateReturnStatus(product.productId._id, e.target.value)}
+                    onChange={(e) => handleUpdateReturnStatus(product._id, e.target.value)}
                     className={`appearance-none  ${product.returnStatus === "Approved" ? "text-yellow-500" : product.returnStatus === "Completed" ? "text-green-500" : product.returnStatus === "Rejected" ? "text-red-500" : 'text-gray-500'} border border-gray-200 text-center focus:ring-yellow-500 focus:border-yellow-500 block w-full ${!product.isReturnRequested ? "py-10 bg-gray-200" : "py-2 h-[70px] bg-gray-200 hover:bg-gray-300"} m-0`}
                   >
                     <option value="None" className="text-gray-500">None</option>
@@ -121,16 +147,16 @@ const OrderDetails = () => {
                     <option disabled={product.returnStatus === "Completed"} value="Rejected" className="text-green-600">Rejected</option>
                     <option disabled={product.returnStatus === "Rejected" || product.returnStatus === "Pending"} value="Completed" className="text-red-600">Completed</option>
                   </select>
-                  { product.isReturnRequested && 
+                  { product.isReturnRequested  && 
                   <div
-                  onClick={() => setIsCustomerNotesOpen(!isCustomerNotesOpen)}
+                  onClick={() => toggleCustomerNotes(product._id)}
                   className="text-center cursor-pointer relative"
                   >
                     <p className="text-gray-500 bg-gray-300 py-1 hover:bg-gray-400 hover:text-white mt-1 text-sm">Customer Notes</p>
-                    { isCustomerNotesOpen &&
+                    { openNotes[product._id] &&
                     <div
-                    className="absolute top-8 left-0 right-0 bg-gray-200 p-2 border border-gray-300 text-sm"
-                    ><p className="text-left">{order.returnReason ? order.returnReason : product.returnReason}</p></div>}
+                    className="absolute top-8 left-0 right-0 bg-white p-2 border border-gray-300 text-sm"
+                    ><p className="text-left">{product.returnReason ? product.returnReason : order?.returnReason ? order?.returnReason : "No Notes" }</p></div>}
                   </div>}
               </td>}
               </tr>

@@ -132,7 +132,7 @@ const ProductManagement = () => {
             <th className="py-2 px-4 bg-gray-600">Image</th> 
             <th className="py-2 px-4 bg-gray-700">Product Name</th>
             <th className="py-2 px-4 bg-gray-600">Category</th>
-            <th className="py-2 px-4 bg-gray-700">Stock</th>
+            <th className="py-2 px-4 bg-gray-700">Stocks</th>
             <th className="py-2 px-4 bg-gray-600">Status</th>
             <th className="py-2 px-4 bg-gray-700">Actions</th>
           </tr>
@@ -155,7 +155,11 @@ const ProductManagement = () => {
               </td> 
               <td className="py-2 px-4">{prod.name}</td>
               <td className="py-2 px-4">{prod.category.name}</td>
-              <td className="py-2 px-4">{prod.stock}</td>
+              <td className="py-2 px-4">
+                {prod.variants.map((variant) => (
+                  <p className={` my-1 ${variant.stock > 15 ? "text-green-500" : "text-red-500"} bg-gray-100 px-2 rounded flex justify-between`}><span>{variant.size}:</span><span className="font-semibold">{variant.stock}</span></p>
+                ))}
+              </td>
               <td className="py-2 px-4">
                 <span
                   className={`px-3 py-1 rounded-md ${prod.islisted && prod.stock >0 ? "bg-green-200" : "bg-red-200"}`}

@@ -18,23 +18,15 @@ const ApplyOffer = ({ applyingOffer, setApplyingOffer }) => {
     const fetchCategoriesAndProducts = async () => {
       try {
         const response = await getCategoriesAndProducts();
-        setCategories(response.data.categories);
-        setProducts(response.data.products);
+        setCategories(response.data.categories.filter(cat => !applyingOffer.categories.some(appliedCat => cat._id === appliedCat._id)));
+        setProducts(response.data.products.filter(prod => !applyingOffer.products.some(appliedProd => prod._id === appliedProd._id)));
       } catch (error) {
         console.error("Error fetching categories and products:" + error);
       }
     }
     fetchCategoriesAndProducts();
-  }, []);
-
-  // const getSingleOffer = async () => {
-  //   try {
-  //     const response = await getOfferById(applyingOffer._id);
-  //     setApplyingOffer(response.data.offer);
-  //   } catch (error) {
-  //     console.error("Error fetching single offer:" + error);
-  //   }
-  // }
+  }, [applyingOffer]);
+  
 
   const applyOffer = async (categories, products) => {
     try {

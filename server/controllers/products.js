@@ -49,6 +49,7 @@ const uploadImageToCloudinary = (file) => {
 
 export const createProduct =  async(req, res) => {
   const color = JSON.parse(req.body.color);
+  const variants = JSON.parse(req.body.variants)
   const images = req.files;
 
   if (!images || images.length === 0) {
@@ -68,12 +69,17 @@ export const createProduct =  async(req, res) => {
     brand: req.body.brand,
     regularPrice: Number(req.body.regularPrice),
     discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : req.body.regularPrice,
-    stock: Number(req.body.stock) || 1,   
+    variants: variants.map((variant) => ({
+      size: variant.size, 
+      stock: Number(variant.stock),
+      additionalPrice: variant.additionalPrice
+        ? Number(variant.additionalPrice)
+        : 0,
+    })),   
     color: {
       name: color.name, 
       hex: color.hex,
     },
-    size: req.body.size ,
     images: imagePaths.map((imageUrl) => ({ url: imageUrl,filename : '' })),
   };
 
@@ -92,19 +98,10 @@ export const createProduct =  async(req, res) => {
   }
 };
 
-const deleteImageFromCloudinary = async (publicId) => {
-  try {
-    const response = await cloudinary.uploader.destroy(publicId);
-    console.log("Image deleted:", response);
-    return response;
-  } catch (error) {
-    console.error("Error deleting image from Cloudinary:", error);
-    throw error;
-  }
-};
-
 export const updateProduct = async (req, res) => {
   const color = JSON.parse(req.body.color);
+  const variants = JSON.parse(req.body.variants)
+
   const imagesToRemove = JSON.parse(req.body?.toRemove? req.body.toRemove : '[]');
   const product = await Product.findById(req.params.id);
   if(imagesToRemove && imagesToRemove.length > 0){
@@ -118,11 +115,6 @@ export const updateProduct = async (req, res) => {
   const imageUrls = [...product.images];
 
   if (newImages && newImages.length > 0) {
-    // for (const oldImage of product.images) {
-    //   if (oldImage.filename) {
-    //     await deleteImageFromCloudinary(oldImage.filename); 
-    //   }
-    // }
     for (const file of newImages) {
       const imageUrl = await uploadImageToCloudinary(file);
       imageUrls.push({ url: imageUrl, filename: '' });
@@ -136,18 +128,25 @@ export const updateProduct = async (req, res) => {
     brand: req.body.brand,
     regularPrice: Number(req.body.regularPrice),
     discountedPrice: req.body.discountedPrice ? Number(req.body.discountedPrice) : req.body.regularPrice,
-    stock: Number(req.body.stock) || 1,   
+    variants: variants.map((variant) => ({
+      size: variant.size, 
+      stock: Number(variant.stock), 
+      additionalPrice: variant.additionalPrice
+        ? Number(variant.additionalPrice)
+        : 0, 
+    })),
     color: {
       name: color.name, 
       hex: color.hex,
     },
-    size: req.body.size ,
     images : imageUrls.map((imageUrl) => ({ url: imageUrl.url,filename : '' }))
   };
+  console.log('ok')
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, productData, { new: true }).select('-__v -createdAt -updatedAt');
     res.json({message: "product updated successfully"});
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Error Updating product', error });
   }
 };  
@@ -304,7 +303,7 @@ export const getSortedProducts = async (req, res) => {
         filters["color.name"] = { $in: filterOptions.color }
       }
       if(filterOptions.size && !filterOptions.size.includes("all")){
-        filters.size = { $in: filterOptions.size }
+        filters["variants.size"] = { $in: filterOptions.size }
       }
     }
   
@@ -428,8 +427,8 @@ export const getFilterCounts = async (req, res) => {
 
     const sizeCounts = await Product.aggregate([
       { $match: { islisted: true } },
-      { $unwind: "$size" },
-      { $group: { _id: "$size", count: { $sum: 1 } } },
+      { $unwind: "$variants" },
+      { $group: { _id: "$variants.size", count: { $sum: 1 } } },
     ]);
 
     const response = {

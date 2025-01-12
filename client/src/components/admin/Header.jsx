@@ -32,7 +32,7 @@ const Header = () => {
   
   return (
     <header className="bg-gradient-to-r min-h-[12vh] from-gray-900 to-indigo-800 shadow-xl p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-gray-100 md:text-3xl md:ml-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-100 md:text-3xl md:ml-6">Admin Dashboard</h1>
 
       <div className="flex items-center gap-6">
         {/* Notifications */}

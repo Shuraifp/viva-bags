@@ -23,31 +23,32 @@ const CartPage = () => {
 
   useEffect(() => {
     window.scrollTo({top:0})
-    const fetchCartItems = async () => {
-      try{
-        const response = await fetchCart();
-        if(response.status === 200){
-          setCartItems([...response.data]);
-          setIsLoading(false);
-          dispatch(setCartCount(response.data.reduce((acc, item) => acc + item.quantity, 0)));
-        } 
-      } catch(err){
-        if(err.response){
-          if(err.response.status === 401 && err.response.data.message === "User is blocked"){
-            logout();
-          }
-        }
-      }
-    }
     fetchCartItems();
 },[])
 
-  const handleQuantityChange = async (id, quantity) => {
+const fetchCartItems = async () => {
+  try{
+    const response = await fetchCart();
+    if(response.status === 200){
+      setCartItems([...response.data]);
+      setIsLoading(false);
+      dispatch(setCartCount(response.data.reduce((acc, item) => acc + item.quantity, 0)));
+    } 
+  } catch(err){
+    if(err.response){
+      if(err.response.status === 401 && err.response.data.message === "User is blocked"){
+        logout();
+      }
+    }
+  }
+}
+
+  const handleQuantityChange = async (id, quantity, selectedSize) => {
     try {
-      const response = await updateCart(id, quantity);
+      const response = await updateCart(id, quantity, selectedSize);
       if (response.status === 200) {
         const updatedCartItems = cartItems.map((item) =>
-          item.product._id === id ? { ...item, quantity: item.quantity + quantity } : item
+          item.product._id === id && item.size === selectedSize ? { ...item, quantity: item.quantity + quantity } : item
         );
   
         setCartItems(updatedCartItems);
@@ -102,7 +103,7 @@ const CartPage = () => {
     try {
       const response = await removeFromCart(id);
       if (response.status === 200) {
-        const updatedCart = cartItems.filter((item) => item.product._id !== id);
+        const updatedCart = cartItems.filter((item) => item._id !== id);
         setCartItems(updatedCart);
         const totalQuantity = updatedCart.reduce(
           (acc, item) => acc + item.quantity,
@@ -129,22 +130,15 @@ const CartPage = () => {
     }
   };
   const calculateTotalwithoutCoupon = () => {
-    return subtotal + shipping;
+    return (subtotal + shipping).toFixed(2);
   };
   const coupon = JSON.parse(localStorage.getItem("coupon"));
   const subtotal = cartItems?.reduce((acc, item) => acc + item.product.discountedPrice * item.quantity, 0);
   const shipping = 10;
   const total = coupon ? calculateTotalWithCoupon() : calculateTotalwithoutCoupon();
-  console.log(subtotal)
   
-
-
-  
-
   return (
-    <div className="min-h-screen bg-gray-100"
-    // onClick={handleOutsideClick}
-    >
+    <div className="min-h-screen bg-gray-100">
 
       <Navbar />
 
@@ -177,31 +171,32 @@ const CartPage = () => {
                 <tr key={item._id} className="my-2 bg-white hover:bg-gray-200">
                   <td className="p-2 flex items-center space-x-4">
                     <img  loading="lazy" src={item.product.images[0].url} alt={item.product.name} className="w-16 h-16 rounded-md" />
-                    <span>{item.product.name}</span>
+                    <div><p>{item.product.name}</p>
+                    <p className="text-sm">size: <span className="text-red-500">{item.size}</span></p></div>
                   </td>
                   <td className="p-4 text-center">{item.product.category.name}</td>
                   <td className="p-4 text-center text-green-500">{item.product.discountedPrice < item.product.regularPrice ? item.product.discountedPrice : item.product.regularPrice} <span className="text-sm text-gray-400 line-through">{item.product.discountedPrice < item.product.regularPrice ? item.product.regularPrice : ""}</span></td>
                   <td className="p-4 text-center">
                     <div className="flex items-center bg-slate-100 w-fit">
                       <button
-                        onClick={() => handleQuantityChange(item.product._id, -1)}
+                        onClick={() => handleQuantityChange(item.product._id, -1, item.size)}
                         className="p-2 bg-yellow-500 hover:bg-yellow-600 text-slate-700"
                       >
                         <FaMinus />
                       </button>
                       <span className="text-lg px-3">{item.quantity}</span>
                       <button
-                        onClick={() => handleQuantityChange(item.product._id, 1)}
+                        onClick={() => handleQuantityChange(item.product._id, 1, item.size)}
                         className="p-2 bg-yellow-500 hover:bg-yellow-600 text-slate-700"
                       >
                         <FaPlus />
                       </button>
                     </div>
                   </td>
-                  <td className="p-4 text-center">{item.product.discountedPrice ? item.product.discountedPrice * item.quantity : item.product.regularPrice * item.quantity}</td>
+                  <td className="p-4 text-center">{(item.product.discountedPrice ? item.product.discountedPrice * item.quantity : item.product.regularPrice * item.quantity).toFixed(2)}</td>
                   <td className="p-4 text-center">
                     <button
-                      onClick={() => handleRemoveItem(item.product._id)}
+                      onClick={() => handleRemoveItem(item._id)}
                       className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white"
                     >
                       ✕
@@ -237,7 +232,7 @@ const CartPage = () => {
         <div className="bg-white h-fit p-6 py-10 font-semibold text-stone-600">
           <div className="flex justify-between mb-2">
             <span>Subtotal:</span>
-            <span>{subtotal}</span>
+            <span>{subtotal.toFixed(2)}</span>
           </div>
           { coupon && <div className="flex justify-between mb-2">
             <span>Discount:</span>

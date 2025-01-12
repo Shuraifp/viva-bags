@@ -28,10 +28,24 @@ const productSchema = new mongoose.Schema({
   discountedPrice : {
       type:Number,
   },
-  stock: { 
-    type: Number,
-    required: true,
-  },
+  variants: [
+    {
+      size: {
+        type: String,
+        enum: ["S", "M", "L", "XL"], 
+        required: true,
+      },
+      stock: {
+        type: Number,
+        required: true,
+        min: 0, 
+      },
+      additionalPrice: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
   rating: {
     type: Number,
     default: 0,
@@ -52,10 +66,6 @@ const productSchema = new mongoose.Schema({
       }
     }
   ,
-  size: {
-    type: String,
-    required: true,
-  },
   images: [
     {
       filename: String,   

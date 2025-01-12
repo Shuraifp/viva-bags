@@ -129,7 +129,7 @@ const OrderDetails = () => {
                    <span className="font-semibold text-gray-800">{product.productId.name}</span>
                    <p className=" text-gray-500 text-sm">{product.productId.category.name}</p>
                    <p className="text-sm" style={{ color: product.productId.color.hex }}>Color: {product.productId.color.name}</p>
-                   <span className="text-gray-500 text-sm">Size: {product.productId.size}</span>
+                   <span className="text-gray-500 text-sm">Size: <span className="font-semibold text-green-500">{product.size}</span></span>
                  </div>
                 </td>
                 <td className="p-2 border border-gray-200 text-center">{product.quantity}</td>

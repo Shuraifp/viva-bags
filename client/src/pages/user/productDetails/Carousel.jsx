@@ -18,7 +18,7 @@ const Carousel = ({ productImagesRef }) => {
   };
 
   return (
-    <div className="relative w-full h-fit py-12 md:w-2/5 bg-white flex flex-col  items-center shadow-lg">
+    <div className="relative w-full h-[500px] md:w-2/5 bg-white flex flex-col  items-center shadow-lg">
       <div className="carousel relative overflow-hidden">
         {productImagesRef.current.length > 0 && (
           <div className="relative cursor-zoom-in">
@@ -31,7 +31,7 @@ const Carousel = ({ productImagesRef }) => {
           </div>
         )}
       </div>
-      <div className="thumbnails flex flex-wrap mt-4">
+      <div className="thumbnails flex flex-wrap my-1">
         {productImagesRef.current.map((image, index) => (
           <img
             key={index}
