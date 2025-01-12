@@ -74,7 +74,7 @@ export const fetchProfile = async (req, res) => {
 
 export const editProfile = async (req, res) => {
   try {
-    const { firstName, lastName, email} = req.body;
+    const { firstName, lastName, username, mobile } = req.body;
     const address = await Address.findOne({user:req.user.Id,isDefault:true});
     const user = await User.findById(req.user.Id);
     if (!user) {
@@ -83,11 +83,18 @@ export const editProfile = async (req, res) => {
     if(address){
       address.firstName = firstName;
       address.lastName = lastName;
-      await address.save();
     }
-    user.email = email
+    if (mobile && !/^(\+91[-\s]?)?[6-9]\d{9}$/.test(mobile)) {
+      return res.status(400).json({ message: "Invalid mobile number" });
+    }
+    address.mobile = mobile;
+    await address.save();
+    const isUsernameTaken = await User.findOne({ username , _id: { $ne: req.user.Id } });
+    if (isUsernameTaken) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+    user.username = username;
     await user.save();
-    console.log(address)
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error(error);

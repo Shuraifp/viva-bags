@@ -19,7 +19,6 @@ const UserProfile = () => {
     const fetchUserData = async () => {
       try {
         const response = await fetchUserProfileData();
-        console.log(response.data.user);
         if (response.status === 200) {
           setUser(response.data.user);
           console.log(response.data.message);
@@ -93,7 +92,7 @@ const UserProfile = () => {
           </div>
           <button
             onClick={handleEditProfile}
-            className="bg-blue-500 text-white px-4 py-2"
+            className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2"
           >
             {editing ? 'Cancel' : 'Edit Profile'}
           </button>
@@ -101,37 +100,46 @@ const UserProfile = () => {
 
         {/* Editing Profile */}
         {editing ? (
-          <div className="mt-4">
+          <div className="mt-3">
             <div>
               <label className="block text-gray-700">First Name:</label>
               <input
                 type="text"
                 value={user.firstName}
                 onChange={(e) => setUser({ ...user, firstName: e.target.value })}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                className="block w-full mt-1 p-2 border border-gray-300"
               />
             </div>
-            <div className="mt-4">
+            <div className="mt-3">
               <label className="block text-gray-700">Last Name:</label>
               <input
                 type="text"
                 value={user.lastName}
                 onChange={(e) => setUser({ ...user, lastName: e.target.value })}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                className="block w-full mt-1 p-2 border border-gray-300"
               />
             </div>
-            <div className="mt-4">
-              <label className="block text-gray-700">Email:</label>
+            <div className="mt-3">
+              <label className="block text-gray-700">Mobile Number:</label>
               <input
                 type="text"
-                value={user.email}
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                value={user.mobile}
+                onChange={(e) => setUser({ ...user, mobile : e.target.value })}
+                className="block w-full mt-1 p-2 border border-gray-300"
+              />
+            </div>
+            <div className="mt-3">
+              <label className="block text-gray-700">User Name:</label>
+              <input
+                type="text"
+                value={user.username}
+                onChange={(e) => setUser({ ...user, username: e.target.value })}
+                className="block w-full mt-1 p-2 border border-gray-300"
               />
             </div>
             <button
               onClick={handleSaveProfile}
-              className="bg-green-500 text-white px-4 py-2 mt-4 rounded"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 mt-4"
             >
               Save Changes
             </button>
@@ -150,7 +158,7 @@ const UserProfile = () => {
               <h3 className="text-xl font-semibold">Security</h3>
               { !showChangePassword && <button
                 onClick={() => setShowChangePassword(!showChangePassword)}
-                className="bg-yellow-500 text-white px-4 py-2 mt-2"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 mt-2"
               >
                 Change Password
               </button>}
@@ -162,7 +170,7 @@ const UserProfile = () => {
                       type="password"
                       value={passwords.oldPassword}
                       onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
-                      className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                      className="block w-full mt-1 p-2 border border-gray-300"
                     />
                   </div>
                   <div className="mt-2">
@@ -171,7 +179,7 @@ const UserProfile = () => {
                       type="password"
                       value={passwords.newPassword}
                       onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                      className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                      className="block w-full mt-1 p-2 border border-gray-300"
                     />
                   </div>
                   <div className="mt-2">
@@ -180,7 +188,7 @@ const UserProfile = () => {
                       type="password"
                       value={passwords.confirmPassword}
                       onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                      className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                      className="block w-full mt-1 p-2 border border-gray-300"
                     />
                   </div>
                   <div className="mt-4 ">
