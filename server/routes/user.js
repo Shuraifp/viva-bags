@@ -14,6 +14,7 @@ import { makePayment } from "../controllers/payment.js";
 import { addToWishlist, getWishlist, deleteWishlistItem } from "../controllers/wishlist.js";
 import { getWallet, checkBalance, addMoneyToWallet } from "../controllers/wallet.js";
 import { addReview, fetchReviews } from "../controllers/review.js";
+import { offerForBanner } from "../controllers/offers.js";
 
 
 // Auth
@@ -84,6 +85,10 @@ router.get('/orders/invoice/:orderId', isUser, generateInvoice)
 router.get('/coupons', isUser, getCouponsForUser)
 router.post('/coupons/apply', isUser, applyCoupon)
 router.delete('/coupons/remove/:id', isUser, removeAppliedCoupon)
+
+
+// Offers
+router.get('/offers', offerForBanner)
 
 
 // Payments

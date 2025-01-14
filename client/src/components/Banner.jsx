@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link} from 'react-router-dom'
 import bannerImg from '../assets/used/bannerMain.avif';
 import bannerImg2 from '../assets/used/1.avif';
 import bannerImg3 from '../assets/used/2.avif';
+import { offerForBanner } from '../api/offer';
 
 const Banner = () => {
+  const [offers, setOffers] = useState([]);
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const response = await offerForBanner();
+        setOffers(response.data);
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+      }
+    };
+    fetchOffers();
+  }, []);
+
   return (
     <div className="container-fluid mx-auto px-5 py-6 flex flex-col lg:flex-row bg-gray-100 gap-4">
       {/* Main Banner */}
-      <div className="relative w-full lg:w-3/4 h-60 md:h-80 lg:min-h-[401px] overflow-hidden">
+      <div className={`relative w-full ${offers?.length > 0 ? 'lg:w-3/4' : 'lg:w-full' } h-60 md:h-80 lg:min-h-[401px] overflow-hidden`}>
         <img
           src={bannerImg}
           alt="Main Banner"
@@ -24,37 +39,24 @@ const Banner = () => {
       </div>
 
       {/* Side Banners */}
-      <div className="flex flex-col gap-4 w-full lg:w-1/4">
+        {offers?.length > 0 && <div className="flex flex-col gap-4 w-full lg:w-1/4">
+      {offers.map((offer, index) => (
         <div className="relative h-40 md:h-44 lg:h-48 overflow-hidden">
           <img
-            src={bannerImg2}
+            src={offer.image}
             alt="Special Offer"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white">
-            <span className="bg-yellow-400 text-black px-2 py-1 font-bold mb-2">SAVE 20%</span>
             <h3 className="text-lg md:text-xl font-bold mb-2">Special Offer</h3>
+            <span className="bg-yellow-400 text-black px-2 py-1 font-bold">SAVE <span>{offer.offerValue}<span>{offer.offerType === 'percentage' ? '%' : ''}</span></span></span>
+            <p className='text-sm my-2'>{offer.offerName}</p>
             <Link to={'/shop'}><button className="px-3 py-1 bg-yellow-400 text-black font-semibold hover:bg-yellow-500">
               Shop Now
             </button></Link>
           </div>
-        </div>
-
-        <div className="relative h-40 md:h-44 lg:h-48 overflow-hidden">
-          <img
-            src={bannerImg3}
-            alt="Special Offer"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white">
-            <span className="bg-yellow-400 text-black px-2 py-1 font-bold mb-2">SAVE 20%</span>
-            <h3 className="text-lg md:text-xl font-bold mb-2">Special Offer</h3>
-            <Link to={'/shop'}><button className="px-3 py-1 bg-yellow-400 text-black font-semibold hover:bg-yellow-500">
-              Shop Now
-            </button></Link>
-          </div>
-        </div>
-      </div>
+        </div>))}
+      </div>}
     </div>
   );
 };

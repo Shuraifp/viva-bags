@@ -1,4 +1,5 @@
 import { adminApiWithAuth as api } from "./axios";
+import { apiWithoutAuth as apiNonSecure } from "./axios";
 
 
 export const getOffers = async (currentPage, limitPerPage, filter, sort ,search) => {
@@ -75,11 +76,13 @@ export const removeOffer = async (payload) => {
 }
 
 
-// export const getOfferById = async (id) => {
-//   try {
-//     const response = await api.get(`/admin/offers/${id}`);
-//     return response;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
+
+//                       User 
+export const offerForBanner = async () => {
+  try {
+    const response = await apiNonSecure.get("/user/offers");
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}

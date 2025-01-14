@@ -238,8 +238,8 @@ const Navbar = () => {
         <div className="md:hidden bg-gray-600 px-4 py-2 space-y-2">
           <Link to='/' onClick={toggleMenu} className="block text-white hover:text-gray-400">Home</Link>
           <Link to='/shop' onClick={toggleMenu} className="block text-white hover:text-gray-400">Shop</Link>
-          <a href="#" className="block text-white hover:text-gray-400">About</a>
-          <a href="#" className="block text-white hover:text-gray-400">Contact</a>
+          <Link to='/about' onClick={toggleMenu} className="block text-white hover:text-gray-400">About</Link>
+          <Link to='/contact' onClick={toggleMenu} className="block text-white hover:text-gray-400">Contact</Link>
         </div>
       )}
     </header>

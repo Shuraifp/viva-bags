@@ -30,6 +30,8 @@ import AdminOrderDetails from './pages/admin/OrderDetails'
 import Coupons from './pages/admin/Coupons'
 import Offers from './pages/admin/Offers'
 import SalesReport from './pages/admin/SalesReport'
+import About from './pages/user/About'
+import Contatct from './pages/user/Contact'
 
 const App = () => {
   return (
@@ -56,6 +58,8 @@ const App = () => {
         <Route path='/wishlist' element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contatct />} />
       
       <Route path='/admin/signin' element={<AdminSignIn />} />
       <Route path="/admin" element={<AdminDashboard />}>

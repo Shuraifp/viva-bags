@@ -351,3 +351,58 @@ export const getOffers = async (req, res) => {
     }
   };
   
+
+
+  //                                User
+
+
+  export const offerForBanner = async (req, res) => {
+    try {
+      const offers = await Offer.find({ isActive: true })
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .populate("products", "images")
+        .populate("categories", "name");
+  
+      if (!offers || offers.length === 0) {
+        return res.status(404).json({ message: "No active offers found" });
+      }
+  
+      const offerDetails = await Promise.all(
+        offers.map(async (offer) => {
+          let image = null;
+          let offerValue = offer.offerValue;
+  
+          // Check if the offer has associated products
+          if (offer.products && offer.products.length > 0) {
+            const firstProduct = offer.products[0];
+            image = firstProduct.images.length > 0 ? firstProduct.images[0].url : null;
+          } else if (offer.categories && offer.categories.length > 0) {
+            // If no products, fetch the first product of the first category
+            const firstCategoryId = offer.categories[0]._id;
+  
+            const productInCategory = await Product.findOne({ category: firstCategoryId, islisted: true })
+              .select("images")
+              .sort({ createdAt: 1 });
+  
+            if (productInCategory && productInCategory.images.length > 0) {
+              image = productInCategory.images[0].url;
+            }
+          }
+  
+          return {
+            offerName: offer.offerName,
+            offerDescription: offer.offerDescription,
+            offerType: offer.offerType,
+            offerValue,
+            image,
+          };
+        })
+      );
+  
+      return res.status(200).json(offerDetails);
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+      res.status(500).json({ message: "Failed to fetch offers", error });
+    }
+  };

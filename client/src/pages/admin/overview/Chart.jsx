@@ -95,7 +95,27 @@ const Dashboard = () => {
                       <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Yearly' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Yearly")}>
                         Yearly
                       </button>
-                      <div className="relative inline-block">
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="w-1/4">
+          <RightSidebar />
+        </div>
+    </div>
+    </div>
+    </>
+  );
+};
+
+export default Dashboard;
+
+
+
+
+{/* <div className="relative inline-block">
                       <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Custom' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Custom")}>
                         Custom Date Range
                       </button>
@@ -115,20 +135,4 @@ const Dashboard = () => {
                           />
                           </div>
                         )}
-                  </div>
-                </div>
-                
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="w-1/4">
-          <RightSidebar />
-        </div>
-    </div>
-    </div>
-    </>
-  );
-};
-
-export default Dashboard;
+                  </div> */}
