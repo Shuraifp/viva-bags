@@ -26,6 +26,9 @@ const WalletPage = () => {
     if (!amount) {
       toast.error('Please enter an amount');
       return;
+    } else if (amount >= 50000) {
+      toast.error('Maximum amount is 50,000');
+      return;
     }
     
     try {
@@ -51,6 +54,7 @@ const WalletPage = () => {
         modal: {
           ondismiss: async () => {
             toast.error("Payment Failed.");
+            setAmount(0);
             navigate('/profile/wallet');
           },
         },

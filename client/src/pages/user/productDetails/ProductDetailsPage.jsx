@@ -89,7 +89,7 @@ const ProductPage = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const response = await addToWishlist(currentProduct._id);
+      const response = await addToWishlist(currentProduct._id, selectedSize);
       if (response.status==200) {
         toast.success('Product added to wishlist');
         dispatch(setWishlistCount(response.data.products.length));

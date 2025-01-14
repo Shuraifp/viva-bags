@@ -153,6 +153,19 @@ const UserProfile = () => {
               { user?.mobile && <p>Phone: {user?.mobile}</p>}
             </div>
 
+            <div className="mt-5 bg-orange-100 p-4">
+              <p className="text-md">
+                <span className="font-semibold text-blue-500">Earn up to ₹100</span> in rewards by sharing your referral code!
+              </p>
+              <div className="mt-2">
+                <h3 className="text-xl font-semibold">Your Unique Referral Code</h3>
+                <p className="text-yellow-500 font-bold text-lg tracking-wide">
+                  {user?.referralCode || "No referral code available"}
+                </p>
+              </div>
+            </div>
+
+
             {/* Security Section */}
             <div className="mt-4">
               <h3 className="text-xl font-semibold">Security</h3>

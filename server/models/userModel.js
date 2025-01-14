@@ -39,6 +39,16 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  referralCode: {
+    type: String,
+    default: null,
+  },
+  referredBy: {
+    type: String,
+    default: null,
+  },
+}, {
+  timestamps: true
 });
 
 const User = mongoose.model('User', userSchema);

@@ -11,10 +11,11 @@ export const getWishlist = async () => {
   }
 };
 
-export const addToWishlist = async (productId) => {
+export const addToWishlist = async (productId,size) => {
   try {
     const response = await api.post('/user/wishlist/add', {
       productId,
+      size
     });
     return response;
   } catch (error) {

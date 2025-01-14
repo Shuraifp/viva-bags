@@ -14,6 +14,7 @@ const Wishlist = ({}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [wishlistItems, setWishlistItems] = useState([ ])
+  const [selectedSize, setSelectedSize] = useState('')
 
   useEffect(() => {
     const fetchWishlistItems = async () => {

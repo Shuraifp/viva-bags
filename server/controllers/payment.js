@@ -26,38 +26,3 @@ export const makePayment = async (req, res) => {
       res.status(500).json({ message: error.message });
   }
 }
-
-
-// export const createWalletOrder = async (req, res) => {
-//   const { amount, userId } = req.body;
-//   try {
-//     const options = {
-//       amount: amount * 100, 
-//       currency: 'INR',
-//       receipt: `wallet_topup_${userId}_${Date.now()}`,
-//     };
-
-//     const order = await razorpay.orders.create(options);
-//     res.json({ success: true, order });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, error: 'Failed to create wallet top-up order' });
-//   }
-// };
-
-// export const verifyWalletPayment = async (req, res) => {
-//   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-//   const crypto = require('crypto');
-//   const hash = crypto
-//     .createHmac('sha256', 'YOUR_RAZORPAY_SECRET')
-//     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-//     .digest('hex');
-
-//   if (hash === razorpay_signature) {
-//     // Payment verified, add money to user's wallet in your database
-//     res.json({ success: true, message: 'Payment verified successfully' });
-//   } else {
-//     res.status(400).json({ success: false, message: 'Invalid signature' });
-//   }
-// };

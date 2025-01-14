@@ -21,6 +21,7 @@ const Signup = () => {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [timer, setTimer] = useState(59);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [referralCode, setReferralCode] = useState('');
 
   const handleBackClick = () => {
     navigate(-1);
@@ -60,11 +61,12 @@ const Signup = () => {
       return;
     }
 
-    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}\[\]|;:'",.<>?/\\`~\-]{6,}$/;
     if (!passwordPattern.test(password)) {
-      toast.error('Password must be at least 6 characters long and contain a number');
+      toast.error('Password must be 6 characters long and contain at least one letter and one number');
       return;
     }
+    
 
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
@@ -102,6 +104,7 @@ const Signup = () => {
       email,
       password,
       otp,
+      referralCode
     };
 
     registerUser(userData)
@@ -171,7 +174,7 @@ const Signup = () => {
 
           <form onSubmit={handleSubmit}>
             {/* Full Name Field */}
-            <div className="mb-4">
+            <div className="mb-3">
               <label
                 htmlFor="name"
                 className="block text-gray-700 text-sm font-medium mb-1"
@@ -189,7 +192,7 @@ const Signup = () => {
             </div>
 
             {/* Email Field */}
-            <div className="mb-4">
+            <div className="mb-3">
               <label
                 htmlFor="email"
                 className="block text-gray-700 text-sm font-medium mb-1"
@@ -207,7 +210,7 @@ const Signup = () => {
             </div>
 
             {/* Password Field */}
-            <div className="mb-4">
+            <div className="mb-3">
               <label
                 htmlFor="password"
                 className="block text-gray-700 text-sm font-medium mb-1"
@@ -226,7 +229,7 @@ const Signup = () => {
 
             {/* Confirm Password Field */}
             {!isOtpSent && (
-              <div className="mb-4">
+              <div className="mb-3">
                 <label
                   htmlFor="password"
                   className="block text-gray-700 text-sm font-medium mb-1"
@@ -246,7 +249,7 @@ const Signup = () => {
 
             {/* OTP Field */}
             {isOtpSent && isResendDisabled && (
-              <div className="mb-4">
+              <div className="mb-3">
                 <label
                   htmlFor="otp"
                   className="block text-gray-700 text-sm font-medium mb-1"
@@ -286,7 +289,8 @@ const Signup = () => {
               </div>
             )}
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center w-full">
               {!isOtpSent ? (
                 <button
                   type="button"
@@ -303,6 +307,17 @@ const Signup = () => {
                   Sign Up
                 </button>
               )}
+              </div>
+
+              <div className="flex items-center">
+                <input 
+                  type="text"
+                  name='referralCode'
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  placeholder="Referral Code"
+                  className="block w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500 transition duration-200 ease-in-out"  
+                />
+              </div>
             </div>
           </form>
 

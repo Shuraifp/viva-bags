@@ -4,6 +4,7 @@ import Admin from "../models/adminModel.js";
 import User from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import Wishlist from "../models/wishlistModel.js";
+import Wallet from "../models/walletModel.js";
 import Cart from "../models/cartModel.js";
 import crypto from "crypto";
 
@@ -34,25 +35,67 @@ export const adminLogin = async (req, res) => {
 
 //                      User
 
+const addMoneyToWallet = async (user, amount, description) => {
+  try {
+    const wallet = await Wallet.findOne({ user: user._id });
+
+    if (!wallet) {
+      await Wallet.create({ user: user._id, balance: amount });
+    } else {
+      const newBalance = wallet.balance + amount;
+      wallet.balance = newBalance;
+
+      wallet.transactions.push({
+        type: 'Credit',
+        amount: amount,
+        description: description,
+        balanceAfter: newBalance,
+        orderId: null 
+      });
+
+      await wallet.save();
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 export const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, referralCode } = req.body;
   try {
     const emailExists = await User.findOne({ email });
     const usernameExists = await User.findOne({ username });
     if (emailExists || usernameExists) {
       return res.status(400).json({ message: "User already exists" });
     }
+    const newReferralCode = `#$${username}-${Date.now()}`;
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
+      referralCode: newReferralCode,
+      referredBy: referralCode
   });
     await newUser.save();
     const user = await User.findOne({ email });
     const accessToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '1d'})
     const refreshToken = jwt.sign({Id : user.id, role: 'user'}, process.env.SECRET_KEY,{expiresIn : '7d'})
+
+    let referrer = null;
+    if (referralCode) {
+      referrer = await User.findOne({ referralCode: referralCode });
+
+      if (!referrer || referrer.isBlocked) {
+        return res.status(400).json({ message: "Invalid or blocked referral code" });
+      }
+
+      await addMoneyToWallet(user, 50, 'Referral Bonus');
+      await addMoneyToWallet(referrer, 100, 'Referral Reward');
+    }
+
     const wishlist = await Wishlist.findOne({ userId: user._id });
     const cart = await Cart.findOne({ user: user._id });
     return res.status(201).json({ message: "User registered successfully" , accessToken, refreshToken,
@@ -61,6 +104,7 @@ export const register = async (req, res) => {
       username: user.username,
       email: user.email,
       profileImage: user.profileImage.path,
+      referralCode: user.referralCode,
       wishlistCount: wishlist ? wishlist.products.length : 0,
       cartCount: cart ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0
     }});
@@ -94,6 +138,7 @@ export const login = async (req, res) => {
         username: user.username,
         email: user.email,
         profileImage: user.profileImage.path,
+        referralCode: user.referralCode,
         wishlistCount: wishlist ? wishlist.products.length : 0,
         cartCount: cart ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0
       }
