@@ -14,7 +14,6 @@ const Wishlist = ({}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [wishlistItems, setWishlistItems] = useState([ ])
-  const [selectedSize, setSelectedSize] = useState('')
 
   useEffect(() => {
     const fetchWishlistItems = async () => {
@@ -99,7 +98,7 @@ const Wishlist = ({}) => {
               <div className="mt-4 flex justify-between items-center">
                 <button 
                   className="text-indigo-500 hover:text-white hover:bg-indigo-500 border border-indigo-500 hover:border-transparent font-semibold py-2 px-4 rounded"
-                  onClick={() => handleAddToCart(item._id, item.variants[0].size)}
+                  onClick={() => handleAddToCart(item._id, item.size)}
                 >
                   Add to Cart
                 </button>
