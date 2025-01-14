@@ -31,9 +31,9 @@ const Wishlist = ({}) => {
     fetchWishlistItems()
   }, [])
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (productId, selectedSize) => {
     try {
-      const response1 = await updateCart(productId, 1)
+      const response1 = await updateCart(productId, 1, selectedSize)
       if (response1.status === 200) {
         dispatch(setCartCount(response1.data.quantity))
         const response = await removeFromWishlist(productId)
@@ -98,7 +98,7 @@ const Wishlist = ({}) => {
               <div className="mt-4 flex justify-between items-center">
                 <button 
                   className="text-indigo-500 hover:text-white hover:bg-indigo-500 border border-indigo-500 hover:border-transparent font-semibold py-2 px-4 rounded"
-                  onClick={() => handleAddToCart(item._id)}
+                  onClick={() => handleAddToCart(item._id, item.variants[0].size)}
                 >
                   Add to Cart
                 </button>

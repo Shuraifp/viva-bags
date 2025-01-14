@@ -16,38 +16,38 @@ export const createRazorpayOrder = async (amount) => {
 };
 
 
-export const verifyPayment = async (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
-  try {
-    const response = await api.post(`${API_URL}/user/razorpay/verify`, {
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature,
-    });
-    return response.data; 
-  } catch (err) {
-    throw err;
-  }
-};
+// export const verifyPayment = async (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
+//   try {
+//     const response = await api.post(`${API_URL}/user/razorpay/verify`, {
+//       razorpayOrderId,
+//       razorpayPaymentId,
+//       razorpaySignature,
+//     });
+//     return response.data; 
+//   } catch (err) {
+//     throw err;
+//   }
+// };
 
 
-export const refundPayment = async (paymentId, amount) => {
-  try {
-    const response = await adminApi.post(`${API_URL}/admin/razorpay/refund`, {
-      paymentId, 
-      amount,   
-    });
-    return response;
-  } catch (err) {
-    throw err;
-  }
-};
+// export const refundPayment = async (paymentId, amount) => {
+//   try {
+//     const response = await adminApi.post(`${API_URL}/admin/razorpay/refund`, {
+//       paymentId, 
+//       amount,   
+//     });
+//     return response;
+//   } catch (err) {
+//     throw err;
+//   }
+// };
 
 
-export const getPaymentDetails = async (paymentId) => {
-  try {
-    const response = await adminApi.get(`${API_URL}/admin/razorpay/payment/${paymentId}`);
-    return response;
-  } catch (err) {
-    throw err;
-  }
-};
+// export const getPaymentDetails = async (paymentId) => {
+//   try {
+//     const response = await adminApi.get(`${API_URL}/admin/razorpay/payment/${paymentId}`);
+//     return response;
+//   } catch (err) {
+//     throw err;
+//   }
+// };

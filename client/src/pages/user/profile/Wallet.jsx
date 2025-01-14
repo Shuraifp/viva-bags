@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../../context/AuthProvider';
 import { fetchWallet, addMoneyToWallet } from '../../../api/wallet';
 import toast from 'react-hot-toast';
+import { createRazorpayOrder } from '../../../api/payment.js';
 
 const WalletPage = () => {
+  const { user } = useContext(AuthContext);
   const [wallet, setWallet] = useState({});
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -19,12 +22,64 @@ const WalletPage = () => {
       console.error(error);
     }
   };
-
-  const handleAddMoney = async () => {
+  const handleRazorpayPayment = async (amount) => {
     if (!amount) {
       toast.error('Please enter an amount');
       return;
     }
+    
+    try {
+      const response = await createRazorpayOrder(amount);
+      console.log(response)
+      const { id, amount: _amount } = response.data;
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: _amount.toString(), 
+        currency: 'INR',
+        order_id: id,
+        handler: function (response) {
+          addMoney()
+        },
+        prefill: {
+          name: user.username,
+          email: user.email,
+          // contact: selectedAddress?.mobile,
+        },
+        theme: {
+          color: '#F7B800', 
+        },
+        modal: {
+          ondismiss: async () => {
+            toast.error("Payment Failed.");
+            navigate('/profile/wallet');
+          },
+        },
+      };
+
+      if (typeof window.Razorpay !== 'undefined') {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        console.error('Razorpay SDK is not loaded.');
+        toast.error('Payment system is currently unavailable. Please try again later.');
+      }
+      
+    } catch (err) {
+      if(err.response){
+        if(err.response){
+          toast.error(err.response.data.message);
+        } else if(err.message) {
+          console.log(err.message);
+          toast.error('Please try again.');
+        } else {
+          console.log(err);
+          toast.error('Please try again.');
+        }
+      }
+    }
+  };
+
+  const addMoney = async () => {
 
     try {
       setLoading(true);
@@ -39,7 +94,7 @@ const WalletPage = () => {
       setLoading(false);
     }
   };
-console.log(wallet)
+console.log(user)
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-semibold mb-4">My Wallet</h2>
@@ -61,7 +116,7 @@ console.log(wallet)
           />
           <button
             className={`p-2 bg-yellow-500 text-white rounded-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            onClick={handleAddMoney}
+            onClick={() => handleRazorpayPayment(amount)}
             disabled={loading}
           >
             {loading ? 'Adding...' : 'Add Money'}
