@@ -1,23 +1,46 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import RightSidebar from "./RightSidebar";
 import { fetchChartData } from "../../../api/overview";
-import {Chart as ChartJS, CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend, PointElement} from "chart.js";
-ChartJS.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend, PointElement);
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement,
+} from "chart.js";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement
+);
 
 const Dashboard = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [labels, setLabels] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [topCategories, setTopCategories] = useState([]);
   const [timeframe, setTimeframe] = useState("Yearly");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
 
-  const fetchDataForTimeframe = async (selectedTimeframe, startDate, endDate) => {
+  const fetchDataForTimeframe = async (
+    selectedTimeframe,
+    startDate,
+    endDate
+  ) => {
     try {
-      const response = await fetchChartData(selectedTimeframe, startDate, endDate);
-      if(response.status === 200){
+      const response = await fetchChartData(
+        selectedTimeframe,
+        startDate,
+        endDate
+      );
+      if (response.status === 200) {
         console.log(response.data);
         setLabels(response.data.labels);
         setRevenueData(response.data.totalPrices);
@@ -34,14 +57,13 @@ const Dashboard = () => {
 
   const handleCustomDateChange = (event) => {
     const { name, value } = event.target;
-    if (name === 'startDate') {
+    if (name === "startDate") {
       setCustomStartDate(value);
     } else {
       setCustomEndDate(value);
     }
   };
 
-  console.log(revenueData);
   useEffect(() => {
     fetchDataForTimeframe(timeframe, customStartDate, customEndDate);
   }, [timeframe, customStartDate, customEndDate]);
@@ -74,48 +96,60 @@ const Dashboard = () => {
 
   return (
     <>
-    <div className="flex relative pl-3">
-      <div className="w-full flex mt-8">
-        <div className="w-3/4 pl-3 bg-gray-50 shadow-lg rounded-lg px-10">
-          <div className="mt-4 mb-4">
-            <div style={{ width: "100%", height: "50%" }}>
-              <Line data={lineChartData} options={chartOptions} />
-          
+      <div className="flex relative pl-3">
+        <div className="w-full flex mt-8">
+          <div className="w-3/4 pl-3 bg-gray-50 shadow-lg rounded-lg px-10">
+            <div className="mt-4 mb-4">
+              <div style={{ width: "100%", height: "50%" }}>
+                <Line data={lineChartData} options={chartOptions} />
+
                 <div className="mt-8">
                   <div className="flex justify-center gap-8">
-                    
-                      <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Weekly' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Weekly")}>
-                        Weekly
-                      </button>
-                  
-                      <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Monthly' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Monthly")}>
-                        Monthly
-                      </button>
-                    
-                      <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Yearly' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Yearly")}>
-                        Yearly
-                      </button>
+                    <button
+                      className={`py-2 px-4 hover:bg-gray-300 ${
+                        timeframe === "Weekly" ? "bg-gray-300" : "bg-gray-100"
+                      }`}
+                      onClick={() => updateTimeframe("Weekly")}
+                    >
+                      Weekly
+                    </button>
+
+                    <button
+                      className={`py-2 px-4 hover:bg-gray-300 ${
+                        timeframe === "Monthly" ? "bg-gray-300" : "bg-gray-100"
+                      }`}
+                      onClick={() => updateTimeframe("Monthly")}
+                    >
+                      Monthly
+                    </button>
+
+                    <button
+                      className={`py-2 px-4 hover:bg-gray-300 ${
+                        timeframe === "Yearly" ? "bg-gray-300" : "bg-gray-100"
+                      }`}
+                      onClick={() => updateTimeframe("Yearly")}
+                    >
+                      Yearly
+                    </button>
+                  </div>
                 </div>
-                
               </div>
             </div>
           </div>
+          F
+          <div className="w-1/4">
+            <RightSidebar />
+          </div>
         </div>
-        <div className="w-1/4">
-          <RightSidebar />
-        </div>
-    </div>
-    </div>
+      </div>
     </>
   );
 };
 
-export default Dashboard;
+export default Dashboard;
 
-
-
-
-{/* <div className="relative inline-block">
+{
+  /* <div className="relative inline-block">
                       <button className={`py-2 px-4 hover:bg-gray-300 ${timeframe === 'Custom' ? 'bg-gray-300' : 'bg-gray-100'}`} onClick={() => updateTimeframe("Custom")}>
                         Custom Date Range
                       </button>
@@ -135,4 +169,5 @@ export default Dashboard;
                           />
                           </div>
                         )}
-                  </div> */}
+                  </div> */
+}

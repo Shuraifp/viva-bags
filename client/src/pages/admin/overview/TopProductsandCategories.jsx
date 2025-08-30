@@ -1,4 +1,4 @@
-import React,{ useState, useEffect} from 'react';
+import { useState, useEffect} from 'react';
 import { fetchTopSellingProductsandCategories } from '../../../api/overview';
 import toast from 'react-hot-toast'
 

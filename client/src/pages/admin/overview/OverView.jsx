@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaUsers, FaShoppingCart ,FaRupeeSign} from "react-icons/fa";
 import { countUsers } from "../../../api/overview";
 import { countOrders } from "../../../api/overview";
