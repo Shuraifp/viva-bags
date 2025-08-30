@@ -1,32 +1,21 @@
-import React, { useState } from "react";
+import PropTypes from "prop-types";
 
-const Pagination = ({ totalPages, onPageChange }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-
+const Pagination = ({ totalPages, onPageChange, currentPage }) => {
   const handlePageClick = (page) => {
-    setCurrentPage(page);
-    if (onPageChange) {
-      onPageChange(page);
-    }
+    onPageChange(page);
   };
 
   const handleNext = () => {
     if (currentPage < totalPages) {
       const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      if (onPageChange) {
-        onPageChange(nextPage);
-      }
+      onPageChange(nextPage);
     }
   };
 
   const handlePrevious = () => {
     if (currentPage > 1) {
       const prevPage = currentPage - 1;
-      setCurrentPage(prevPage);
-      if (onPageChange) {
-        onPageChange(prevPage);
-      }
+      onPageChange(prevPage);
     }
   };
 
@@ -75,5 +64,11 @@ const Pagination = ({ totalPages, onPageChange }) => {
     </div>
   );
 };
+
+Pagination.propTypes = {
+  totalPages : PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  currentPage: PropTypes.number.isRequired,
+}
 
 export default Pagination;
