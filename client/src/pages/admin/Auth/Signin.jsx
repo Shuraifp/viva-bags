@@ -31,11 +31,11 @@ const Login = () => {
       return;
     }
 
-    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-    if (!passwordPattern.test(password)) {
-      setError('Password must be at least 6 characters long and contain a number');
-      return;
-    }
+    // const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    // if (!passwordPattern.test(password)) {
+    //   setError('Password must be at least 6 characters long and contain a number');
+    //   return;
+    // }
 
     setError('');
     setIsLoading(true);

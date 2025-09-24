@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from 'path';
+import morgan from "morgan";
 import { fileURLToPath } from 'url';
 import adminRoute from "./routes/admin.js"
 import userRoute from "./routes/user.js"
@@ -17,11 +18,12 @@ mongoose.connect(process.env.DB_URI).then(() => {
 });
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
+  origin: [process.env.FRONTEND_URL],
   credentials: true,           
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH', 'OPTIONS'],
 }));
 app.use(express.json());
+app.use(morgan('dev'));
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
