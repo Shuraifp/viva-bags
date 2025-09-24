@@ -1,5 +1,4 @@
 import { userApiWithAuth as api } from './axios';
-import { adminApiWithAuth as adminApi } from './axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
