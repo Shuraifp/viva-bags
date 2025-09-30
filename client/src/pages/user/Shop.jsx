@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import {  getSortedProducts } from "../../api/products";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import FilterOptions from "../../components/FilterOptions";
 import ProductCard from "../../components/ProductsCard";
 import Navbar from "../../components/Navbar";
@@ -35,7 +35,6 @@ const Shop = () => {
         searchCategory,
         filters
       );
-      console.log("Fetched products:", response.data);
       setProducts(response.data.productsData || []);
       setTotalPages(response.data.totalPages || 1);
     } catch (error) {
