@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import { getAllOrdersForUser, cancelOrder,cancelItem, requestReturnItem , returnOrder} from "../../../api/order";
 import { useNavigate } from "react-router-dom";
@@ -379,7 +379,7 @@ const MyOrders = () => {
       </div>
 
       {totalPages > 1 && filteredOrders.length > 0 && (
-        <Pagination totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination totalPages={totalPages} onPageChange={handlePageChange} currentPage={currentPage} />
       )}
     </div>
   );

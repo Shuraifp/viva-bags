@@ -1,4 +1,3 @@
-import { th } from 'date-fns/locale';
 import { userApiWithAuth as api } from './axios';
 import { adminApiWithAuth as adminApi } from './axios';
 
