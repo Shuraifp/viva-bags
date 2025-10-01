@@ -1,4 +1,4 @@
-# 👜 VIVA BAGS – Premium eCommerce Platform
+# 👜 VIVA BAGS – E-Commerce Platform for Premium Bags
 
 **VIVA BAGS** is a scalable **e-commerce application** designed for premium bags. Built with **React.js**, **Node.js**, **Express.js**, and **MongoDB**, it offers a full-fledged shopping experience including user authentication, product management, offers & coupons modules, cart & checkout, payment processing, and an insightful admin dashboard.
 
