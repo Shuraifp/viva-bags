@@ -91,7 +91,7 @@ userApiWithAuth.interceptors.response.use(
       console.log('refreshing token');
       try {
         const refreshResponse = await axios.post(
-          `${API_URL}/admin/auth/refresh-token`,
+          `${API_URL}/user/auth/refresh-token`,
           {},{
           headers: {
             Authorization: `Bearer ${localStorage.getItem('userRefreshToken')}`,

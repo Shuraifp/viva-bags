@@ -5,7 +5,7 @@ import { getAllCategories, categoriesOverview } from "../controllers/categories.
 import { getAllBrands } from "../controllers/brands.js";
 import { getProductByIdForUser,getFilteredProducts, getSortedProducts, getFeaturedProducts, getFilterCounts } from "../controllers/products.js";
 import { addToCart, fetchCart, updateCart, deleteCartItem, getCartCount, clearCart } from "../controllers/cart.js";
-import { authenticateJWT, isUser } from "../middlewares/verifyToken.js";
+import { authenticateJWT, isUser, refreshToken } from "../middlewares/verifyToken.js";
 import { addAddress, getAllAddresses, editAddress, deleteAddress, toggleDefault } from "../controllers/address.js";
 import { createOrder, getAllOrdersForUser, getOrderById, cancelOrder, cancelOrderItem, requestItemReturn, requestOrderReturn, updatePaymentStatus, generateInvoice } from "../controllers/order.js"
 import { editProfile, fetchProfile, changePassword } from "../controllers/users.js";
@@ -21,7 +21,7 @@ import { offerForBanner } from "../controllers/offers.js";
 router.post("/auth/register",verifyOtp, register);
 router.post("/auth/login", login);
 router.post('/auth/send-otp', sendOtp);
-router.post('/auth/refresh-token');
+router.post('/auth/refresh-token', refreshToken);
 router.post('/auth/validate-token',authenticateJWT);
 router.post('/auth/login/firebase', loginUserWithGoogle);// ..........firebase
 router.post('/auth/send-resetEmail', sendResetPasswordEmail);
