@@ -1,9 +1,9 @@
-import React, { useState, useEffect,useContext } from "react";
+import { useState, useEffect,useContext } from "react";
 import { setCartCount } from "../../../redux/cartwishlistSlice";
 import { useDispatch } from "react-redux";
 import { AuthContext } from "../../../context/AuthProvider";
 import Footer from "../../../components/Footer";
-import { FaMinus, FaPlus, FaBars,FaHeart,FaTimes } from "react-icons/fa";
+import { FaMinus, FaPlus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchCart, updateCart, removeFromCart } from "../../../api/cart";
 import toast from "react-hot-toast";

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 import { generateSalesReport, downloadSalesReport } from "../../api/sales";
 
 const SalesReport = () => {

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
-import { useParams ,Link} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getSingleOrder, downloadInvoice } from "../../../api/order";
 
 const OrderDetails = () => {

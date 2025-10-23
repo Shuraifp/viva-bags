@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import ColorForm from "./ColorForm.jsx";
 
 const VariantAttributes = ({ product, handleInputChange, errors }) => {

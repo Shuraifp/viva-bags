@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthProvider';
 import { setWishlistCount, setCartCount } from '../../redux/cartwishlistSlice';
 import { useDispatch } from 'react-redux';

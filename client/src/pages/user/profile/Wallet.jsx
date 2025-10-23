@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../../context/AuthProvider';
 import { fetchWallet, addMoneyToWallet } from '../../../api/wallet';
 import toast from 'react-hot-toast';

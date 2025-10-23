@@ -1,4 +1,3 @@
-import React from "react";
 
 const GeneralAttributes = ({ product, errors, categories, handleInputChange, brands, isEditing }) => (
   <div className="flex flex-col gap-4">

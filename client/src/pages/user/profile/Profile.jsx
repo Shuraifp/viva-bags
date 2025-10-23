@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../../context/AuthProvider';
 import { fetchUserProfileData, editProfile, changePassword } from '../../../api/users.js';
 import toast from 'react-hot-toast';
-import ForgotPassword from '../Auth/ForgotPassword.jsx';
 
 const UserProfile = () => {
   const { logout } = useContext(AuthContext);

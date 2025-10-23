@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getSingleOrder, updateProductStatus, updateReturnStatus } from "../../api/order";
 import toast from "react-hot-toast";

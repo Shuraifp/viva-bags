@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from "react";
+import { useState, useEffect,useRef } from "react";
 import { FaCheck, FaPlus,FaMinus } from "react-icons/fa";
 import { getAddresses } from "../../../api/address";
 import AddAddress from "../profile/AddAddress";

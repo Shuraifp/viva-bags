@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link,useParams } from "react-router-dom";
 import GeneralAttributes from "./GeneralAttributes";
 import VariantAttributes from "./VariantAttributes";

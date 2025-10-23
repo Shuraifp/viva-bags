@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { addReview, getReviews } from "../api/review";
 import toast from "react-hot-toast";
 
