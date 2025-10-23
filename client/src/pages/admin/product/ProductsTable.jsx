@@ -9,7 +9,7 @@ const ProductManagement = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [showAll, setShowAll] = useState(true);
+  const [showAll] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(""); 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +40,6 @@ const ProductManagement = () => {
     };
     getProducts();
   }, []);
-
 
   const handleDeleteProduct = async (prod) => {
     try {
@@ -157,7 +156,7 @@ const ProductManagement = () => {
               <td className="py-2 px-4">{prod.category.name}</td>
               <td className="py-2 px-4">
                 {prod.variants.map((variant) => (
-                  <p className={` my-1 ${variant.stock > 15 ? "text-green-500" : "text-red-500"} bg-gray-100 px-2 rounded flex justify-between`}><span>{variant.size}:</span><span className="font-semibold">{variant.stock}</span></p>
+                  <p key={variant._id} className={` my-1 ${variant.stock > 15 ? "text-green-500" : "text-red-500"} bg-gray-100 px-2 rounded flex justify-between`}><span>{variant.size}:</span><span className="font-semibold">{variant.stock}</span></p>
                 ))}
               </td>
               <td className="py-2 px-4">

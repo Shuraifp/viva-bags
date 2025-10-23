@@ -1,51 +1,30 @@
-import { userApiWithAuth as api } from './axios';
+import { userApiWithAuth as api } from "./axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const addToCart = async (productId, quantity, selectedSize) => {
-  try{
-      const response = await api.post(`${API_URL}/user/cart/add`, {
-      productId,
-      quantity,
-      selectedSize
-    });
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.post(`${API_URL}/user/cart/add`, {
+    productId,
+    quantity,
+    selectedSize,
+  });
 };
 
 export const fetchCart = async () => {
-  try {
-    const response = await api.get(`${API_URL}/user/cart`);
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.get(`${API_URL}/user/cart`);
 };
 
 export const updateCart = async (productId, quantity, selectedSize) => {
-  try {
-    const response = await api.put(`${API_URL}/user/cart/update`, {
-      productId,
-      quantity,
-      selectedSize
-    });
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.put(`${API_URL}/user/cart/update`, {
+    productId,
+    quantity,
+    selectedSize,
+  });
 };
 
 export const removeFromCart = async (productId) => {
-  try {
-    const response = await api.delete(`${API_URL}/user/cart/remove/${productId}`);
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.delete(`${API_URL}/user/cart/remove/${productId}`);
 };
-
 
 export const getCountOfCartItems = async () => {
   try {
@@ -55,7 +34,6 @@ export const getCountOfCartItems = async () => {
     return error.response.data;
   }
 };
-
 
 export const clearCart = async () => {
   try {

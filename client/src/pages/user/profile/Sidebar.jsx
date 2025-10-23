@@ -3,7 +3,7 @@ import { AuthContext } from "../../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const Sidebar = ({user, activeItem, setActiveItem}) => {
+const Sidebar = ({activeItem, setActiveItem}) => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const menuItems = [

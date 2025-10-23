@@ -61,7 +61,7 @@ const Signup = () => {
       return;
     }
 
-    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}\[\]|;:'",.<>?/\\`~\-]{6,}$/;
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}[\]|;:'",.<>?/\\`~-]{6,}$/;
     if (!passwordPattern.test(password)) {
       toast.error('Password must be 6 characters long and contain at least one letter and one number');
       return;

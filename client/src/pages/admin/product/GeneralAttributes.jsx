@@ -1,5 +1,5 @@
 
-const GeneralAttributes = ({ product, errors, categories, handleInputChange, brands, isEditing }) => (
+const GeneralAttributes = ({ product, errors, categories, handleInputChange, brands }) => (
   <div className="flex flex-col gap-4">
     <div>
       <label className="block font-semibold">Product Name:</label>

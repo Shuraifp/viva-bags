@@ -1,29 +1,13 @@
 import { userApiWithAuth as api } from "./axios";
 
-
 export const fetchWallet = async () => {
-  try {
-    const response = await api.get("/user/wallet");
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.get("/user/wallet");
 };
 
 export const checkBalance = async (amount) => {
-  try {
-    const response = await api.post("/user/wallet/check", { amount });
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.post("/user/wallet/check", { amount });
 };
 
 export const addMoneyToWallet = async (data) => {
-  try {
-    const response = await api.post("/user/wallet/add", data);
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return await api.post("/user/wallet/add", data);
 };

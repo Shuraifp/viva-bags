@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import { useParams } from "react-router-dom";
 import { getSingleOrder, downloadInvoice } from "../../../api/order";
+import toast from "react-hot-toast";
 
 const OrderDetails = () => {
   const { orderId :id } = useParams();
@@ -20,7 +21,7 @@ const OrderDetails = () => {
       try {
         const response = await getSingleOrder(id);
         setOrder(response.data);
-      } catch (error) {
+      } catch (err) {
         if(err.response){
           if(err.response.status === 401 && err.response.data.message === "User is blocked"){
             logout();

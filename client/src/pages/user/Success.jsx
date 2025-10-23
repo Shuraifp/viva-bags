@@ -34,7 +34,7 @@ const SuccessPage = () => {
           Thank you for your purchase
         </h1>
         <p className="text-gray-600 mb-6">
-          We've received your order and it will ship in 5–7 business days.
+          {`We've received your order and it will ship in 5–7 business days.`}
         </p>
       <div className="flex justify-center gap-2">
         <Link to={'/profile/orders'}><button

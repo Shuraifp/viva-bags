@@ -8,7 +8,6 @@ import { useNavigate,Navigate } from 'react-router-dom';
 const Login = () => {
   const {admin , addAdminCredentials} = useContext(AuthContext);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -38,11 +37,9 @@ const Login = () => {
     // }
 
     setError('');
-    setIsLoading(true);
 
     loginAdmin(email, password)
       .then((response) => {
-        setIsLoading(false);
         if (response.status === 200) {
           addAdminCredentials(response.data.accessToken, response.data.refreshToken, response.data.admin);
           navigate('/admin/overview');
@@ -51,7 +48,6 @@ const Login = () => {
         }
       })
       .catch((error) => {
-        setIsLoading(false);
         setError(error.message || 'An error occurred while logging in');
       });
   };

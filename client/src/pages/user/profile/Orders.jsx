@@ -62,7 +62,7 @@ const MyOrders = () => {
         amount: amount.toString(), 
         currency: 'INR',
         order_id: id,
-        handler: function (response) {
+        handler: function () {
           updatePaymentStatus(orderId,'Completed');
           navigate('/success')
         },

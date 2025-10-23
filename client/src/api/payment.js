@@ -1,19 +1,12 @@
-import { userApiWithAuth as api } from './axios';
+import { userApiWithAuth as api } from "./axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export const createRazorpayOrder = async (amount) => {
-  try {
-    const response = await api.post(`${API_URL}/user/razorpay/order`, {
-      amount
-    });
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  return await api.post(`${API_URL}/user/razorpay/order`, {
+    amount,
+  });
 };
-
 
 // export const verifyPayment = async (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
 //   try {
@@ -22,25 +15,23 @@ export const createRazorpayOrder = async (amount) => {
 //       razorpayPaymentId,
 //       razorpaySignature,
 //     });
-//     return response.data; 
+//     return response.data;
 //   } catch (err) {
 //     throw err;
 //   }
 // };
 
-
 // export const refundPayment = async (paymentId, amount) => {
 //   try {
 //     const response = await adminApi.post(`${API_URL}/admin/razorpay/refund`, {
-//       paymentId, 
-//       amount,   
+//       paymentId,
+//       amount,
 //     });
 //     return response;
 //   } catch (err) {
 //     throw err;
 //   }
 // };
-
 
 // export const getPaymentDetails = async (paymentId) => {
 //   try {

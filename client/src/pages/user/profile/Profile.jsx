@@ -24,7 +24,7 @@ const UserProfile = () => {
         } else {
           console.log(response.data.message);
         }
-      } catch (error) {
+      } catch (err) {
         if(err.response){
           if(err.response.status === 401 && err.response.data.message === "User is blocked"){
             logout();
