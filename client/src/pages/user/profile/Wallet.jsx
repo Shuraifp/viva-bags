@@ -31,6 +31,9 @@ const WalletPage = () => {
     } else if (amount >= 50000) {
       toast.error("Maximum amount is 50,000");
       return;
+    } else if (amount <= 0) {
+      toast.error("add a valid amount");
+      return;
     }
 
     try {
@@ -74,6 +77,7 @@ const WalletPage = () => {
     } catch (err) {
       if (err.response) {
         if (err.response) {
+          console.log(err.response);
           toast.error(err.response.data.message);
         } else if (err.message) {
           console.log(err.message);
@@ -100,7 +104,7 @@ const WalletPage = () => {
       setLoading(false);
     }
   };
-  console.log(user);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-semibold mb-4">My Wallet</h2>
