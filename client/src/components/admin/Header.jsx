@@ -60,7 +60,7 @@ const Header = () => {
             <div className="block w-full text-left text-sm px-4 py-2 text-gray-400 border-b border-gray-200">Orders Requested for Return</div>
           <ul className="py-2">
           { pendingOrders.length > 0 ? pendingOrders.map((order) => (
-            <Link to={`/admin/orders/${order._id}`}><li>
+            <Link key={order._id} to={`/admin/orders/${order._id}`}><li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => {
                 setPendingOrders([])
                 setIsNotificationOpen(false)

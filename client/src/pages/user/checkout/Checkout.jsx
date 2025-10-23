@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { setCartCount } from "../../../redux/cartwishlistSlice.js";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,10 +11,12 @@ import toast from "react-hot-toast";
 import { createRazorpayOrder } from "../../../api/payment.js";
 import { checkBalance } from "../../../api/wallet.js";
 import { updatePaymentStatus } from "../../../api/order.js";
+import { AuthContext } from "../../../context/AuthProvider.jsx";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { logout } = useContext(AuthContext);
   const [paymentMethod, setPaymentMethod] = useState("Razorpay");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
@@ -87,7 +89,7 @@ const CheckoutPage = () => {
         amount: amount.toString(),
         currency: "INR",
         order_id: id,
-        handler: function (response) {
+        handler: function () {
           updatePaymentStatus(orderId, "Completed");
           clearCart();
           setCartItems([]);
@@ -446,7 +448,10 @@ const CheckoutPage = () => {
                 Products
               </p>
               {cartItems?.map((item) => (
-                <div className="flex justify-between mb-2 text-slate-400 text-lg">
+                <div
+                  key={item._id}
+                  className="flex justify-between mb-2 text-slate-400 text-lg"
+                >
                   <span>{item.product.name}</span>
                   <span>{item.product.discountedPrice}</span>
                 </div>

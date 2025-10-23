@@ -16,7 +16,7 @@ const CartPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [cartItems, setCartItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [ couponCode, setCouponCode ] = useState(JSON.parse(localStorage.getItem("coupon"))?.code || "");
   const [ appliedCoupon, setAppliedCoupon ] = useState(JSON.parse(localStorage.getItem("coupon")) || null);
@@ -31,7 +31,6 @@ const fetchCartItems = async () => {
     const response = await fetchCart();
     if(response.status === 200){
       setCartItems([...response.data]);
-      setIsLoading(false);
       dispatch(setCartCount(response.data.reduce((acc, item) => acc + item.quantity, 0)));
     } 
   } catch(err){

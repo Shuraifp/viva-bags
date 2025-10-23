@@ -28,7 +28,7 @@ const ApplyOffer = ({ applyingOffer, setApplyingOffer }) => {
   }, [applyingOffer]);
   
 
-  const applyOffer = async (categories, products) => {
+  const applyOffer = async () => {
     try {
       const payload = {
         offerId: applyingOffer._id, 

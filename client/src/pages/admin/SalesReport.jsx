@@ -33,6 +33,7 @@ const SalesReport = () => {
       link.click();
       toast.success(`${format.toUpperCase()} report downloaded!`);
     } catch (error) {
+      console.log(error)
       toast.error(`Error downloading ${format} report.`);
     }
   };

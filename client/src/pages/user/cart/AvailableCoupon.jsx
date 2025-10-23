@@ -70,7 +70,7 @@ const AvailableCoupons = ({ selectedCoupon, setSelectedCoupon,purchaseAmount }) 
                <div
                 className={`p-2 font-medium text-slate-600 transition-translate ${selectedCoupon !== coupon._id ? "hidden" : "block"} duration-300 ease-in-out`}
               >
-                { coupon.isDisabled ? <p className="text-sm text-red-500">you've already used this coupon allowed times</p> : <p>
+                { coupon.isDisabled ? <p className="text-sm text-red-500">{`you've already used this coupon allowed times`}</p> : <p>
                   {coupon.discountType === "percentage"
                     ? (
                       <>

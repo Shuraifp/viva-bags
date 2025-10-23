@@ -2,18 +2,15 @@ import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import Sidebar from "./Sidebar";
 import Footer from '../../../components/Footer'
-import { useNavigate, Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import { userApiWithAuth } from "../../../api/axios";
-import { getCountOfCartItems } from "../../../api/cart";
 import Navbar from "../../../components/Navbar";
 
-const UserProfile = ({ children }) => {
+const UserProfile = () => {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // const [user, setUser] = useState(null);
-  const [cartCount, setCartCount] =useState(0)
   const [activeItem, setActiveItem] = useState('Dashboard')
 
   useEffect(() => {
@@ -29,15 +26,15 @@ const UserProfile = ({ children }) => {
         setIsLoading(false);
       });
 
-      const getCartCount = async () => {
-        try {
-          const response = await getCountOfCartItems();
-          setCartCount(response.data)
-        } catch (error) {
-          console.error('Error fetching cart count:', error);
-        }
-      };
-      getCartCount()
+      // const getCartCount = async () => {
+      //   try {
+      //     const response = await getCountOfCartItems();
+      //     setCartCount(response.data)
+      //   } catch (error) {
+      //     console.error('Error fetching cart count:', error);
+      //   }
+      // };
+      // getCartCount()
   }, []);
   
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import RightSidebar from "./RightSidebar";
 import { fetchChartData } from "../../../api/overview";
@@ -26,8 +26,8 @@ const Dashboard = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [timeframe, setTimeframe] = useState("Yearly");
-  const [customStartDate, setCustomStartDate] = useState("");
-  const [customEndDate, setCustomEndDate] = useState("");
+  const [customStartDate] = useState("");
+  const [customEndDate] = useState("");
 
   const fetchDataForTimeframe = async (
     selectedTimeframe,
@@ -41,7 +41,6 @@ const Dashboard = () => {
         endDate
       );
       if (response.status === 200) {
-        console.log(response.data);
         setLabels(response.data.labels);
         setRevenueData(response.data.totalPrices);
       }
@@ -55,14 +54,14 @@ const Dashboard = () => {
     fetchDataForTimeframe(selectedTimeframe, customStartDate, customEndDate);
   };
 
-  const handleCustomDateChange = (event) => {
-    const { name, value } = event.target;
-    if (name === "startDate") {
-      setCustomStartDate(value);
-    } else {
-      setCustomEndDate(value);
-    }
-  };
+  // const handleCustomDateChange = (event) => {
+  //   const { name, value } = event.target;
+  //   if (name === "startDate") {
+  //     setCustomStartDate(value);
+  //   } else {
+  //     setCustomEndDate(value);
+  //   }
+  // };
 
   useEffect(() => {
     fetchDataForTimeframe(timeframe, customStartDate, customEndDate);

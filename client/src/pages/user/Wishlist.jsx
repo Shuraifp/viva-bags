@@ -9,7 +9,7 @@ import { getWishlist, removeFromWishlist } from '../../api/wishlist';
 import { updateCart } from '../../api/cart';
 import toast from 'react-hot-toast';
 
-const Wishlist = ({}) => {
+const Wishlist = () => {
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()
   const dispatch = useDispatch()

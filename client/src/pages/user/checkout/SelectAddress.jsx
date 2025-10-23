@@ -4,7 +4,7 @@ import { getAddresses } from "../../../api/address";
 import AddAddress from "../profile/AddAddress";
 
 
-const SelectAddress = ({selectedAddress,setSelectedAddress}) => {
+const SelectAddress = ({setSelectedAddress}) => {
   const addressFormScrollRef = useRef(null);
   const [addresses, setAddresses] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

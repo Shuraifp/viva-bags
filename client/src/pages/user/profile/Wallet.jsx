@@ -1,11 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../../../context/AuthProvider';
-import { fetchWallet, addMoneyToWallet } from '../../../api/wallet';
-import toast from 'react-hot-toast';
-import { createRazorpayOrder } from '../../../api/payment.js';
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../context/AuthProvider";
+import { fetchWallet, addMoneyToWallet } from "../../../api/wallet";
+import toast from "react-hot-toast";
+import { createRazorpayOrder } from "../../../api/payment.js";
 
 const WalletPage = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [wallet, setWallet] = useState({});
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -24,24 +26,24 @@ const WalletPage = () => {
   };
   const handleRazorpayPayment = async (amount) => {
     if (!amount) {
-      toast.error('Please enter an amount');
+      toast.error("Please enter an amount");
       return;
     } else if (amount >= 50000) {
-      toast.error('Maximum amount is 50,000');
+      toast.error("Maximum amount is 50,000");
       return;
     }
-    
+
     try {
       const response = await createRazorpayOrder(amount);
-      console.log(response)
+      console.log(response);
       const { id, amount: _amount } = response.data;
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: _amount.toString(), 
-        currency: 'INR',
+        amount: _amount.toString(),
+        currency: "INR",
         order_id: id,
-        handler: function (response) {
-          addMoney()
+        handler: function () {
+          addMoney();
         },
         prefill: {
           name: user.username,
@@ -49,63 +51,67 @@ const WalletPage = () => {
           // contact: selectedAddress?.mobile,
         },
         theme: {
-          color: '#F7B800', 
+          color: "#F7B800",
         },
         modal: {
           ondismiss: async () => {
             toast.error("Payment Failed.");
             setAmount(0);
-            navigate('/profile/wallet');
+            navigate("/profile/wallet");
           },
         },
       };
 
-      if (typeof window.Razorpay !== 'undefined') {
+      if (typeof window.Razorpay !== "undefined") {
         const rzp = new window.Razorpay(options);
         rzp.open();
       } else {
-        console.error('Razorpay SDK is not loaded.');
-        toast.error('Payment system is currently unavailable. Please try again later.');
+        console.error("Razorpay SDK is not loaded.");
+        toast.error(
+          "Payment system is currently unavailable. Please try again later."
+        );
       }
-      
     } catch (err) {
-      if(err.response){
-        if(err.response){
+      if (err.response) {
+        if (err.response) {
           toast.error(err.response.data.message);
-        } else if(err.message) {
+        } else if (err.message) {
           console.log(err.message);
-          toast.error('Please try again.');
+          toast.error("Please try again.");
         } else {
           console.log(err);
-          toast.error('Please try again.');
+          toast.error("Please try again.");
         }
       }
     }
   };
 
   const addMoney = async () => {
-
     try {
       setLoading(true);
-      const response = await addMoneyToWallet({ amount: Number(amount)});
-      toast.success('Money added successfully');
+      await addMoneyToWallet({ amount: Number(amount) });
+      toast.success("Money added successfully");
       fetchWalletData();
-      setAmount('');
+      setAmount("");
     } catch (error) {
       console.error(error);
-      toast.error('Failed to add money');
+      toast.error("Failed to add money");
     } finally {
       setLoading(false);
     }
   };
-console.log(user)
+  console.log(user);
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-semibold mb-4">My Wallet</h2>
-      
+
       <div className="bg-yellow-100 p-4 rounded-sm shadow-md mb-6">
-        <h3 className="text-xl text-center mt-4 font-semibold">Current Balance</h3>
-        <p className="text-3xl text-center my-4 font-bold text-green-500">₹{wallet?.balance}</p>
+        <h3 className="text-xl text-center mt-4 font-semibold">
+          Current Balance
+        </h3>
+        <p className="text-3xl text-center my-4 font-bold text-green-500">
+          ₹{wallet?.balance}
+        </p>
       </div>
 
       <div className="bg-white p-4 rounded-sm shadow-md mb-6">
@@ -119,11 +125,13 @@ console.log(user)
             onChange={(e) => setAmount(e.target.value)}
           />
           <button
-            className={`p-2 bg-yellow-500 text-white rounded-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`p-2 bg-yellow-500 text-white rounded-sm ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onClick={() => handleRazorpayPayment(amount)}
             disabled={loading}
           >
-            {loading ? 'Adding...' : 'Add Money'}
+            {loading ? "Adding..." : "Add Money"}
           </button>
         </div>
       </div>
@@ -145,16 +153,39 @@ console.log(user)
             <tbody>
               {wallet?.transactions?.map((transaction, index) => (
                 <tr key={index} className="bg-gray-50">
-                  <td className="py-2 px-4 border">{new Date(transaction.createdAt).toLocaleDateString()}</td>
-                  <td className={`py-2 px-4 border ${transaction.type === 'Credit' ? 'text-green-500' : 'text-red-500'}`}>
+                  <td className="py-2 px-4 border">
+                    {new Date(transaction.createdAt).toLocaleDateString()}
+                  </td>
+                  <td
+                    className={`py-2 px-4 border ${
+                      transaction.type === "Credit"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
                     {transaction.type}
                   </td>
-                  <td className="py-2 px-4 border">{transaction.description}</td>
-                  <td className="py-2 px-4 border">{transaction.orderId ? transaction.orderId.orderNumber : 'N/A'}</td>
-                  <td className={`py-2 px-4 border ${transaction.type === 'Credit' ? 'text-green-500' : 'text-red-500'}`}>
-                    {transaction.type === 'Credit' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
+                  <td className="py-2 px-4 border">
+                    {transaction.description}
                   </td>
-                  <td className="py-2 px-4 border">{transaction.balanceAfter.toFixed(2)}</td>
+                  <td className="py-2 px-4 border">
+                    {transaction.orderId
+                      ? transaction.orderId.orderNumber
+                      : "N/A"}
+                  </td>
+                  <td
+                    className={`py-2 px-4 border ${
+                      transaction.type === "Credit"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {transaction.type === "Credit" ? "+" : "-"}₹
+                    {transaction.amount.toFixed(2)}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {transaction.balanceAfter.toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>

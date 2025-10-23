@@ -1,7 +1,7 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setCartCount, setWishlistCount } from '../redux/cartwishlistSlice.js';
 import { Link } from 'react-router-dom';
-import { FaCartPlus, FaHeart, FaExchangeAlt, FaEye } from 'react-icons/fa';
+import { FaCartPlus, FaHeart, FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';  
 import { addToCart } from '../api/cart.js';
 import { addToWishlist } from '../api/wishlist.js';
