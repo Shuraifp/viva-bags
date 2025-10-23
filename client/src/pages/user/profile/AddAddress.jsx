@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState } from 'react';
 import { addAddress, editAddress} from '../../../api/address';
 import { toast } from 'react-hot-toast';

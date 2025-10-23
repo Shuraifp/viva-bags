@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthProvider";
 import Sidebar from "./Sidebar";
 import Footer from '../../../components/Footer'
-import { useNavigate, Outlet, Navigate, Link } from "react-router-dom";
+import { useNavigate, Outlet, Navigate } from "react-router-dom";
 import { userApiWithAuth } from "../../../api/axios";
 import { getCountOfCartItems } from "../../../api/cart";
 import Navbar from "../../../components/Navbar";

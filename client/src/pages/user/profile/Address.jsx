@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { AuthContext } from '../../../context/AuthProvider';
-import { addAddress, getAddresses, editAddress, deleteAddress, changeDefaultAddress } from '../../../api/address';
+import { getAddresses, deleteAddress, changeDefaultAddress } from '../../../api/address';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import AddAddress from './AddAddress';

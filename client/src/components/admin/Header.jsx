@@ -1,4 +1,4 @@
-import React, { useState,useContext,useEffect } from "react";
+import { useState,useContext,useEffect } from "react";
 import { AuthContext } from "../../context/AuthProvider";
 import { FaBell } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";

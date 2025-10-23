@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { sendResetPasswordEmail, resetPassword } from '../../../api/users';
 import toast from 'react-hot-toast';
 import { Link,useParams, useNavigate } from 'react-router-dom';

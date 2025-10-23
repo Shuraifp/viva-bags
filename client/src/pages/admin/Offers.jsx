@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { getOffers, addOffer, updateOffer, deleteOrRestoreOffer } from "../../api/offer";
 import { FaSearch } from "react-icons/fa";

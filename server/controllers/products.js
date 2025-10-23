@@ -229,7 +229,8 @@ export const countSoldProducts = async (req, res) => {
         },
       },
     ]);
-    res.json({ count: countOfSoldProducts[0].totalSold});
+    
+    res.json({ count: countOfSoldProducts[0]?.totalSold || 0 });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: error.message });

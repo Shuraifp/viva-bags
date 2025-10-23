@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link} from 'react-router-dom'
 import bannerImg from '../assets/used/bannerMain.avif';
-import bannerImg2 from '../assets/used/1.avif';
-import bannerImg3 from '../assets/used/2.avif';
 import { offerForBanner } from '../api/offer';
 
 const Banner = () => {

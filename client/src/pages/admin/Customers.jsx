@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchUsers, editUserStatus } from "../../api/users"; 
 import toast from "react-hot-toast";
 import ConfirmationModal from "../../components/admin/ConfirmationModal";
