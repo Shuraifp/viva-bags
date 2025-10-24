@@ -4,16 +4,47 @@ import { fetchCategoriesOverview } from "../api/category";
 
 const CategoryGrid = () => {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchCategoriesOverview()
       .then((data) => {
         setCategories(data);
+        setError(null);
       })
       .catch((error) => {
         console.error(`Error fetching categories' overview:`, error);
+        setError("Failed to load categories. Please try again later.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-yellow-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 mt-32">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="text-center text-gray-500 mt-32">
+        <p>No categories available at the moment.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto px-4 py-8">
@@ -24,7 +55,7 @@ const CategoryGrid = () => {
       <div className="flex justify-center md:block">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
-            <Link to={`/shop?category=${category._id}`} key={category.id}>
+            <Link to={`/shop?category=${category._id}`} key={category._id}>
               <div className="bg-white flex w-60 md:w-full overflow-hidden transfor transitio duration-300 hover:scale-105 hover:bg-yellow-500 hover:text-white">
                 <div className="h- w-1/2 overflow-hidden hidden md:block">
                   <img

@@ -135,7 +135,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          F
+          
           <div className="w-1/4">
             <RightSidebar />
           </div>

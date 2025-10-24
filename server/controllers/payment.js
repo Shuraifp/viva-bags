@@ -10,6 +10,10 @@ const razorpayInstance = new Razorpay({
 export const makePayment = async (req, res) => {
   const { amount } = req.body;
 
+  if ( !amount || amount <= 0 ) {
+      return res.status(400).json({ message: "Invalid amount" });
+    }
+
   const options = {
     amount: Number(amount).toFixed(0) * 100,
     currency: "INR",

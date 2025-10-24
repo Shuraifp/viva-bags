@@ -47,7 +47,7 @@ export const addMoneyToWallet = async (req, res) => {
     const { amount} = req.body;
 
     if ( !amount || amount <= 0 ) {
-      return res.status(400).json({ message: "Invalid input data" });
+      return res.status(400).json({ message: "Invalid amount" });
     }
 
     let wallet = await Wallet.findOne({ user: req.user.Id });

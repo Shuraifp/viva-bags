@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import {  getSortedProducts } from "../../api/products";
+import { getSortedProducts } from "../../api/products";
 import { Link, useLocation } from "react-router-dom";
 import FilterOptions from "../../components/FilterOptions";
 import ProductCard from "../../components/ProductsCard";
@@ -71,11 +71,19 @@ const Shop = () => {
           <Link to="/" className="hover:underline">
             Home
           </Link>{" "}
-          /
+          /{" "}
           <Link to="/shop" className="hover:underline">
-            {" "}
             Shop
           </Link>
+          {searchCategory && (
+            <>
+              {" "}
+              /{" "}
+              <span className="text-gray-500">
+                {products[0]?.category?.name || "Category"}
+              </span>
+            </>
+          )}
         </nav>
       </div>
 
@@ -124,7 +132,11 @@ const Shop = () => {
           </div>
         </main>
       </div>
-      <Pagination totalPages={totalPages} onPageChange={handlePageChange} currentPage={currentPage} />
+      <Pagination
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        currentPage={currentPage}
+      />
       <Footer />
     </div>
   );

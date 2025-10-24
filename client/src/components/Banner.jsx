@@ -49,9 +49,9 @@ const Banner = () => {
       {/* Side Banners */}
       {offers?.length > 0 && (
         <div className="flex flex-col gap-4 w-full lg:w-1/4">
-          {offers.map((offer) => (
+          {offers.map((offer,i) => (
             <div
-              key={offer._id}
+              key={i}
               className="relative h-40 md:h-44 lg:h-48 overflow-hidden"
             >
               <img
