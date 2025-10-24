@@ -1,4 +1,7 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+import dotenv from "dotenv";
+dotenv.config();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const contactUs = async (req, res) => {
   const { name, email, message } = req.body;
@@ -10,17 +13,9 @@ export const contactUs = async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: `"VIVABAGS Contact Form" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+    const { data, error } = await resend.emails.send({
+      from: `"VIVABAGS Contact Form" <${process.env.EMAIL_FROM}>`,
+      to: "msharraf258@gmail.com",
       subject: `New Contact Message from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
@@ -33,10 +28,11 @@ export const contactUs = async (req, res) => {
           <p style="color: #666; font-size: 12px;">This message was sent from your eCommerce VIVABAGS contact form.</p>
         </div>
       `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
+    });
+    console.log("Contact email sent:", data);
+    if (error) {
+      throw new Error(`Resend API error: ${error.message}`);
+    }
     return res.status(200).json({
       success: true,
       message: "Your message has been sent successfully!",
