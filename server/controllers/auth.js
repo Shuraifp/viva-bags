@@ -7,6 +7,7 @@ import Wishlist from "../models/wishlistModel.js";
 import Wallet from "../models/walletModel.js";
 import Cart from "../models/cartModel.js";
 import crypto from "crypto";
+import Otp from "../models/otpModel.js";
 
 //                    Admin
 
@@ -201,72 +202,76 @@ export const login = async (req, res) => {
   }
 };
 
-let otpStore = {};
-export const sendOtp = (req, res) => {
+export const sendOtp = async (req, res) => {
   const { email } = req.body;
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(otp);
 
-  otpStore[email] = {
-    otp,
-    expires: Date.now() + 60000,
-  };
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  try {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP is: ${otp}`,
-  };
-  console.log(otpStore);
+    await Otp.deleteMany({ email });
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Error sending OTP",
-          error: error.message,
-        });
-    } else {
-      return res
-        .status(200)
-        .json({ success: true, message: "OTP sent successfully" });
-    }
-  });
+    await Otp.create({
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 90 * 1000),
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP is: ${otp}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error sending OTP",
+      error: error.message,
+    });
+  }
 };
 
-export const verifyOtp = (req, res, next) => {
-  try {
-    const { email, otp } = req.body;
+export const verifyOtp = async (req, res, next) => {
+  const { email, otp } = req.body;
 
-    if (!otpStore[email]) {
+  try {
+    const record = await Otp.findOne({ email });
+
+    if (!record) {
       return res
         .status(400)
-        .json({ success: false, message: "OTP not requested" });
+        .json({ success: false, message: "OTP not found or expired" });
     }
 
-    const storedOtp = otpStore[email];
-
-    if (Date.now() > storedOtp.expires) {
-      delete otpStore[email];
-      return res.status(400).json({ success: false, message: "OTP expired" });
+    if (record.expiresAt < new Date()) {
+      await Otp.deleteMany({ email });
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP expired" });
     }
 
-    if (storedOtp.otp === otp) {
-      delete otpStore[email];
-      next();
-    } else {
+    if (record.otp !== otp) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
+
+    await Otp.deleteMany({ email });
+    next();
   } catch (err) {
     console.error("Error verifying OTP:", err);
     res.status(500).json({ success: false, message: "Internal Server Error" });
