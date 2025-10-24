@@ -2,12 +2,15 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Admin from "../models/adminModel.js";
 import User from "../models/userModel.js";
-import nodemailer from "nodemailer";
 import Wishlist from "../models/wishlistModel.js";
 import Wallet from "../models/walletModel.js";
 import Cart from "../models/cartModel.js";
 import crypto from "crypto";
 import Otp from "../models/otpModel.js";
+import dotenv from "dotenv";
+dotenv.config();
+import { Resend } from "resend";
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 //                    Admin
 
@@ -33,14 +36,12 @@ export const adminLogin = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res
-      .status(200)
-      .json({
-        message: "Admin logged in successfully",
-        accessToken,
-        refreshToken,
-        admin: user,
-      });
+    return res.status(200).json({
+      message: "Admin logged in successfully",
+      accessToken,
+      refreshToken,
+      admin: user,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
     console.log(error);
@@ -216,22 +217,21 @@ export const sendOtp = async (req, res) => {
       expiresAt: new Date(Date.now() + 90 * 1000),
     });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP is: ${otp}`,
-    };
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>🔐 Your Verification Code</h2>
+          <p>Your OTP is:</p>
+          <h3 style="color: #ff9900;">${otp}</h3>
+          <p>This code will expire in 90 seconds.</p>
+        </div>
+      `,
+    });
 
-    await transporter.sendMail(mailOptions);
+    if (error) throw new Error(error.message);
 
     return res.status(200).json({
       success: true,
@@ -261,9 +261,7 @@ export const verifyOtp = async (req, res, next) => {
 
     if (record.expiresAt < new Date()) {
       await Otp.deleteMany({ email });
-      return res
-        .status(400)
-        .json({ success: false, message: "OTP expired" });
+      return res.status(400).json({ success: false, message: "OTP expired" });
     }
 
     if (record.otp !== otp) {
@@ -352,22 +350,25 @@ export const sendResetPasswordEmail = async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: "Reset Your Password",
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>🧭 Password Reset</h2>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}" target="_blank"
+             style="display:inline-block;background-color:#ff9900;color:white;
+                    padding:10px 15px;border-radius:5px;text-decoration:none;">
+             Reset Password
+          </a>
+          <p>This link will expire in 1 hour.</p>
+        </div>
+      `,
     });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Your Password Reset Link",
-      text: `Click here to reset your password: ${resetLink}`,
-    };
-
-    await transporter.sendMail(mailOptions);
+    if (error) throw new Error(error.message);
 
     return res
       .status(200)
