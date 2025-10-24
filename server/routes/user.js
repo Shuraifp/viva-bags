@@ -15,6 +15,7 @@ import { addToWishlist, getWishlist, deleteWishlistItem } from "../controllers/w
 import { getWallet, checkBalance, addMoneyToWallet } from "../controllers/wallet.js";
 import { addReview, fetchReviews } from "../controllers/review.js";
 import { offerForBanner } from "../controllers/offers.js";
+import { contactUs } from "../controllers/contact.js";
 
 
 // Auth
@@ -110,5 +111,8 @@ router.post('/wallet/add', isUser, addMoneyToWallet);
 // Review
 router.post('/reviews/add', isUser, addReview);
 router.get('/reviews/:id', isUser, fetchReviews);
+
+// Contact Us
+router.post('/contact-us', contactUs);
 
 export default router;
