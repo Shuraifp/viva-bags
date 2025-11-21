@@ -9,8 +9,14 @@ import crypto from "crypto";
 import Otp from "../models/otpModel.js";
 import dotenv from "dotenv";
 dotenv.config();
-import { Resend } from "resend";
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from "nodemailer";
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.NODEMAILER_EMAIL_USER,
+    pass: process.env.NODEMAILER_EMAIL_PASS,
+  },
+});
 
 //                    Admin
 
@@ -216,9 +222,9 @@ export const sendOtp = async (req, res) => {
       otp,
       expiresAt: new Date(Date.now() + 90 * 1000),
     });
-
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+    console.log(otp, email);
+    await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL_USER,
       to: email,
       subject: "Your OTP Code",
       html: `
@@ -230,8 +236,6 @@ export const sendOtp = async (req, res) => {
         </div>
       `,
     });
-
-    if (error) throw new Error(error.message);
 
     return res.status(200).json({
       success: true,
@@ -350,8 +354,8 @@ export const sendResetPasswordEmail = async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+    await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL_USER,
       to: email,
       subject: "Reset Your Password",
       html: `
@@ -367,8 +371,6 @@ export const sendResetPasswordEmail = async (req, res) => {
         </div>
       `,
     });
-
-    if (error) throw new Error(error.message);
 
     return res
       .status(200)
